@@ -1,0 +1,107 @@
+const constant = `{
+  "navigation": [
+    {
+      "text": "About",
+      "href": "#about"
+    },
+    {
+      "text": "News",
+      "href": "#news"
+    },
+    {
+      "text": "Projects",
+      "href": "#projects"
+    },
+    {
+      "text": "Resume",
+      "href": "https://drive.google.com/file/d/1oMxSertyE_rTr7s4_hl_xdlPwrZVxqDA/view?usp=sharing"
+    }
+  ],
+  "about": {
+    "name": "Nathan M. Shea",
+    "position": "Junior at Boston College",
+    "address": "140 Commonwealth Ave, Chestnut Hill, MA",
+    "image": "https://cdn.glitch.global/fc4f0962-1f1a-4a77-b23f-d5885a78fbca/224A8187.jpg?v=1729283288459",
+    "bio": "Hi, I’m Nathan, a junior at Boston College studying computer science with a minor in finance. I’m passionate about problem-solving, logic, and finding cross-sector solutions for real-world challenges.",
+    "contact": [
+      {
+        "type": "Email",
+        "value": "nathan.shea@bc.edu",
+        "icon": "https://cdn.glitch.global/fc4f0962-1f1a-4a77-b23f-d5885a78fbca/360_F_170650817_gT28zz1u3arUvEqdYp7YpuTfVTiGoAJL.jpg?v=1729293398817",
+        "link": "mailto:nathan.shea@bc.edu"
+      },
+      {
+        "type": "Phone",
+        "value": "(808) 721-9318",
+        "icon": "https://cdn.glitch.global/fc4f0962-1f1a-4a77-b23f-d5885a78fbca/download-2.png?v=1729293397707"
+      },
+      {
+        "type": "LinkedIn",
+        "value": "www.linkedin.com/in/nathan-shea-905747271",
+        "icon": "https://cdn.glitch.global/fc4f0962-1f1a-4a77-b23f-d5885a78fbca/linkedin-logo-linkedin-symbol-linkedin-icon-free-free-vector.jpg?v=1729293396492",
+        "link": "https://www.linkedin.com/in/nathan-shea-905747271"
+      }
+    ]
+  },
+  "news": [
+    {
+      "content": "I will be studying abroad at the International College of Greece in Athens in the spring of 2025."
+    },
+    {
+      "content": "I recently summited Mount Washington in New Hampshire over fall break."
+    }
+  ],
+  "projects": [
+    {
+      "title": "Project 1: Beacon CRM Data Analysis",
+      "short_description": "This project involved analyzing data from Beacon CRM, providing insights on stakeholder patterns, and managing bio information for Holomua Collective.",
+      "link": "project1.html",
+      "details": {
+        "title": "Project 1: Beacon CRM Data Analysis",
+        "description": "During my internship with the Holomua Collective, I worked extensively with the Beacon CRM system to analyze data from various stakeholders. My role involved identifying key patterns, managing contact and bio information, and producing insights that helped shape the collective’s strategic initiatives.",
+        "technologies": ["Python", "SQL", "Excel", "Beacon CRM"],
+        "logos": [
+          {
+            "alt": "Beacon CRM Logo",
+            "src": "https://cdn.glitch.global/fc4f0962-1f1a-4a77-b23f-d5885a78fbca/download-1.png?v=1729291015961",
+            "link": "https://beacon-link-here.com"
+          },
+          {
+            "alt": "Holomua Collective Logo",
+            "src": "https://cdn.glitch.global/fc4f0962-1f1a-4a77-b23f-d5885a78fbca/hc-logo-200-1.svg?v=1729291019056",
+            "link": "https://holomua-link-here.com"
+          }
+        ],
+        "back_link": "index.html"
+      }
+    },
+    {
+      "title": "Project 2: Cross-Sector Collaboration Website",
+      "short_description": "Designed a collaborative website for private businesses, nonprofits, and government sectors to address systemic issues together.",
+      "link": "project2.html",
+      "details": {
+        "title": "Project 2: Cross-Sector Collaboration Website",
+        "description": "One of the major projects I worked on involved designing and developing a website for the Holomua Collective’s cross-sector convening sessions. The goal was to provide a platform for private businesses, nonprofits, and government sectors to collaborate and address systemic issues. The website included interactive features and resources for all participants.",
+        "technologies": ["HTML", "CSS", "JavaScript", "Beacon CRM"],
+        "logos": [
+          {
+            "alt": "Holomua Collective Logo",
+            "src": "https://cdn.glitch.global/fc4f0962-1f1a-4a77-b23f-d5885a78fbca/hc-logo-200-1.svg?v=1729291019056",
+            "link": "https://holomua-link-here.com"
+          },
+          {
+            "alt": "Holomua Team Photo",
+            "src": "https://cdn.glitch.global/fc4f0962-1f1a-4a77-b23f-d5885a78fbca/IMG_0286.jpeg?v=1729291583374",
+            "link": "team-photo"
+          },
+          {
+            "alt": "Hawaiian Islands Photo",
+            "src": "https://cdn.glitch.global/fc4f0962-1f1a-4a77-b23f-d5885a78fbca/Seal_of_the_State_of_Hawaii.svg?v=1729291584312",
+            "link": "hawaii-state-seal"
+          }
+        ],
+        "back_link": "index.html"
+      }
+    }
+  ]
+}`;
