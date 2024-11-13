@@ -98,10 +98,10 @@ function renderProjectPage(project) {
       <ul>
         ${project.details.technologies.map(tech => `<li>${tech}</li>`).join('')}
       </ul>
-      <div>
+      <div class="logo-grid">
         ${project.details.logos.map(logo => `
           <a href="${logo.link}">
-            <img src="${logo.src}" alt="${logo.alt}" />
+            <img src="${logo.src}" alt="${logo.alt}" class="${logo.alt.toLowerCase().replace(/\s+/g, '-')}" />
           </a>
         `).join('')}
       </div>

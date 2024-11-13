@@ -169,13 +169,23 @@ section {
 
 /* Logo Grid */
 .logo-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); 
+    display: flex;
+    flex-wrap: nowrap; /* Ensures items stay in one row without wrapping */
     gap: 20px;
     margin-top: 20px;
     padding: 20px;
-    max-width: 200px;
 }
+
+.holomua-team-photo {
+    max-width: 200px; /* Adjust to your desired size */
+    height: auto;
+}
+
+.hawaiian-islands-photo {
+    max-width: 150px; /* Adjust to your desired size */
+    height: auto;
+}
+
 
 .logo {
     width: 100px;
