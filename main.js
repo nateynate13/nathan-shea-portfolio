@@ -77,17 +77,6 @@ function renderProjects(projects) {
   `;
 }
 
-
-// Function to render individual projects in the project list
-function renderProject(project) {
-  return `
-    <li>
-      <strong><a href="?project=${project.link}">${project.title}</a></strong>
-      <p>${project.short_description}</p>
-    </li>
-  `;
-}
-
 // Function to render a detailed view for a single project
 function renderProjectPage(project) {
   return `
@@ -105,12 +94,12 @@ function renderProjectPage(project) {
           </a>
         `).join('')}
       </div>
-      <a href="${project.details.back_link}">Back to Projects</a>
+      <a href="index.html">Back to Projects</a>
     </section>
   `;
 }
 
-// Fetch data and render the main page or specific project page
+// Fetch data and render the main page or specific project page based on URL
 fetch('data.json')
   .then(response => response.json())
   .then(data => {
