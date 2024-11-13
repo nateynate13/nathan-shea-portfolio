@@ -1,4 +1,4 @@
-const constant = `{
+{
   "navigation": [
     {
       "text": "About",
@@ -104,4 +104,4 @@ const constant = `{
       }
     }
   ]
-}`;
+}

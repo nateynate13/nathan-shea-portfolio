@@ -11,6 +11,7 @@ body {
     color: #333333;
 }
 
+/* Navigation Styles */
 nav {
     background-color: #333333;
     padding: 10px;
@@ -37,6 +38,7 @@ nav ul li a:hover {
     border-radius: 5px;
 }
 
+/* Section Styles */
 section {
     padding: 20px;
     margin: 20px;
@@ -49,6 +51,65 @@ section {
     font-size: 28px;
     margin-bottom: 10px;
     color: #9a1f40;
+}
+
+/* About Section */
+#about .about-container {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 20px;
+    padding: 20px;
+}
+
+#about .about-left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+#about .about-image {
+    width: 250px;
+    height: 250px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin-bottom: 20px;
+}
+
+#about .about-right {
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+/* Contact Details */
+.contact-details p {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 5px 0;
+}
+
+.icon {
+    width: 20px;
+    height: 20px;
+}
+
+/* News Section */
+#news ul {
+    list-style-type: disc;
+    padding-left: 20px;
+}
+
+#news ul li {
+    margin: 5px 0;
+}
+
+/* Projects Section */
+.projects-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 20px;
 }
 
 .project-card {
@@ -76,67 +137,54 @@ section {
     margin-bottom: 10px;
 }
 
-.projects-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 20px;
-    padding: 20px;
+/* Project Detail Page */
+.project-details h2 {
+    font-size: 24px;
+    color: #9a1f40;
+    margin-bottom: 10px;
 }
 
-.about-container {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 20px;
-    padding: 20px;
-}
-
-.about-left {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-}
-
-.about-image {
-    width: 250px;
-    height: 250px;
-    object-fit: cover;
-    border-radius: 50%;
-    margin-bottom: 20px;
-}
-
-.contact-details p {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin: 5px 0;
-}
-
-.icon {
-    width: 20px;
-    height: 20px;
-}
-
-.about-right {
-    font-size: 16px;
+.project-details p {
+    margin: 10px 0;
     line-height: 1.5;
 }
 
+.technologies-used {
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+.technology-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 10px;
+}
+
+.technology-list li {
+    background-color: #dddddd;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+/* Logo Grid */
 .logo-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); 
     gap: 20px;
     margin-top: 20px;
     padding: 20px;
+    max-width: 200px;
 }
 
 .logo {
-    width: 250px;  
+    width: 100px;
     height: auto;
     display: block;
     margin: 0 auto;
 }
 
+/* Responsive Design */
 @media (max-width: 768px) {
     .logo-grid {
         grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
