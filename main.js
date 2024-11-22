@@ -22,6 +22,8 @@ function renderMain(data) {
     ${renderNews(data.news)}
     ${renderProjects(data.projects)}
   `;
+
+  addNewsSearchEventListener(data.news);
 }
 
 function renderAbout(about) {
@@ -52,17 +54,6 @@ function renderAbout(about) {
           </div>
         </div>
       </div>
-    </section>
-  `;
-}
-
-function renderNews(news) {
-  return `
-    <section id="news">
-      <h2 class="section-title">News</h2>
-      <ul>
-        ${news.map((item) => `<li>${item.content}</li>`).join("")}
-      </ul>
     </section>
   `;
 }
@@ -131,7 +122,52 @@ fetch("data.json")
         renderMain(data);
       }
     } else {
-      renderMain(data);
+      renderMain(data); // Automatically attaches the search functionality
     }
   })
   .catch((error) => console.error("Error fetching data:", error));
+
+function renderNews(news) {
+  return `
+    <section id="news">
+      <h2 class="section-title">News</h2>
+      <div class="search">
+        <input type="search" name="news" id="news-search" placeholder="Search News..." />
+      </div>
+      <ul id="news-list">
+        ${news
+          .slice(0, 5) // Limit the number of news items displayed initially to 5
+          .map((item) => `<li>${item.content}</li>`)
+          .join("")}
+      </ul>
+    </section>
+  `;
+}
+
+function addNewsSearchEventListener(news) {
+  const search = document.querySelector(".search input");
+  console.log(search);
+
+  search.addEventListener("input", (e) => {
+    console.log(e.currentTarget);
+    console.log(e.target);
+    console.log(e.target.value);
+
+    const query = e.target.value.toLowerCase();
+    const newsList = document.getElementById("news-list");
+
+    const filteredNews = news.filter(
+      (newsItem) =>
+        newsItem.title.toLowerCase().includes(query) || 
+        (newsItem.date && newsItem.date.toLowerCase().includes(query)) 
+    );
+
+    
+    console.log(filteredNews);
+
+    newsList.innerHTML = filteredNews
+      .map((item) => `<li>${item.title} - ${item.date || "Unknown Date"}</li>`)
+      .join("");
+  });
+}
+

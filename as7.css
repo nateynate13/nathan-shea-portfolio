@@ -205,3 +205,16 @@ section {
     grid-template-columns: 1fr 2fr;
   }
 }
+
+.search {
+  margin-bottom: 10px;
+}
+
+#news-search {
+  width: 100%;
+  padding: 8px;
+  font-size: 14px;
+  border: 1px solid #cccccc;
+  border-radius: 5px;
+}
+
