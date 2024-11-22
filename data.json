@@ -45,10 +45,14 @@
   },
   "news": [
     {
-      "content": "I will be studying abroad at the International College of Greece in Athens in the spring of 2025."
+      "title": "Studying Abroad in Athens",
+      "date": "2025-01-15",
+      "content": "I will be studying abroad in Greece."
     },
     {
-      "content": "I recently summited Mount Washington in New Hampshire over fall break."
+      "title": "Mount Washington Summit",
+      "date": "2024-10-10",
+      "content": "I recently summited Mount Washington."
     }
   ],
   "projects": [

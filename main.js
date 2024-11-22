@@ -122,7 +122,7 @@ fetch("data.json")
         renderMain(data);
       }
     } else {
-      renderMain(data); // Automatically attaches the search functionality
+      renderMain(data);
     }
   })
   .catch((error) => console.error("Error fetching data:", error));
@@ -134,10 +134,10 @@ function renderNews(news) {
       <div class="search">
         <input type="search" name="news" id="news-search" placeholder="Search News..." />
       </div>
-      <ul id="news-list">
+      <ul class="newslist">
         ${news
-          .slice(0, 5) // Limit the number of news items displayed initially to 5
-          .map((item) => `<li>${item.content}</li>`)
+          .slice(0, 5) // Limit the initially visible news to 5
+          .map((item) => renderNewsItems(item))
           .join("")}
       </ul>
     </section>
@@ -146,7 +146,10 @@ function renderNews(news) {
 
 function addNewsSearchEventListener(news) {
   const search = document.querySelector(".search input");
+  const newsList = document.querySelector(".newslist");
+
   console.log(search);
+  console.log(newsList);
 
   search.addEventListener("input", (e) => {
     console.log(e.currentTarget);
@@ -154,20 +157,26 @@ function addNewsSearchEventListener(news) {
     console.log(e.target.value);
 
     const query = e.target.value.toLowerCase();
-    const newsList = document.getElementById("news-list");
 
     const filteredNews = news.filter(
       (newsItem) =>
-        newsItem.title.toLowerCase().includes(query) || 
-        (newsItem.date && newsItem.date.toLowerCase().includes(query)) 
+        newsItem.title.toLowerCase().includes(query) ||
+        (newsItem.date && newsItem.date.toLowerCase().includes(query))
     );
 
-    
     console.log(filteredNews);
 
     newsList.innerHTML = filteredNews
-      .map((item) => `<li>${item.title} - ${item.date || "Unknown Date"}</li>`)
+      .map((item) => renderNewsItems(item))
       .join("");
   });
 }
 
+function renderNewsItems(newsItem) {
+  return `
+    <li>
+      <strong>${newsItem.title}</strong>
+      <em>${newsItem.date || "Unknown Date"}</em>
+    </li>
+  `;
+}

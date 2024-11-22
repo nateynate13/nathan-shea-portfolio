@@ -218,3 +218,8 @@ section {
   border-radius: 5px;
 }
 
+#news-list em {
+  color: #555555;
+  font-size: 0.9em;
+  margin-left: 10px;
+}
