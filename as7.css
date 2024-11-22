@@ -223,3 +223,16 @@ section {
   font-size: 0.9em;
   margin-left: 10px;
 }
+
+.show-more {
+  display: inline-block;
+  margin-left: 10px;
+  font-size: 0.9em;
+  color: #007bff;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.show-more:hover {
+  text-decoration: underline;
+}

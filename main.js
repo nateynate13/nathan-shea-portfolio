@@ -177,6 +177,21 @@ function renderNewsItems(newsItem) {
     <li>
       <strong>${newsItem.title}</strong>
       <em>${newsItem.date || "Unknown Date"}</em>
+      <a href="#" class="show-more" onclick="toggleContent(event, this)">Show More</a>
+      <p class="news-content" style="display: none;">${newsItem.content}</p>
     </li>
   `;
+}
+
+
+function toggleContent(event, link) {
+  event.preventDefault(); 
+  const content = link.nextElementSibling;
+  if (content.style.display === "none") {
+    content.style.display = "block";
+    link.textContent = "Show Less";
+  } else {
+    content.style.display = "none";
+    link.textContent = "Show More";
+  }
 }
