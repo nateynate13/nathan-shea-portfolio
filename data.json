@@ -47,17 +47,22 @@
     {
       "title": "Studying Abroad in Athens",
       "date": "2025-01-15",
-      "content": "I will be studying abroad in Greece."
+      "content": "I will be studying abroad in Athens, Greece in the spring of 2025 at the American College of Greece."
     },
     {
       "title": "Mount Washington Summit",
       "date": "2024-10-10",
-      "content": "I recently summited Mount Washington."
+      "content": "I recently summited Mount Washington over fall break."
     },
     {
-      "title": "Working on Eagle Eye Web App",
-      "date": "2024-11-22",
-      "content": "I'm working on a group project in Web Application Development called Eagle Eye to help BC students locate on-campus amenities such as vending machines, study rooms, etc."
+      "title": "Completion of final Web Dev project",
+      "date": "2024-12-4",
+      "content": "See Project 3 to read more about my Web Application Development final called Eagle Eye. A website to help BC students locate on-campus amenities and resources."
+    },
+    {
+      "title": "End of Junior Year Fall Semester At BC",
+      "date": "2024-12-21",
+      "content": "Leaving Campus and heading home for the holidays after another great semester at BC. My completed classes were the following: Algoriths, Web Application Development, Corperate Finance, The Everlasting Convenatant (Theology Core), and Family Sociology (Social Science Core)."
     }
   ],
   "projects": [
@@ -86,7 +91,7 @@
     },
     {
       "title": "Project 2: Cross-Sector Collaboration Website",
-      "short_description": "Designed a collaborative website for private businesses, nonprofits, and government sectors to address systemic issues together.",
+      "short_description": "Designed a collaborative website for private businesses, nonprofits, and government sectors to address systemic issues together. This was for my internship with the Holomua Collective",
       "link": "project2.html",
       "details": {
         "title": "Project 2: Cross-Sector Collaboration Website",
