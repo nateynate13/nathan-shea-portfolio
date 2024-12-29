@@ -91,18 +91,19 @@ function renderProjectPage(project) {
           .join("")}
       </ul>
       <div class="logo-grid">
-        ${project.details.logos
-          .map(
-            (logo) => `
-          <a href="${logo.link}">
-            <img src="${logo.src}" alt="${logo.alt}" class="${logo.alt
-              .toLowerCase()
-              .replace(/\s+/g, "-")}" />
-          </a>
-        `
-          )
-          .join("")}
-      </div>
+  ${project.details.logos
+    .map(
+      (logo) => `
+        <a href="${logo.link}">
+          <img src="${logo.src}" alt="${logo.alt}" style="${
+        logo.style || ""
+      }" class="${logo.alt.toLowerCase().replace(/\s+/g, "-")}" />
+        </a>
+      `
+    )
+    .join("")}
+</div>
+
       <a href="index.html">Back to Projects</a>
     </section>
   `;
@@ -183,9 +184,8 @@ function renderNewsItems(newsItem) {
   `;
 }
 
-
 function toggleContent(event, link) {
-  event.preventDefault(); 
+  event.preventDefault();
   const content = link.nextElementSibling;
   if (content.style.display === "none") {
     content.style.display = "block";

@@ -122,17 +122,17 @@
         "technologies": ["JavaScript", "HTML", "CSS", "Google Maps API"],
         "logos": [
   {
-    "alt": "Google Maps Logo",
-    "src": "https://cdn.glitch.global/a15ff499-089c-4458-9cda-ff05922dfdb5/unnamed-1.jpg?v=1735509525476",
-    "link": "https://maps.google.com",
-    "class": "logo-small"
-  },
-  {
     "alt": "Eagle Eye Logo",
     "src": "https://cdn.glitch.global/a15ff499-089c-4458-9cda-ff05922dfdb5/Screen%20Shot%202024-12-29%20at%2011.58.16%20AM.png?v=1735509544433",
     "link": "project3.html",
-    "class": "logo-small"
+    "style": "width: 300px; height: auto;"
+  }, {
+    "alt": "Google Maps Logo",
+    "src": "https://cdn.glitch.global/a15ff499-089c-4458-9cda-ff05922dfdb5/unnamed-1.jpg?v=1735509525476",
+    "link": "https://maps.google.com",
+    "style": "width: 147.72px; height: auto;"
   }
+  
 ],
         "back_link": "index.html"
       }
