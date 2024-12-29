@@ -111,6 +111,31 @@
         ],
         "back_link": "index.html"
       }
+    },
+    {
+      "title": "Project 3: 'Eagle Eye' Campus Navigation Website",
+      "short_description": "Developed a campus resource locator to help BC students find vending machines, study rooms, emergency services and other campus amenities.",
+      "link": "project3.html",
+      "details": {
+        "title": "Project 3: Eagle Eye Web App",
+        "description": "As part of a group project in Web Application Development, I developed Eagle Eye, a campus resource locator web app. This project aimed to assist BC students in finding campus amenities like vending machines, study lounges, and bathrooms using an interactive map interface built with Google Maps API. <a href='https://webdev-final-group11.glitch.me/' target='_blank' style='text-decoration: none; color: blue;'>Visit the Eagle Eye Website</a>",
+        "technologies": ["JavaScript", "HTML", "CSS", "Google Maps API"],
+        "logos": [
+  {
+    "alt": "Google Maps Logo",
+    "src": "https://cdn.glitch.global/a15ff499-089c-4458-9cda-ff05922dfdb5/unnamed-1.jpg?v=1735509525476",
+    "link": "https://maps.google.com",
+    "class": "logo-small"
+  },
+  {
+    "alt": "Eagle Eye Logo",
+    "src": "https://cdn.glitch.global/a15ff499-089c-4458-9cda-ff05922dfdb5/Screen%20Shot%202024-12-29%20at%2011.58.16%20AM.png?v=1735509544433",
+    "link": "project3.html",
+    "class": "logo-small"
+  }
+],
+        "back_link": "index.html"
+      }
     }
   ]
 }
