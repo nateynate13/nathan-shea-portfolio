@@ -32,14 +32,12 @@ function renderAbout(about) {
       <h2 class="section-title">About</h2>
       <div class="about-container">
         <div class="about-left">
-          <img src="${about.image}" alt="Profile image of ${
-    about.name
-  }" class="about-image" />
+          <img src="${about.image}" alt="Profile image of ${about.name}" class="about-image" />
           <p><strong>${about.name}</strong>, ${about.position}</p>
         </div>
         <div class="about-right">
           <p>${about.bio}</p>
-          <p>Location: ${about.location}</p>
+          <p class="location">Location: ${about.location}</p> <!-- Added class here -->
           <div class="contact-details">
             ${about.contact
               .map(
@@ -57,6 +55,7 @@ function renderAbout(about) {
     </section>
   `;
 }
+
 
 function renderProjects(projects) {
   return `
