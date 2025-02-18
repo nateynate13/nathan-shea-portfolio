@@ -39,7 +39,7 @@ function renderAbout(about) {
         </div>
         <div class="about-right">
           <p>${about.bio}</p>
-          <p>Address: ${about.address}</p>
+          <p>Location: ${about.location}</p>
           <div class="contact-details">
             ${about.contact
               .map(
