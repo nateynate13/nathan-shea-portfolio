@@ -24,6 +24,16 @@ function renderMain(data) {
   `;
 
   addNewsSearchEventListener(data.news);
+  
+  attachPhaseNavigation([
+  { name: "Studying Abroad in Athens 🇬🇷", start: "2025-01-07", end: "2025-05-06" },
+  { name: "Summer Vacation 🏖️", start: "2025-05-07", end: "2025-06-01" },
+  { name: "Natixis Internship in Boston 💼", start: "2025-06-02", end: "2025-08-15" },
+  { name: "Summer Break 🌅", start: "2025-08-16", end: "2025-08-24" },
+  { name: "BC Senior Fall Semester 🍁", start: "2025-08-25", end: "2025-12-18" },
+  { name: "BC Senior Spring Semester 🌸", start: "2026-01-12", end: "2026-05-18" },
+]);
+
 }
 
 function renderAbout(about) {
@@ -128,6 +138,51 @@ fetch("data.json")
   .catch((error) => console.error("Error fetching data:", error));
 
 function renderNews(news) {
+  const today = new Date();
+  const graduationDate = new Date("2026-05-18");
+  const showGradCountdown = today < new Date("2026-01-12");
+
+  const rawPhases = [
+    { name: "Studying Abroad in Athens 🇬🇷", start: "2025-01-07", end: "2025-05-06" },
+    { name: "Summer Vacation 🏖️", start: "2025-05-07", end: "2025-06-01" },
+    { name: "Natixis Internship in Boston 💼", start: "2025-06-02", end: "2025-08-15" },
+    { name: "Summer Break 🌅", start: "2025-08-16", end: "2025-08-24" },
+    { name: "BC Senior Fall Semester 🍁", start: "2025-08-25", end: "2025-12-18" },
+    { name: "BC Senior Spring Semester 🌸", start: "2026-01-12", end: "2026-05-18" },
+  ];
+
+  const enrichedPhases = rawPhases.map((phase) => {
+    const start = new Date(phase.start);
+    const end = new Date(phase.end);
+    const isCurrent = today >= start && today <= end;
+    const isFuture = today < start;
+    const daysRemaining = Math.ceil((end - today) / (1000 * 60 * 60 * 24));
+    const startsIn = Math.ceil((start - today) / (1000 * 60 * 60 * 24));
+    const percentComplete = isCurrent
+      ? (((today - start) / (end - start)) * 100).toFixed(2)
+      : null;
+
+    return {
+      ...phase,
+      start,
+      end,
+      isCurrent,
+      daysRemaining,
+      percentComplete,
+      startsIn,
+    };
+  });
+
+  const gradCountdown = showGradCountdown
+    ? `<div class="countdown-card">
+        <h3>Graduation 🎓</h3>
+        <p>${Math.ceil((graduationDate - today) / (1000 * 60 * 60 * 24))} days left</p>
+        <p>${((graduationDate - today) / (1000 * 60 * 60 * 24 * 7)).toFixed(1)} weeks left</p>
+      </div>`
+    : "";
+
+  const countdownHTML = renderCountdownWidget(enrichedPhases, today, gradCountdown);
+
   return `
     <section id="news">
       <h2 class="section-title">News</h2>
@@ -135,14 +190,14 @@ function renderNews(news) {
         <input type="search" name="news" id="news-search" placeholder="Search News..." />
       </div>
       <ul class="newslist">
-        ${news
-          .slice(0, 5) // Limit the initially visible news to 5
-          .map((item) => renderNewsItems(item))
-          .join("")}
+        ${news.slice(0, 5).map((item) => renderNewsItems(item)).join("")}
       </ul>
+      ${countdownHTML}
     </section>
   `;
 }
+
+
 
 function addNewsSearchEventListener(news) {
   const search = document.querySelector(".search input");
@@ -193,4 +248,99 @@ function toggleContent(event, link) {
     content.style.display = "none";
     link.textContent = "Show More";
   }
+}
+
+function getCurrentPhase(date = new Date()) {
+  const phases = [
+    { name: "Studying Abroad in Athens 🇬🇷", start: "2025-01-07", end: "2025-05-06" },
+    { name: "Summer Vacation 🏖️", start: "2025-05-07", end: "2025-06-01" },
+    { name: "Natixis Internship in Boston 💼", start: "2025-06-02", end: "2025-08-15" },
+    { name: "Summer Break 🌅", start: "2025-08-16", end: "2025-08-24" },
+    { name: "BC Senior Fall Semester 🍁", start: "2025-08-25", end: "2025-12-18" },
+    { name: "BC Senior Spring Semester 🌸", start: "2026-01-12", end: "2026-05-18" },
+  ];
+
+  const now = new Date(date);
+  for (let phase of phases) {
+    const start = new Date(phase.start);
+    const end = new Date(phase.end);
+    if (now >= start && now <= end) {
+      return { ...phase, start, end };
+    }
+  }
+
+  return null;
+}
+
+function renderCountdownWidget(phases, today, gradCountdown) {
+  const phaseCards = phases
+    .map((phase, i) => {
+      const start = new Date(phase.start);
+      const end = new Date(phase.end);
+      const isCurrent = phase.isCurrent;
+      const isFuture = today < start;
+      const isPast = today > end;
+
+      let content = `<strong>${phase.name}</strong><br/>
+        <small>${start.toDateString()} – ${end.toDateString()}</small><br/>`;
+
+      if (isCurrent) {
+        content += `<p>${phase.daysRemaining} days remaining</p>
+                    <p>${phase.percentComplete}% complete</p>`;
+      } else if (isFuture) {
+        content += `<p>Starts in ${phase.startsIn} days</p>`;
+      } else {
+        content += `<p>Phase Complete ✅</p>`;
+      }
+
+      return `<div class="countdown-card phase-card" data-index="${i}" style="display: ${
+        isCurrent ? "block" : "none"
+      };">${content}</div>`;
+    })
+    .join("");
+
+  return `
+    <section id="life-countdown">
+      <h2 class="section-title">⏳ Life Countdown</h2>
+      <div class="countdown-widget">
+        <div class="countdown-phase-nav">
+          <button id="prev-phase" aria-label="Previous Phase">←</button>
+          <div id="phase-container">${phaseCards}</div>
+          <button id="next-phase" aria-label="Next Phase">→</button>
+        </div>
+        ${gradCountdown}
+      </div>
+    </section>
+  `;
+}
+
+
+
+function attachPhaseNavigation(phases) {
+  const cards = document.querySelectorAll(".phase-card");
+  let current = phases.findIndex((p) => p.isCurrent);
+  if (current === -1) current = 0;
+
+  function showCard(index) {
+    cards.forEach((card, i) => {
+      card.style.display = i === index ? "block" : "none";
+    });
+  }
+
+  const prevBtn = document.getElementById("prev-phase");
+  const nextBtn = document.getElementById("next-phase");
+
+  if (prevBtn && nextBtn) {
+    prevBtn.addEventListener("click", () => {
+      current = (current - 1 + cards.length) % cards.length;
+      showCard(current);
+    });
+
+    nextBtn.addEventListener("click", () => {
+      current = (current + 1) % cards.length;
+      showCard(current);
+    });
+  }
+
+  showCard(current);
 }

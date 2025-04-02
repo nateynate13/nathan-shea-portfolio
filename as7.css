@@ -243,3 +243,59 @@ section {
   font-size: 15px;
   padding-top: 5px;
 }
+
+#life-countdown {
+  margin-top: 20px;
+}
+
+.countdown-widget {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-top: 10px;
+}
+
+.countdown-card {
+  flex: 1;
+  min-width: 250px;
+  padding: 15px;
+  background-color: #fff8f0;
+  border: 2px solid #9a1f40;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.countdown-card h3 {
+  margin-bottom: 10px;
+  color: #9a1f40;
+}
+
+.countdown-phase-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+#phase-container {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+#prev-phase,
+#next-phase {
+  background-color: #9a1f40;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  font-size: 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+#prev-phase:hover,
+#next-phase:hover {
+  background-color: #b63455;
+}
