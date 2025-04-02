@@ -270,7 +270,11 @@ section {
   color: #9a1f40;
 }
 
+
+
 .countdown-phase-nav {
+  
+  
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -288,7 +292,7 @@ section {
   background-color: #9a1f40;
   color: white;
   border: none;
-  padding: 10px 15px;
+  padding: 5px 8px;
   font-size: 20px;
   border-radius: 5px;
   cursor: pointer;
@@ -299,3 +303,28 @@ section {
 #next-phase:hover {
   background-color: #b63455;
 }
+
+.progress-bar {
+  width: 100%;
+  background-color: #eee;
+  border-radius: 5px;
+  margin: 10px 0;
+  height: 12px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: #9a1f40;
+  width: 0;
+  transition: width 0.5s ease-in-out;
+}
+.graduation-countdown {
+  background-color: #f0faff;
+  border: 2px solid #0077b6;
+}
+
+.graduation-countdown h3 {
+  color: #0077b6;
+}
+

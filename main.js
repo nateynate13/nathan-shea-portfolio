@@ -173,13 +173,27 @@ function renderNews(news) {
     };
   });
 
-  const gradCountdown = showGradCountdown
-    ? `<div class="countdown-card">
-        <h3>Graduation 🎓</h3>
-        <p>${Math.ceil((graduationDate - today) / (1000 * 60 * 60 * 24))} days left</p>
-        <p>${((graduationDate - today) / (1000 * 60 * 60 * 24 * 7)).toFixed(1)} weeks left</p>
-      </div>`
-    : "";
+  const totalGradDays = (graduationDate - new Date("2025-01-07")) / (1000 * 60 * 60 * 24); // from study abroad start
+
+
+
+const collegeStartDate = new Date("2022-08-22");
+const totalCollegeDays = (graduationDate - collegeStartDate) / (1000 * 60 * 60 * 24);
+const gradDaysLeft = (graduationDate - today) / (1000 * 60 * 60 * 24);
+const gradProgress = (100 - (gradDaysLeft / totalCollegeDays) * 100).toFixed(2);
+
+const gradCountdown = showGradCountdown
+  ? `<div class="countdown-card graduation-countdown">
+      <h3>Graduation 🎓</h3>
+      <p>${Math.ceil(gradDaysLeft)} days left</p>
+      <p>${(gradDaysLeft / 7).toFixed(1)} weeks left</p>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: ${gradProgress}%"></div>
+      </div>
+      <small>${gradProgress}% of college completed (since Aug 21, 2023)</small>
+    </div>`
+  : "";
+
 
   const countdownHTML = renderCountdownWidget(enrichedPhases, today, gradCountdown);
 
@@ -301,7 +315,7 @@ function renderCountdownWidget(phases, today, gradCountdown) {
 
   return `
     <section id="life-countdown">
-      <h2 class="section-title">⏳ Life Countdown</h2>
+      <h2 class="section-title">⏳ Current/Future Happenings</h2>
       <div class="countdown-widget">
         <div class="countdown-phase-nav">
           <button id="prev-phase" aria-label="Previous Phase">←</button>
