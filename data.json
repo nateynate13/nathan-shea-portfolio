@@ -152,13 +152,8 @@
     "logos": [
       {
         "alt": "Disney Logo",
-        "src": "https://cdn.glitch.global/a15ff499-089c-4458-9cda-ff05922dfdb5/disney_logo.png?v=1736815620000",
-        "link": "https://thewaltdisneycompany.com"
-      },
-      {
-        "alt": "Comcast Logo",
-        "src": "https://cdn.glitch.global/a15ff499-089c-4458-9cda-ff05922dfdb5/comcast_logo.png?v=1736815623000",
-        "link": "https://corporate.comcast.com"
+        "src": "https://cdn.glitch.global/a15ff499-089c-4458-9cda-ff05922dfdb5/Dizlogo.png?v=1747439392662"
+      
       }
     ],
     "back_link": "index.html"
