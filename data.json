@@ -141,6 +141,29 @@
 ],
         "back_link": "index.html"
       }
-    }
+    },{
+  "title": "Project 4: Strategic Financial Analysis of The Walt Disney Company",
+  "short_description": "Conducted a multi-year financial performance analysis of Walt Disney Co., using key ratios and benchmarking against Comcast to assess long-term investment viability.",
+  "link": "project4.html",
+  "details": {
+    "title": "Project 4: Strategic Financial Analysis of The Walt Disney Company",
+    "description": "In this project, I worked as part of a student analyst team to perform a multi-year financial analysis of The Walt Disney Company, examining performance trends from 2020–2022 using SEC filings and public data. Our analysis focused on profitability, liquidity, efficiency, and solvency metrics, while also identifying operational risks related to streaming, ESG compliance, and healthcare cost exposure. To contextualize Disney's financial health, we used Comcast/NBCUniversal as a benchmark across key ratios. We synthesized this research into an investor-oriented thesis, recommending Disney as a long-term investment based on its post-COVID rebound, diversified revenue streams, low debt load, and future-forward strategy in both digital content and physical expansion.",
+    "technologies": ["Excel", "Financial Ratios", "SEC Filings (10-K, 10-Q, 8-K)", "Investment Analysis"],
+    "logos": [
+      {
+        "alt": "Disney Logo",
+        "src": "https://cdn.glitch.global/a15ff499-089c-4458-9cda-ff05922dfdb5/disney_logo.png?v=1736815620000",
+        "link": "https://thewaltdisneycompany.com"
+      },
+      {
+        "alt": "Comcast Logo",
+        "src": "https://cdn.glitch.global/a15ff499-089c-4458-9cda-ff05922dfdb5/comcast_logo.png?v=1736815623000",
+        "link": "https://corporate.comcast.com"
+      }
+    ],
+    "back_link": "index.html"
+  }
+}
+
   ]
 }
