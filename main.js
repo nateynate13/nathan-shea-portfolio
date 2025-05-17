@@ -99,17 +99,14 @@ function renderProjectPage(project) {
           .map((tech) => `<li>${tech}</li>`)
           .join("")}
       </ul>
-      <div class="logo-grid">
+     <div class="logo-grid">
   ${project.details.logos
-    .map(
-      (logo) => `
-        <a href="${logo.link}">
-          <img src="${logo.src}" alt="${logo.alt}" style="${
-        logo.style || ""
-      }" class="${logo.alt.toLowerCase().replace(/\s+/g, "-")}" />
-        </a>
-      `
-    )
+    .map((logo) => {
+      const imgTag = `<img src="${logo.src}" alt="${logo.alt}" style="${logo.style || ""}" class="${logo.alt.toLowerCase().replace(/\s+/g, "-")}" />`;
+      return logo.link
+        ? `<a href="${logo.link}" target="_blank">${imgTag}</a>`
+        : imgTag;
+    })
     .join("")}
 </div>
 
