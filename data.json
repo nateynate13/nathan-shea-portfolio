@@ -1,28 +1,22 @@
 {
   "navigation": [
-    {
-      "text": "About",
-      "href": "#about"
-    },
-    {
-      "text": "Reading List",
-      "href": "?page=reading-list",
-      "class": "nav-reading-list",
-      "key": "reading-list"
-    },
-    {
-      "text": "News",
-      "href": "#news"
-    },
-    {
-      "text": "Projects",
-      "href": "#projects"
-    },
-    {
-      "text": "Resume",
-      "href": "https://drive.google.com/file/d/14LVvEQWQNPT-75JkYfJOr4PxAt5WIHqT/view?usp=sharing"
-    }
-  ],
+  {
+    "text": "Home",
+    "href": "?page=home",
+    "key": "home"
+  },
+  {
+    "text": "Reading List",
+    "href": "?page=reading-list",
+    "class": "nav-reading-list",
+    "key": "reading-list"
+  },
+  {
+    "text": "Resume",
+    "href": "https://drive.google.com/file/d/14LVvEQWQNPT-75JkYfJOr4PxAt5WIHqT/view?usp=sharing",
+    "target": "_blank"
+  }
+],
   "about": {
     "name": "Nathan Makaneole Shea",
     "position": "Junior at Boston College",
@@ -187,6 +181,54 @@
     }
   ],
   "readingList": [
+    {
+      "slug": "the-defining-decade",
+      "title": "The Defining Decade: Why Your Twenties Matter and How to Make the Most of Them Now",
+      "author": "Meg Jay, PhD",
+      "published": "2021",
+      "finished": "October 2024 (re-read October 2025; originally August 2023)",
+      "cover": "https://m.media-amazon.com/images/I/41Bn8LLJCvL._SY445_SX342_ControlCacheEqualizer_.jpg",
+      "summary": "",
+      "rating": 4,
+      "review": "",
+      "reflection": "I do believe every twentysomething needs to read this book. It grounded me, helped me set long-term goals, and pushed me to embrace the agency that comes with life after college."
+    },
+    {
+      "slug": "talking-to-strangers",
+      "title": "Talking to Strangers: What We Should Know about the People We Don't Know",
+      "author": "Malcolm Gladwell",
+      "published": "2019",
+      "finished": "December 2024",
+      "cover": "https://m.media-amazon.com/images/I/61Uv-rmFUbL._AC_UF1000,1000_QL80_.jpg",
+      "summary": "",
+      "rating": 4.5,
+      "review": "",
+      "reflection": "Gladwell's idea of our instinct to default to truth reframed how I see trust and perception. It nudged me to balance empathy with a bit more skepticism when I meet new people—very stoic of me!"
+    },
+    {
+      "slug": "making-motherhood-work",
+      "title": "Making Motherhood Work: How Women Manage Careers and Caregiving",
+      "author": "Caitlyn Collins",
+      "published": "2019",
+      "finished": "November 2024",
+      "cover": "https://m.media-amazon.com/images/I/41-Vg8zHZbL._SY445_SX342_ControlCacheEqualizer_.jpg",
+      "summary": "",
+      "rating": 4,
+      "review": "",
+      "reflection": "Assigned reading for my Family Sociology class unexpectedly opened my eyes to how uneven the experience of working parents is in the U.S. Maybe Sweden is the place to raise a family after all."
+    },
+    {
+      "slug": "the-charisma-myth",
+      "title": "The Charisma Myth: How Anyone Can Master the Art and Science of Personal Magnetism",
+      "author": "Olivia Fox Cabane",
+      "published": "2012",
+      "finished": "June 2025",
+      "cover": "https://m.media-amazon.com/images/I/81hS0u0bqXL._SY522_.jpg",
+      "summary": "",
+      "rating": 5,
+      "review": "",
+      "reflection": "As an introvert, this book transformed my social and professional confidence. Presence, power, and warmth all come back to mindfulness—and Cabane's techniques make improvement feel achievable."
+    },
     {
       "slug": "the-greeks-a-global-history",
       "title": "The Greeks: A Global History",
