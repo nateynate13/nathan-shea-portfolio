@@ -1,3 +1,12 @@
+const PHASES = [
+  { name: "Studying Abroad in Athens 🇬🇷", start: "2025-01-07", end: "2025-05-06" },
+  { name: "Summer Vacation 🏖️", start: "2025-05-07", end: "2025-06-01" },
+  { name: "Natixis Internship in Boston 💼", start: "2025-06-02", end: "2025-08-15" },
+  { name: "Summer Break 🌅", start: "2025-08-16", end: "2025-08-24" },
+  { name: "BC Senior Fall Semester 🍁", start: "2025-08-25", end: "2025-12-18" },
+  { name: "BC Senior Spring Semester 🌸", start: "2026-01-12", end: "2026-05-18" },
+];
+
 function renderNavbar(navigation, activeKey = null) {
   return `
     <nav>
@@ -9,8 +18,14 @@ function renderNavbar(navigation, activeKey = null) {
                 .filter(Boolean)
                 .join(" ");
               const ariaCurrent = item.key && item.key === activeKey ? ' aria-current="page"' : "";
+              const targetAttr = item.target ? ` target="${item.target}"` : "";
+              const relAttr = item.rel
+                ? ` rel="${item.rel}"`
+                : item.target === "_blank"
+                ? ' rel="noopener noreferrer"'
+                : "";
               return `
-          <li${classes ? ` class="${classes}"` : ""}><a href="${item.href}"${ariaCurrent}>${item.text}</a></li>
+          <li${classes ? ` class="${classes}"` : ""}><a href="${item.href}"${ariaCurrent}${targetAttr}${relAttr}>${item.text}</a></li>
         `;
             }
           )
@@ -20,24 +35,61 @@ function renderNavbar(navigation, activeKey = null) {
   `;
 }
 
+function setNavbar(navigation, activeKey = null) {
+  const header = document.getElementById("navbar");
+  if (header) {
+    header.innerHTML = renderNavbar(navigation, activeKey);
+  }
+}
+
+function computePhases(today = new Date()) {
+  const currentDate = new Date(today);
+
+  const enriched = PHASES.map((phase) => {
+    const start = new Date(phase.start);
+    const end = new Date(phase.end);
+    const isCurrent = currentDate >= start && currentDate <= end;
+    const daysRemaining = Math.ceil((end - currentDate) / (1000 * 60 * 60 * 24));
+    const startsIn = Math.ceil((start - currentDate) / (1000 * 60 * 60 * 24));
+    const percentComplete = isCurrent
+      ? (((currentDate - start) / (end - start)) * 100).toFixed(2)
+      : null;
+
+    return {
+      ...phase,
+      start,
+      end,
+      isCurrent,
+      daysRemaining,
+      percentComplete,
+      startsIn,
+    };
+  });
+
+  const currentPhases = enriched.filter((phase) => phase.isCurrent);
+  const futurePhases = enriched
+    .filter((phase) => phase.start > currentDate)
+    .sort((a, b) => a.start - b.start);
+  const pastPhases = enriched
+    .filter((phase) => phase.end < currentDate)
+    .sort((a, b) => b.start - a.start);
+
+  return [...currentPhases, ...futurePhases, ...pastPhases];
+}
+
 function renderMain(data) {
+  setNavbar(data.navigation, "home");
   const main = document.querySelector("main");
+  const today = new Date();
+  const phases = computePhases(today);
   main.innerHTML = `
-    ${renderNavbar(data.navigation)}
     ${renderAbout(data.about)}
-    ${renderNews(data.news)}
+    ${renderNews(data.news, today, phases)}
     ${renderProjects(data.projects)}
   `;
 
   addNewsSearchEventListener(data.news);
-  attachPhaseNavigation([
-  { name: "Studying Abroad in Athens 🇬🇷", start: "2025-01-07", end: "2025-05-06" },
-  { name: "Summer Vacation 🏖️", start: "2025-05-07", end: "2025-06-01" },
-  { name: "Natixis Internship in Boston 💼", start: "2025-06-02", end: "2025-08-15" },
-  { name: "Summer Break 🌅", start: "2025-08-16", end: "2025-08-24" },
-  { name: "BC Senior Fall Semester 🍁", start: "2025-08-25", end: "2025-12-18" },
-  { name: "BC Senior Spring Semester 🌸", start: "2026-01-12", end: "2026-05-18" },
-]);
+  attachPhaseNavigation(phases);
 
 }
 
@@ -93,7 +145,7 @@ function renderProjects(projects) {
   `;
 }
 
-function renderReadingListPage(books, navigation) {
+function renderReadingListPage(books) {
   const bookEntries = Array.isArray(books) ? books : [];
   const bookCards = bookEntries
     .map(
@@ -116,7 +168,6 @@ function renderReadingListPage(books, navigation) {
     : '<p class="reading-list-empty">My reading list is under construction — check back soon for more favorites!</p>';
 
   return `
-    ${renderNavbar(navigation, "reading-list")}
     <section id="reading-list">
       <h2 class="section-title">Reading List</h2>
       <p class="reading-list-intro">A growing collection of books that have shaped my curiosity lately.</p>
@@ -126,9 +177,18 @@ function renderReadingListPage(books, navigation) {
   `;
 }
 
-function renderBookPage(book, navigation) {
+function renderBookPage(book) {
+  const summaryContent = book.summary && book.summary.trim()
+    ? book.summary
+    : "<em>Summary coming soon.</em>";
+  const reviewContent = book.review && book.review.trim()
+    ? book.review
+    : "<em>Thoughts coming soon.</em>";
+  const reflectionSection = book.reflection
+    ? `<h2>Quick Reflection</h2><p>${book.reflection}</p>`
+    : "";
+
   return `
-    ${renderNavbar(navigation, "reading-list")}
     <section id="book-detail" class="book-detail">
       <a href="?page=reading-list" class="reading-list-back" aria-label="Back to Reading List">
         ← Back to Reading List
@@ -146,9 +206,10 @@ function renderBookPage(book, navigation) {
             ${renderRatingStars(book.rating)}
           </div>
           <h2>Summary</h2>
-          <p>${book.summary}</p>
+          <p>${summaryContent}</p>
           <h2>My Thoughts</h2>
-          <p>${book.review}</p>
+          <p>${reviewContent}</p>
+          ${reflectionSection}
         </div>
       </div>
     </section>
@@ -171,9 +232,8 @@ function renderRatingStars(rating) {
   return `<div class="rating-stars" aria-hidden="true">${stars.join("")}</div><span class="rating-value">${ratingLabel} / 5</span>`;
 }
 
-function renderProjectPage(project, navigation) {
+function renderProjectPage(project) {
   return `
-    ${renderNavbar(navigation)}
     <section id="project-details">
       <h2>${project.details.title}</h2>
       <p>${project.details.description}</p>
@@ -194,7 +254,7 @@ function renderProjectPage(project, navigation) {
     .join("")}
 </div>
 
-      <a href="index.html">Back to Projects</a>
+      <a href="?page=home#projects">Back to Projects</a>
     </section>
   `;
 }
@@ -211,72 +271,42 @@ fetch("data.json")
     if (projectLink) {
       const project = data.projects.find((proj) => proj.link === projectLink);
       if (project) {
-        main.innerHTML = renderProjectPage(project, data.navigation);
+        setNavbar(data.navigation, "home");
+        main.innerHTML = renderProjectPage(project);
       } else {
         renderMain(data);
       }
     } else if (bookSlug) {
       const book = (data.readingList || []).find((item) => item.slug === bookSlug);
       if (book) {
-        main.innerHTML = renderBookPage(book, data.navigation);
+        setNavbar(data.navigation, "reading-list");
+        main.innerHTML = renderBookPage(book);
       } else {
-        main.innerHTML = renderReadingListPage(data.readingList || [], data.navigation);
+        setNavbar(data.navigation, "reading-list");
+        main.innerHTML = renderReadingListPage(data.readingList || []);
       }
     } else if (page === "reading-list") {
-      main.innerHTML = renderReadingListPage(data.readingList || [], data.navigation);
+      setNavbar(data.navigation, "reading-list");
+      main.innerHTML = renderReadingListPage(data.readingList || []);
+    } else if (page === "home") {
+      renderMain(data);
     } else {
       renderMain(data);
     }
   })
   .catch((error) => console.error("Error fetching data:", error));
 
-function renderNews(news) {
-  const today = new Date();
+function renderNews(news, today = new Date(), phases = computePhases(today)) {
   const graduationDate = new Date("2026-05-18");
   const showGradCountdown = today < new Date("2026-01-12");
 
-  const rawPhases = [
-    { name: "Studying Abroad in Athens 🇬🇷", start: "2025-01-07", end: "2025-05-06" },
-    { name: "Summer Vacation 🏖️", start: "2025-05-07", end: "2025-06-01" },
-    { name: "Natixis Internship in Boston 💼", start: "2025-06-02", end: "2025-08-15" },
-    { name: "Summer Break 🌅", start: "2025-08-16", end: "2025-08-24" },
-    { name: "BC Senior Fall Semester 🍁", start: "2025-08-25", end: "2025-12-18" },
-    { name: "BC Senior Spring Semester 🌸", start: "2026-01-12", end: "2026-05-18" },
-  ];
+  const collegeStartDate = new Date("2022-08-22");
+  const totalCollegeDays = (graduationDate - collegeStartDate) / (1000 * 60 * 60 * 24);
+  const gradDaysLeft = (graduationDate - today) / (1000 * 60 * 60 * 24);
+  const gradProgress = (100 - (gradDaysLeft / totalCollegeDays) * 100).toFixed(2);
 
-  const enrichedPhases = rawPhases.map((phase) => {
-    const start = new Date(phase.start);
-    const end = new Date(phase.end);
-    const isCurrent = today >= start && today <= end;
-    const isFuture = today < start;
-    const daysRemaining = Math.ceil((end - today) / (1000 * 60 * 60 * 24));
-    const startsIn = Math.ceil((start - today) / (1000 * 60 * 60 * 24));
-    const percentComplete = isCurrent
-      ? (((today - start) / (end - start)) * 100).toFixed(2)
-      : null;
-
-    return {
-      ...phase,
-      start,
-      end,
-      isCurrent,
-      daysRemaining,
-      percentComplete,
-      startsIn,
-    };
-  });
-
-  const totalGradDays = (graduationDate - new Date("2025-01-07")) / (1000 * 60 * 60 * 24); // from study abroad start
-
-
-
-const collegeStartDate = new Date("2022-08-22");
-const totalCollegeDays = (graduationDate - collegeStartDate) / (1000 * 60 * 60 * 24);
-const gradDaysLeft = (graduationDate - today) / (1000 * 60 * 60 * 24);
-const gradProgress = (100 - (gradDaysLeft / totalCollegeDays) * 100).toFixed(2);
-
-const gradCountdown = showGradCountdown
-  ? `<div class="countdown-card graduation-countdown">
+  const gradCountdown = showGradCountdown
+    ? `<div class="countdown-card graduation-countdown">
       <h3>Graduation 🎓</h3>
       <p>${Math.ceil(gradDaysLeft)} days left</p>
       <p>${(gradDaysLeft / 7).toFixed(1)} weeks left</p>
@@ -285,10 +315,9 @@ const gradCountdown = showGradCountdown
       </div>
       <small>${gradProgress}% of college completed (since Aug 21, 2023)</small>
     </div>`
-  : "";
+    : "";
 
-
-  const countdownHTML = renderCountdownWidget(enrichedPhases, today, gradCountdown);
+  const countdownHTML = renderCountdownWidget(phases, today, gradCountdown);
 
   return `
     <section id="news">
@@ -358,17 +387,8 @@ function toggleContent(event, link) {
 }
 
 function getCurrentPhase(date = new Date()) {
-  const phases = [
-    { name: "Studying Abroad in Athens 🇬🇷", start: "2025-01-07", end: "2025-05-06" },
-    { name: "Summer Vacation 🏖️", start: "2025-05-07", end: "2025-06-01" },
-    { name: "Natixis Internship in Boston 💼", start: "2025-06-02", end: "2025-08-15" },
-    { name: "Summer Break 🌅", start: "2025-08-16", end: "2025-08-24" },
-    { name: "BC Senior Fall Semester 🍁", start: "2025-08-25", end: "2025-12-18" },
-    { name: "BC Senior Spring Semester 🌸", start: "2026-01-12", end: "2026-05-18" },
-  ];
-
   const now = new Date(date);
-  for (let phase of phases) {
+  for (let phase of PHASES) {
     const start = new Date(phase.start);
     const end = new Date(phase.end);
     if (now >= start && now <= end) {

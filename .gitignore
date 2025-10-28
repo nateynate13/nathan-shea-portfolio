@@ -1,2 +1,6 @@
 .DS_Store
 .DS_Store
+
+# Ignore patch rejects and backups
+*.rej
+*.bak
