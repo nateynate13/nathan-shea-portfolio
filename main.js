@@ -183,10 +183,18 @@ function renderProjectsPage(projects) {
 
 function renderReadingListPage(books) {
   const bookEntries = Array.isArray(books) ? books : [];
-  const bookCards = bookEntries
+  
+  // Separate pinned and unpinned books
+  const pinnedBooks = bookEntries.filter(book => book.pinned === true);
+  const unpinnedBooks = bookEntries.filter(book => !book.pinned);
+  
+  // Combine: pinned first, then unpinned
+  const sortedBooks = [...pinnedBooks, ...unpinnedBooks];
+  
+  const bookCards = sortedBooks
     .map(
       (book) => `
-          <a class="book-card" href="?book=${book.slug}" aria-label="View details for ${book.title}">
+          <a class="book-card${book.pinned ? ' pinned' : ''}" href="?book=${book.slug}" aria-label="View details for ${book.title}">
             <img src="${book.cover}" alt="Cover of ${book.title}" loading="lazy" />
             <div class="book-overlay">
               <h3>${book.title}</h3>
@@ -201,12 +209,12 @@ function renderReadingListPage(books) {
 
   const emptyState = bookEntries.length
     ? ""
-    : '<p class="reading-list-empty">My reading list is under construction — check back soon for more favorites!</p>';
+    : '<p class="library-empty">My library is under construction — check back soon for more favorites!</p>';
 
   return `
-    <section id="reading-list">
-      <h2 class="section-title">Reading List</h2>
-      <p class="reading-list-intro">A growing collection of books that have shaped my curiosity lately.</p>
+    <section id="library">
+      <h2 class="section-title">Library</h2>
+      <p class="library-intro">A growing collection of books that have shaped my curiosity lately.</p>
       <div class="book-grid">${bookCards}</div>
       ${emptyState}
     </section>
@@ -223,11 +231,18 @@ function renderBookPage(book) {
   const reflectionSection = book.reflection
     ? `<h2>Quick Reflection</h2><p>${book.reflection}</p>`
     : "";
+  
+  const pdfSection = book.pdf
+    ? `<div class="book-pdf-section">
+        <h2>Related Reading</h2>
+        <p><a href="${book.pdf}" target="_blank" class="pdf-link">Read the ending passage (PDF) →</a></p>
+      </div>`
+    : "";
 
   return `
     <section id="book-detail" class="book-detail">
-      <a href="?page=reading-list" class="reading-list-back" aria-label="Back to Reading List">
-        ← Back to Reading List
+      <a href="?page=library" class="library-back" aria-label="Back to Library">
+        ← Back to Library
       </a>
       <div class="book-detail-content">
         <div class="book-detail-cover">
@@ -246,6 +261,7 @@ function renderBookPage(book) {
           <h2>My Thoughts</h2>
           <p>${reviewContent}</p>
           ${reflectionSection}
+          ${pdfSection}
         </div>
       </div>
     </section>
@@ -318,14 +334,14 @@ fetch("data.json")
     } else if (bookSlug) {
       const book = (data.readingList || []).find((item) => item.slug === bookSlug);
       if (book) {
-        setNavbar(data.navigation, "reading-list");
+        setNavbar(data.navigation, "library");
         main.innerHTML = renderBookPage(book);
       } else {
-        setNavbar(data.navigation, "reading-list");
+        setNavbar(data.navigation, "library");
         main.innerHTML = renderReadingListPage(data.readingList || []);
       }
-    } else if (page === "reading-list") {
-      setNavbar(data.navigation, "reading-list");
+    } else if (page === "library") {
+      setNavbar(data.navigation, "library");
       main.innerHTML = renderReadingListPage(data.readingList || []);
     } else if (page === "projects") {
       setNavbar(data.navigation, "projects");

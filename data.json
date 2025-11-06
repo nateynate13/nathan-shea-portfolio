@@ -6,10 +6,10 @@
     "key": "home"
   },
   {
-    "text": "Reading List",
-    "href": "?page=reading-list",
-    "class": "nav-reading-list",
-    "key": "reading-list"
+    "text": "Library",
+    "href": "?page=library",
+    "class": "nav-library",
+    "key": "library"
   },
   {
     "text": "Projects",
@@ -219,16 +219,138 @@
   ],
   "readingList": [
     {
-      "slug": "the-defining-decade",
-      "title": "The Defining Decade: Why Your Twenties Matter and How to Make the Most of Them Now",
-      "author": "Meg Jay, PhD",
-      "published": "2021",
-      "finished": "October 2024 (re-read October 2025; originally August 2023)",
-      "cover": "assets/defining_decade.jpg",
+      "slug": "the-echo-of-greece",
+      "title": "The Echo of Greece",
+      "author": "Edith Hamilton",
+      "published": "1957",
+      "finished": "February 2025",
+      "cover": "assets/the_echo_of_greece.jpg",
+      "summary": "The Echo of Greece by Edith Hamilton explores how the values and ideas of ancient Greece—freedom, reason, and the pursuit of excellence—continued to shape Western civilization long after Greece's political decline. It's both a historical reflection and a philosophical meditation on what made Greek culture so enduring.",
+      "rating": 5,
+      "review": "When I read this ending passage from The Echo of Greece, it completely reframed how I see religion, power, and the arc of Western civilization. It felt like a key that suddenly unlocked the connection between philosophy, empire, and faith — how the fall of Greece and the rise of Rome and Christianity weren't just historical shifts, but moral and intellectual turning points that shaped the modern world. Hamilton's contrast between Greek reason and later spiritual authority made me rethink where our values come from, and how easily brilliance can be replaced by obedience. It wasn't just history anymore — it was an explanation for how the world became what it is, and how deeply those ancient choices still echo in us.",
+      "reflection": "",
+      "pinned": true,
+      "pdf": "assets/echo_passage.pdf"
+    },
+    {
+      "slug": "tuesdays-with-morrie",
+      "title": "Tuesdays with Morrie",
+      "author": "Mitch Albom",
+      "published": "1997",
+      "finished": "November 2025",
+      "cover": "assets/tuesdys_with_morrie.jpg",
+      "summary": "Tuesdays with Morrie by Mitch Albom recounts the author's weekly visits with his former college professor, Morrie Schwartz, who is dying from ALS and imparts lessons on love, purpose, and what truly matters in life. It's a heartfelt reflection on mortality and meaning told through simple, intimate conversations. The book's legacy lies in its universal appeal—it became one of the best-selling memoirs of all time and continues to move readers across generations as a modern guide to living and dying well.",
+      "rating": 4.5,
+      "review": "Short and sweet, yet deeply moving. The way Morrie approached life, even as he faced death, was profoundly inspiring—his calm, empathy, and grace with others are qualities I hope to emulate as I grow older. His line, \"Once you learn how to die, you learn how to live,\" struck me as almost stoic in spirit, and I loved that connection. It's remarkable how his wisdom feels so genuine and timeless, as if it could guide anyone in any era.",
+      "reflection": ""
+    },
+    {
+      "slug": "a-safe-place",
+      "title": "A Safe Place",
+      "author": "Lorenzo Carcaterra",
+      "published": "1993",
+      "finished": "October 2025",
+      "cover": "assets/a_safe_place.jpg",
+      "summary": "A Safe Place by Lorenzo Carcaterra is a raw, autobiographical account of his turbulent childhood in Hell's Kitchen, exploring the abuse, violence, and fractured love that shaped his relationship with his parents. It's both a confession and a reckoning, told with unflinching honesty and emotional depth. The book stands as a haunting piece of memoir writing—gritty, painful, and deeply human—cementing Carcaterra's reputation for blending true crime realism with literary sensitivity.",
+      "rating": 4.5,
+      "review": "This book was heavy and really made me reflect on my own privilege—especially when it comes to my relationship with my parents. It was fascinating to get a sense of life in Hell's Kitchen, even if Lorenzo's experience was an extreme one. I especially connected with how sports became one of the few places where he could find safety and escape during his childhood.",
+      "reflection": ""
+    },
+    {
+      "slug": "the-alchemist",
+      "title": "The Alchemist",
+      "author": "Paulo Coelho",
+      "published": "1988",
+      "finished": "September 2025",
+      "cover": "assets/the_alchemist.html",
+      "summary": "The Alchemist follows Santiago, a young shepherd who sets out to find a hidden treasure and instead discovers that true fulfillment comes from pursuing one's personal legend and listening to the signs of the universe. It's a simple, spiritual fable about destiny, self-discovery, and finding meaning in the journey rather than the goal. Since its release, it's become one of the most widely translated and best-selling books in history, often cited as a modern classic that inspires readers to chase their dreams.",
+      "rating": 5,
+      "review": "I loved it—it was simple yet deeply rich, almost meditative in how it delivered meaning through such a straightforward story. Every character speaks with this quiet, unreal clarity, as if each line holds a bit of timeless wisdom. It's the kind of book that sneaks up on you; by the time you finish, you realize it's quietly reshaped how you see your life, your choices, and the idea of purpose itself.",
+      "reflection": ""
+    },
+    {
+      "slug": "the-best-minds-jonathan-rosen",
+      "title": "The Best Minds: A Story of Friendship, Madness, and the Tragedy of Good Intentions",
+      "author": "Jonathan Rosen",
+      "published": "April 2023",
+      "finished": "August 2025",
+      "cover": "assets/the_best_minds.jpg",
+      "summary": "When the Rosens moved to New Rochelle in 1973, Jonathan Rosen and Michael Laudor became inseparable. Both children of college professors, the boys were best friends and keen competitors, and, when they both got into Yale University, seemed set to join the American meritocratic elite. Michael blazed through college in three years, graduating summa cum laude and landing a top-flight consulting job. But all wasn't as it seemed. One day, Jonathan received the call: Michael had suffered a serious psychotic break and was in the locked ward of a psychiatric hospital. Diagnosed with paranoid schizophrenia, Michael was still battling delusions when he traded his halfway house for Yale Law School. Featured in The New York Times as a role model genius, he sold a memoir, with film rights to Ron Howard. But then Michael, in the grip of an unshakeable paranoid fantasy, stabbed his girlfriend Carrie to death and became a front-page story of an entirely different sort. Tender, funny, and harrowing by turns, The Best Minds is Jonathan Rosen's magnificent and heartbreaking account of good intentions and tragic outcomes whose significance will echo widely.",
+      "rating": 5,
+      "review": "A memoir that combines investigative journalism into the history of mental health research and public sentiment with personal reckoning of growing up in affluent New Rochelle in the 1960s, Yale Law School, and two best friends. This book made me cry. I learned from The Best Minds how brilliance and promise can unravel under the weight of mental illness and societal pressure, revealing the thin line between genius and tragedy. I loved it because it blended intellectual depth with raw humanity—showing how even the most gifted lives are shaped by forces beyond logic or control.",
+      "reflection": ""
+    },
+    {
+      "slug": "the-return-hisham-matar",
+      "title": "The Return: Fathers, Sons and the Land in Between",
+      "author": "Hisham Matar",
+      "published": "July 2016",
+      "finished": "July 2025",
+      "cover": "assets/the_return.jpg",
+      "summary": "In 2012, after the overthrow of Qaddafi, the acclaimed novelist Hisham Matar journeys to his native Libya after an absence of thirty years. When he was twelve, Matar and his family went into political exile. Eight years later Matar's father, a former diplomat and military man turned brave political dissident, was kidnapped from the streets of Cairo by the Libyan government and is believed to have been held in the regime's most notorious prison.",
+      "rating": 5,
+      "review": "I chose to read this book because, quite frankly, I knew nothing about Libya as a country, its history, or Qaddafi. This book is incredible. The way it combines investigative journalism with philosophical reckoning of father-son relationships makes it one of a kind. I was blown away by the comprehensive history of Libya that it gave, and even more blown away by Matar's story and the generational courage that he and his family have shown through oppression and constant threat. Highly recommend. It's also a quick read.",
+      "reflection": ""
+    },
+    {
+      "slug": "the-startup-of-you",
+      "title": "The Start-up of You: Adapt to the Future, Invest in Yourself, and Transform Your Career",
+      "author": "Reid Hoffman",
+      "published": "2012",
+      "finished": "June 2025 (not finished)",
+      "cover": "assets/the_startup_of_you.jpg",
       "summary": "",
-      "rating": 4,
+      "rating": 1.5,
+      "review": "The Start-Up of You honestly felt like a glorified LinkedIn post. The author basically says, \"Here's how I became successful—copy me,\" but a lot of it comes down to luck and timing more than some genius strategy. The main takeaways—stay adaptable, build connections, keep learning—are fine, just not groundbreaking. It read more like someone reverse-engineering their success story than offering real, applicable insight.",
+      "reflection": ""
+    },
+    {
+      "slug": "why-so-serious-nikola-jokic",
+      "title": "Why So Serious?: The Untold Story of NBA Champion Nikola Jokic",
+      "author": "Mike Singer",
+      "published": "December 2024",
+      "finished": "June 2025",
+      "cover": "assets/why_so_serious.jpg",
+      "summary": "Behind his veiled public persona, who really is Nikola Jokic? Filled with exclusive, sure-to-be-headline-making interviews, including unique insights from Jokic himself, Why So Serious? delves deep into the soul of the mysterious center and reveals how the big man developed his relentless work ethic, exceptional court vision, and magical playing style that has redefined dominance in the NBA.",
+      "rating": 5,
+      "review": "To me, as a lifelong NBA fan and self-proclaimed 'ball-knower,' watching Nikola Jokic play basketball is almost a religious experience. The way he moves so fluidly, always makes the right play, and only looks to score when his team absolutely needs him to, and the fact that he treats being the best player in the NBA like his day job! It's safe to say that I'm obsessed. I even traveled solo to Belgrade to watch some Serbian Euroleague hoops. This book was just a fun read. You realize how great of a human being Nikola Jokic is, and it just adds to his legacy in my eyes. What a guy!",
+      "reflection": ""
+    },
+    {
+      "slug": "the-charisma-myth",
+      "title": "The Charisma Myth: How Anyone Can Master the Art and Science of Personal Magnetism",
+      "author": "Olivia Fox Cabane",
+      "published": "2012",
+      "finished": "June 2025",
+      "cover": "assets/charisma_myth.jpg",
+      "summary": "",
+      "rating": 5,
       "review": "",
-      "reflection": "I do believe every twentysomething needs to read this book. It grounded me, helped me set long-term goals, and pushed me to embrace the agency that comes with life after college."
+      "reflection": "As an introvert, this book transformed my social and professional confidence. Presence, power, and warmth all come back to mindfulness—and Cabane's techniques make improvement feel achievable."
+    },
+    {
+      "slug": "goodbye-to-berlin",
+      "title": "Goodbye to Berlin",
+      "author": "Christopher Isherwood",
+      "published": "1939",
+      "finished": "March 2025",
+      "cover": "assets/goodbye_to_berlin.jpg",
+      "summary": "Goodbye to Berlin by Christopher Isherwood is a semi-autobiographical portrait of 1930s Berlin, capturing the city's decaying glamour and the rise of Nazism through the eyes of a detached English writer and the eccentric people around him. Told in a calm, observational style, it reveals a world on the brink of collapse beneath its nightlife and charm. The book's legacy endures as one of the defining depictions of prewar Europe—its characters later inspiring the musical Cabaret—and as a cornerstone of modern queer and political literature.",
+      "rating": 3.5,
+      "review": "I picked this book up at a small bookstore in Berlin—it just felt right, and honestly, I chose it for the cover. It turned out to be a lovely read, offering a glimpse into the glittering, uneasy life of pre–WWII Germany. I was especially drawn to Sally Bowles—her every moment feels like a performance, equal parts charm, chaos, and quiet sadness. Reading it while in Berlin made the city's history and atmosphere feel vividly alive.",
+      "reflection": ""
+    },
+    {
+      "slug": "the-greeks-a-global-history",
+      "title": "The Greeks: A Global History",
+      "author": "Roderick Beaton",
+      "published": "October 2021",
+      "finished": "January 2025",
+      "cover": "assets/the_greeks.jpg",
+      "summary": "More than two thousand years ago, the Greek city-states, led by Athens and Sparta, laid the foundation for much of modern science, the arts, politics, and law. But the influence of the Greeks did not end with the rise and fall of this classical civilization. As historian Roderick Beaton illustrates, over three millennia Greek speakers produced a series of civilizations that were rooted in southeastern Europe but again and again ranged widely across the globe. In The Greeks, Beaton traces this history from the Bronze Age Mycenaeans who built powerful fortresses at home and strong trade routes abroad, to the dramatic Eurasian conquests of Alexander the Great, to the pious Byzantines who sought to export Christianity worldwide, to today's Greek diaspora, which flourishes on five continents. The product of decades of research, this is the story of the Greeks and their global impact told as never before.",
+      "rating": 4.5,
+      "review": "I felt like I owed it to myself to brush up on the incredible history of Greece, and wow, Beaton's work was dense and comprehensive. I feel like the Greeks' influence on modern life as we know it is widely recognized, and yet the scale of that influence is so much more widespread than we give it credit for. From the alphabet to foundations of modern societal structure, they sort of came up with everything. As I write this post my semester abroad, it's amazing to reflect back on the feelings of intellectual legacy I felt while in naturally beautiful Greece.",
+      "reflection": ""
     },
     {
       "slug": "talking-to-strangers",
@@ -255,60 +377,16 @@
       "reflection": "Assigned reading for my Family Sociology class unexpectedly opened my eyes to how uneven the experience of working parents is in the U.S. Maybe Sweden is the place to raise a family after all."
     },
     {
-      "slug": "the-charisma-myth",
-      "title": "The Charisma Myth: How Anyone Can Master the Art and Science of Personal Magnetism",
-      "author": "Olivia Fox Cabane",
-      "published": "2012",
-      "finished": "June 2025",
-      "cover": "assets/charisma_myth.jpg",
+      "slug": "the-defining-decade",
+      "title": "The Defining Decade: Why Your Twenties Matter and How to Make the Most of Them Now",
+      "author": "Meg Jay, PhD",
+      "published": "2021",
+      "finished": "October 2024 (re-read October 2025; originally August 2023)",
+      "cover": "assets/defining_decade.jpg",
       "summary": "",
-      "rating": 5,
+      "rating": 4,
       "review": "",
-      "reflection": "As an introvert, this book transformed my social and professional confidence. Presence, power, and warmth all come back to mindfulness—and Cabane's techniques make improvement feel achievable."
-    },
-    {
-      "slug": "the-greeks-a-global-history",
-      "title": "The Greeks: A Global History",
-      "author": "Roderick Beaton",
-      "published": "October 2021",
-      "finished": "January 2025",
-      "cover": "assets/the_greeks.jpg",
-      "summary": "More than two thousand years ago, the Greek city-states, led by Athens and Sparta, laid the foundation for much of modern science, the arts, politics, and law. But the influence of the Greeks did not end with the rise and fall of this classical civilization. As historian Roderick Beaton illustrates, over three millennia Greek speakers produced a series of civilizations that were rooted in southeastern Europe but again and again ranged widely across the globe. In The Greeks, Beaton traces this history from the Bronze Age Mycenaeans who built powerful fortresses at home and strong trade routes abroad, to the dramatic Eurasian conquests of Alexander the Great, to the pious Byzantines who sought to export Christianity worldwide, to today’s Greek diaspora, which flourishes on five continents. The product of decades of research, this is the story of the Greeks and their global impact told as never before.",
-      "rating": 4.5,
-      "review": "I felt like I owed it to myself to brush up on the incredible history of Greece, and wow, Beaton's work was dense and comprehensive. I feel like the Greeks' influence on modern life as we know it is widely recognized, and yet the scale of that influence is so much more widespread than we give it credit for. From the alphabet to foundations of modern societal structure, they sort of came up with everything. As I write this post my semester abroad, it's amazing to reflect back on the feelings of intellectual legacy I felt while in naturally beautiful Greece."
-    },
-    {
-      "slug": "why-so-serious-nikola-jokic",
-      "title": "Why So Serious?: The Untold Story of NBA Champion Nikola Jokic",
-      "author": "Mike Singer",
-      "published": "December 2024",
-      "finished": "June 2025",
-      "cover": "assets/why_so_serious.jpg",
-      "summary": "Behind his veiled public persona, who really is Nikola Jokic? Filled with exclusive, sure-to-be-headline-making interviews, including unique insights from Jokic himself, Why So Serious? delves deep into the soul of the mysterious center and reveals how the big man developed his relentless work ethic, exceptional court vision, and magical playing style that has redefined dominance in the NBA.",
-      "rating": 5,
-      "review": "To me, as a lifelong NBA fan and self-proclaimed 'ball-knower,' watching Nikola Jokic play basketball is almost a religious experience. The way he moves so fluidly, always makes the right play, and only looks to score when his team absolutely needs him to, and the fact that he treats being the best player in the NBA like his day job! It's safe to say that I'm obsessed. I even traveled solo to Belgrade to watch some Serbian Euroleague hoops. This book was just a fun read. You realize how great of a human being Nikola Jokic is, and it just adds to his legacy in my eyes. What a guy!"
-    },
-    {
-      "slug": "the-return-hisham-matar",
-      "title": "The Return: Fathers, Sons and the Land in Between",
-      "author": "Hisham Matar",
-      "published": "July 2016",
-      "finished": "July 2025",
-      "cover": "assets/the_return.jpg",
-      "summary": "In 2012, after the overthrow of Qaddafi, the acclaimed novelist Hisham Matar journeys to his native Libya after an absence of thirty years. When he was twelve, Matar and his family went into political exile. Eight years later Matar's father, a former diplomat and military man turned brave political dissident, was kidnapped from the streets of Cairo by the Libyan government and is believed to have been held in the regime's most notorious prison.",
-      "rating": 5,
-      "review": "I chose to read this book because, quite frankly, I knew nothing about Libya as a country, its history, or Qaddafi. This book is incredible. The way it combines investigative journalism with philosophical reckoning of father-son relationships makes it one of a kind. I was blown away by the comprehensive history of Libya that it gave, and even more blown away by Matar's story and the generational courage that he and his family have shown through oppression and constant threat. Highly recommend. It's also a quick read."
-    },
-    {
-      "slug": "the-best-minds-jonathan-rosen",
-      "title": "The Best Minds: A Story of Friendship, Madness, and the Tragedy of Good Intentions",
-      "author": "Jonathan Rosen",
-      "published": "April 2023",
-      "finished": "August 2025",
-      "cover": "assets/the_best_minds.jpg",
-      "summary": "When the Rosens moved to New Rochelle in 1973, Jonathan Rosen and Michael Laudor became inseparable. Both children of college professors, the boys were best friends and keen competitors, and, when they both got into Yale University, seemed set to join the American meritocratic elite. Michael blazed through college in three years, graduating summa cum laude and landing a top-flight consulting job. But all wasn’t as it seemed. One day, Jonathan received the call: Michael had suffered a serious psychotic break and was in the locked ward of a psychiatric hospital. Diagnosed with paranoid schizophrenia, Michael was still battling delusions when he traded his halfway house for Yale Law School. Featured in The New York Times as a role model genius, he sold a memoir, with film rights to Ron Howard. But then Michael, in the grip of an unshakeable paranoid fantasy, stabbed his girlfriend Carrie to death and became a front-page story of an entirely different sort. Tender, funny, and harrowing by turns, The Best Minds is Jonathan Rosen’s magnificent and heartbreaking account of good intentions and tragic outcomes whose significance will echo widely.",
-      "rating": 5,
-      "review": "A memoir that combines investigative journalism into the history of mental health research and public sentiment with personal reckoning of growing up in affluent New Rochelle in the 1960s, Yale Law School, and two best friends. This book made me cry. I learned from The Best Minds how brilliance and promise can unravel under the weight of mental illness and societal pressure, revealing the thin line between genius and tragedy. I loved it because it blended intellectual depth with raw humanity—showing how even the most gifted lives are shaped by forces beyond logic or control."
+      "reflection": "I do believe every twentysomething needs to read this book. It grounded me, helped me set long-term goals, and pushed me to embrace the agency that comes with life after college."
     }
   ]
 }

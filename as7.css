@@ -130,7 +130,7 @@ nav ul li.active a {
   border-bottom: 2px solid var(--accent);
 }
 
-nav ul li.nav-reading-list a,
+nav ul li.nav-library a,
 nav ul li.nav-projects a {
   background-color: rgba(var(--accent-rgb), 0.1);
   color: var(--accent);
@@ -140,8 +140,8 @@ nav ul li.nav-projects a {
   transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-nav ul li.nav-reading-list a:hover,
-nav ul li.nav-reading-list a:focus,
+nav ul li.nav-library a:hover,
+nav ul li.nav-library a:focus,
 nav ul li.nav-projects a:hover,
 nav ul li.nav-projects a:focus {
   background-color: var(--accent);
@@ -150,7 +150,7 @@ nav ul li.nav-projects a:focus {
   box-shadow: 0 4px 8px rgba(var(--accent-rgb), 0.2);
 }
 
-nav ul li.nav-reading-list.active a,
+nav ul li.nav-library.active a,
 nav ul li.nav-projects.active a {
   background-color: var(--accent);
   color: var(--bg);
@@ -408,8 +408,8 @@ section {
   padding: 24px;
 }
 
-/* Reading List */
-#reading-list .reading-list-intro {
+/* Library */
+#library .library-intro {
   margin: 16px 0 24px;
   color: var(--text-muted);
   font-size: 1rem;
@@ -423,11 +423,16 @@ section {
   margin-top: 24px;
 }
 
-.reading-list-empty {
+.library-empty {
   margin-top: 24px;
   font-style: italic;
   color: var(--text-muted);
   text-align: center;
+}
+
+.book-card.pinned {
+  border: 2px solid var(--accent);
+  box-shadow: 0 8px 16px rgba(var(--accent-rgb), 0.2);
 }
 
 .book-card {
@@ -493,7 +498,7 @@ section {
   font-size: 0.9rem;
 }
 
-.reading-list-back {
+.library-back {
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -504,8 +509,28 @@ section {
   transition: color 0.2s ease;
 }
 
-.reading-list-back:hover,
-.reading-list-back:focus {
+.library-back:hover,
+.library-back:focus {
+  color: var(--secondary);
+  text-decoration: underline;
+}
+
+.book-pdf-section {
+  margin-top: 32px;
+  padding: 24px;
+  background-color: var(--muted-bg);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}
+
+.pdf-link {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.pdf-link:hover {
   color: var(--secondary);
   text-decoration: underline;
 }
