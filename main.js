@@ -8,6 +8,7 @@ const PHASES = [
 ];
 
 function renderNavbar(navigation, activeKey = null) {
+  const currentTheme = getCurrentTheme();
   return `
     <nav>
       <ul>
@@ -31,6 +32,9 @@ function renderNavbar(navigation, activeKey = null) {
           )
           .join("")}
       </ul>
+      <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+        <span id="theme-label">${currentTheme === "bc" ? "BC" : currentTheme === "hawaii" ? "Hawaiʻi" : "Dark"}</span>
+      </button>
     </nav>
   `;
 }
@@ -39,6 +43,7 @@ function setNavbar(navigation, activeKey = null) {
   const header = document.getElementById("navbar");
   if (header) {
     header.innerHTML = renderNavbar(navigation, activeKey);
+    attachThemeToggle();
   }
 }
 
@@ -290,6 +295,9 @@ function renderProjectPage(project) {
   `;
 }
 
+// Initialize theme on page load
+initializeTheme();
+
 fetch("data.json")
   .then((response) => response.json())
   .then((data) => {
@@ -504,4 +512,42 @@ function attachPhaseNavigation(phases) {
   }
 
   showCard(current);
+}
+
+/* Theme Management */
+function getCurrentTheme() {
+  return document.documentElement.getAttribute("data-theme") || localStorage.getItem("theme") || "bc";
+}
+
+function setTheme(theme) {
+  document.documentElement.setAttribute("data-theme", theme);
+  localStorage.setItem("theme", theme);
+  updateThemeToggleLabel(theme);
+}
+
+function cycleTheme() {
+  const current = getCurrentTheme();
+  const themes = ["bc", "hawaii", "dark"];
+  const currentIndex = themes.indexOf(current);
+  const nextIndex = (currentIndex + 1) % themes.length;
+  setTheme(themes[nextIndex]);
+}
+
+function updateThemeToggleLabel(theme) {
+  const label = document.getElementById("theme-label");
+  if (label) {
+    label.textContent = theme === "bc" ? "BC" : theme === "hawaii" ? "Hawaiʻi" : "Dark";
+  }
+}
+
+function attachThemeToggle() {
+  const toggle = document.getElementById("theme-toggle");
+  if (toggle) {
+    toggle.addEventListener("click", cycleTheme);
+  }
+}
+
+function initializeTheme() {
+  const savedTheme = localStorage.getItem("theme") || "bc";
+  setTheme(savedTheme);
 }
