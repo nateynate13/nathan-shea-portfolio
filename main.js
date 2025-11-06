@@ -125,9 +125,40 @@ function renderAbout(about) {
 
 
 function renderProjects(projects) {
+  const displayedProjects = projects.slice(0, 4);
+  const hasMore = projects.length > 4;
+  
   return `
     <section id="projects">
       <h2 class="section-title">Projects</h2>
+      <div class="projects-grid">
+        ${displayedProjects
+          .map(
+            (project) => `
+          <div class="project-card">
+            <h2>${project.title}</h2>
+            <p>${project.short_description}</p>
+            <a href="?project=${project.link}">View Project</a>
+          </div>
+        `
+          )
+          .join("")}
+      </div>
+      ${hasMore ? `
+        <div class="projects-see-more">
+          <a href="?page=projects" class="see-more-link">
+            See More Projects →
+          </a>
+        </div>
+      ` : ""}
+    </section>
+  `;
+}
+
+function renderProjectsPage(projects) {
+  return `
+    <section id="projects-page">
+      <h2 class="section-title">All Projects</h2>
       <div class="projects-grid">
         ${projects
           .map(
@@ -254,7 +285,7 @@ function renderProjectPage(project) {
     .join("")}
 </div>
 
-      <a href="?page=home#projects">Back to Projects</a>
+      <a href="?page=projects">Back to Projects</a>
     </section>
   `;
 }
@@ -288,6 +319,9 @@ fetch("data.json")
     } else if (page === "reading-list") {
       setNavbar(data.navigation, "reading-list");
       main.innerHTML = renderReadingListPage(data.readingList || []);
+    } else if (page === "projects") {
+      setNavbar(data.navigation, "projects");
+      main.innerHTML = renderProjectsPage(data.projects || []);
     } else if (page === "home") {
       renderMain(data);
     } else {
