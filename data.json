@@ -73,6 +73,34 @@
   ],
   "projects": [
     {
+      "title": "The Future of Housing Case Competition — 2nd Place ($2,500)",
+      "short_description": "Our team (Pinnacle Property Partners) placed 2nd against teams from universities nation-wide, earning the $2,500 prize for designing a 42-unit senior affordable housing development in Columbus, Ohio.",
+      "link": "future-of-housing-case-comp.html",
+      "details": {
+        "title": "The Future of Housing Case Competition — 2nd Place ($2,500)",
+        "description": "Boston College Corcoran Center for Real Estate & Urban Action\n\nOur team (Pinnacle Property Partners) placed 2nd against teams from universities nation-wide, earning the $2,500 prize for designing a 42-unit senior affordable housing development in Columbus, Ohio. We built a full underwriting and feasibility model that evaluated:\n\n• Capital stack optimization — including 4% LIHTC equity, soft debt sources, and tax-exempt bond financing\n\n• Return analysis — IRR and investor breakeven on LIHTC equity, debt service coverage ratios, and cash-on-cash projections\n\n• Rent & affordability strategy — modeled long-term cash flows under 60% AMI rent restrictions with sensitivity stress tests\n\n• Market demand validation — demographic shifts and senior aging trends using CoStar data\n\n• Feasibility & risk assessment — highlighted construction contingencies, layered financing risks, and exit scenarios\n\nOur proposal emphasized aging-in-place with dignity, integrating community partnerships, social programming, and a shared-space design that helps seniors feel connected rather than isolated. Judges highlighted our model's clarity, attention to regulatory requirements, and ability to tell the financial story behind the mission.",
+        "technologies": [
+          "CoStar",
+          "Argus",
+          "Excel (Financial Model)",
+          "PowerPoint"
+        ],
+        "logos": [
+          {
+            "alt": "Case Competition Photo",
+            "src": "assets/Case-Comp.jpg",
+            "style": "width: 600px; height: auto; max-width: 100%;"
+          },
+          {
+            "alt": "Corcoran Center Logo",
+            "src": "assets/corcoran-center.jpg",
+            "style": "width: 300px; height: auto;"
+          }
+        ],
+        "back_link": "index.html"
+      }
+    },
+    {
       "title": "Natixis Investment Managers – Wealth Management Research Presentation",
       "short_description": "During my internship with Natixis Investment Managers' Distribution Enablement Group, I collaborated on a high-profile research presentation delivered to firm leadership, including the CEO. Our team analyzed global wealth management trends and client segmentation strategies, producing data-driven insights on how Natixis can strengthen advisor engagement and enhance client outcomes across its multi-affiliate platform.",
       "link": "natixis-wealth-management.html",
@@ -80,11 +108,12 @@
         "title": "Natixis Investment Managers – Wealth Management Research Presentation (Summer 2025)",
         "description": "During my internship with Natixis Investment Managers' Distribution Enablement Group, I collaborated on a high-profile research presentation delivered to firm leadership, including the CEO. Our team analyzed global wealth management trends and client segmentation strategies, producing data-driven insights on how Natixis can strengthen advisor engagement and enhance client outcomes across its multi-affiliate platform. I contributed to the design, research synthesis, and visualization of key findings, helping communicate complex investment narratives clearly and effectively to senior management.",
         "technologies": [
-          "Data Analysis",
-          "Research Synthesis",
-          "Data Visualization",
-          "Presentation Design",
-          "Strategic Analysis"
+          "Microsoft CoPilot",
+          "PowerPoint",
+          "Word",
+          "PowerBI",
+          "Seismic",
+          "SQL"
         ],
         "logos": [
           {

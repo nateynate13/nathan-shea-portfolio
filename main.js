@@ -7,6 +7,217 @@ const PHASES = [
   { name: "BC Senior Spring Semester 🌸", start: "2026-01-12", end: "2026-05-18" },
 ];
 
+// Typewriter headlines
+const TYPEWRITER_ROLES = [
+  "Student",
+  "Researcher",
+  "Stoic",
+  "Builder",
+  "Hawaiʻi Native",
+  "Learner",
+  "Analyst",
+  "Reader",
+  "Problem Solver"
+];
+
+// Loading messages
+const LOADING_MESSAGES = [
+  "Generating clarity...",
+  "Fetching the next chapter...",
+  "Grabbing the right tools...",
+  "E mālama pono...",
+  "Building connections...",
+  "Curating thoughts..."
+];
+
+// Stoic quotes
+const STOIC_QUOTES = [
+  "The impediment to action advances action. What stands in the way becomes the way. — Marcus Aurelius",
+  "We suffer more often in imagination than in reality. — Seneca",
+  "You have power over your mind—not outside events. Realize this, and you will find strength. — Marcus Aurelius",
+  "It is not that we have a short time to live, but that we waste a lot of it. — Seneca",
+  "The best revenge is not being like your enemy. — Marcus Aurelius",
+  "He who fears death will never do anything worth of a man who is alive. — Seneca",
+  "If you are distressed by anything external, the pain is not due to the thing itself, but to your estimate of it. — Marcus Aurelius",
+  "Wealth consists not in having great possessions, but in having few wants. — Epictetus"
+];
+
+// Book tags mapping (inferred from content)
+const BOOK_TAGS = {
+  "the-echo-of-greece": ["🧠 Philosophy", "🌍 History"],
+  "tuesdays-with-morrie": ["🧠 Philosophy", "💭 Life"],
+  "a-safe-place": ["🎭 Identity", "🌍 Society"],
+  "the-alchemist": ["🧠 Philosophy", "💭 Life"],
+  "the-best-minds-jonathan-rosen": ["🧠 Philosophy", "🌍 Society", "🎭 Identity"],
+  "the-return-hisham-matar": ["🌍 History", "🌍 Society"],
+  "the-startup-of-you": ["📈 Business"],
+  "why-so-serious-nikola-jokic": ["🏀 Sports", "💭 Life"],
+  "the-charisma-myth": ["💭 Life", "📈 Business"],
+  "goodbye-to-berlin": ["🌍 History", "🎭 Identity"],
+  "the-greeks-a-global-history": ["🌍 History"],
+  "talking-to-strangers": ["🧠 Philosophy", "🌍 Society"],
+  "making-motherhood-work": ["🌍 Society"],
+  "the-defining-decade": ["💭 Life", "📈 Business"]
+};
+
+// Loading Screen Functions
+function showLoadingScreen() {
+  const loadingScreen = document.getElementById("loading-screen");
+  const loadingText = document.getElementById("loading-text");
+  if (loadingScreen && loadingText) {
+    loadingScreen.style.display = "flex";
+    let messageIndex = 0;
+    loadingText.textContent = LOADING_MESSAGES[messageIndex];
+    const interval = setInterval(() => {
+      messageIndex = (messageIndex + 1) % LOADING_MESSAGES.length;
+      loadingText.textContent = LOADING_MESSAGES[messageIndex];
+    }, 1500);
+    return interval;
+  }
+  return null;
+}
+
+function hideLoadingScreen(interval) {
+  if (interval) clearInterval(interval);
+  const loadingScreen = document.getElementById("loading-screen");
+  if (loadingScreen) {
+    setTimeout(() => {
+      loadingScreen.style.opacity = "0";
+      setTimeout(() => {
+        loadingScreen.style.display = "none";
+      }, 300);
+    }, 500);
+  }
+}
+
+// Typewriter Effect
+function initTypewriter(element, roles) {
+  if (!element) return;
+  let roleIndex = 0;
+  let charIndex = 0;
+  let isDeleting = false;
+  let currentText = "";
+
+  function type() {
+    const currentRole = roles[roleIndex];
+    
+    if (isDeleting) {
+      currentText = currentRole.substring(0, charIndex - 1);
+      charIndex--;
+    } else {
+      currentText = currentRole.substring(0, charIndex + 1);
+      charIndex++;
+    }
+
+    element.textContent = currentText + (isDeleting ? "" : "|");
+
+    if (!isDeleting && charIndex === currentRole.length) {
+      setTimeout(() => { isDeleting = true; }, 2000);
+    } else if (isDeleting && charIndex === 0) {
+      isDeleting = false;
+      roleIndex = (roleIndex + 1) % roles.length;
+    }
+
+    const speed = isDeleting ? 50 : 100;
+    setTimeout(type, speed);
+  }
+
+  type();
+}
+
+// Theme Transition
+function animateThemeTransition() {
+  const overlay = document.getElementById("theme-transition-overlay");
+  if (overlay) {
+    overlay.style.opacity = "1";
+    setTimeout(() => {
+      overlay.style.opacity = "0";
+    }, 300);
+  }
+}
+
+// Copy Email Function (global)
+window.copyEmail = function(email, event) {
+  const button = event ? event.target : null;
+  navigator.clipboard.writeText(email).then(() => {
+    if (button) {
+      const originalText = button.textContent;
+      button.textContent = "Copied!";
+      button.style.backgroundColor = "var(--accent)";
+      setTimeout(() => {
+        button.textContent = originalText;
+        button.style.backgroundColor = "";
+      }, 2000);
+    }
+  }).catch(() => {
+    // Fallback for older browsers
+    const textArea = document.createElement("textarea");
+    textArea.value = email;
+    document.body.appendChild(textArea);
+    textArea.select();
+    document.execCommand("copy");
+    document.body.removeChild(textArea);
+    if (button) {
+      const originalText = button.textContent;
+      button.textContent = "Copied!";
+      setTimeout(() => {
+        button.textContent = originalText;
+      }, 2000);
+    }
+  });
+};
+
+// Get Random Stoic Quote
+function getRandomStoicQuote() {
+  return STOIC_QUOTES[Math.floor(Math.random() * STOIC_QUOTES.length)];
+}
+
+// Keyboard Navigation
+function setupKeyboardNavigation() {
+  document.addEventListener("keydown", (e) => {
+    // Arrow key navigation for phase cards
+    if (e.key === "ArrowLeft") {
+      const prevBtn = document.getElementById("prev-phase");
+      if (prevBtn) prevBtn.click();
+    } else if (e.key === "ArrowRight") {
+      const nextBtn = document.getElementById("next-phase");
+      if (nextBtn) nextBtn.click();
+    }
+  });
+}
+
+// Mobile Swipe Detection
+function setupSwipeDetection() {
+  let touchStartX = 0;
+  let touchEndX = 0;
+
+  document.addEventListener("touchstart", (e) => {
+    touchStartX = e.changedTouches[0].screenX;
+  });
+
+  document.addEventListener("touchend", (e) => {
+    touchEndX = e.changedTouches[0].screenX;
+    handleSwipe();
+  });
+
+  function handleSwipe() {
+    const swipeThreshold = 50;
+    const diff = touchStartX - touchEndX;
+    
+    if (Math.abs(diff) > swipeThreshold) {
+      if (diff > 0) {
+        // Swipe left - next
+        const nextBtn = document.getElementById("next-phase");
+        if (nextBtn) nextBtn.click();
+      } else {
+        // Swipe right - previous
+        const prevBtn = document.getElementById("prev-phase");
+        if (prevBtn) prevBtn.click();
+      }
+    }
+  }
+}
+
 function renderNavbar(navigation, activeKey = null) {
   const currentTheme = getCurrentTheme();
   return `
@@ -89,16 +300,39 @@ function renderMain(data) {
   const phases = computePhases(today);
   main.innerHTML = `
     ${renderAbout(data.about)}
+    ${renderStoicCorner()}
     ${renderNews(data.news, today, phases)}
     ${renderProjects(data.projects)}
+    ${renderInspirationWall(data.inspiration || [])}
   `;
+
+  // Initialize typewriter after DOM is ready
+  setTimeout(() => {
+    const typewriterEl = document.getElementById("typewriter-text");
+    if (typewriterEl) initTypewriter(typewriterEl, TYPEWRITER_ROLES);
+  }, 100);
 
   addNewsSearchEventListener(data.news);
   attachPhaseNavigation(phases);
+}
 
+function renderStoicCorner() {
+  const quote = getRandomStoicQuote();
+  return `
+    <section id="stoic-corner">
+      <h2 class="section-title">💭 Stoic Corner</h2>
+      <blockquote class="stoic-quote">
+        "${quote}"
+      </blockquote>
+      <p class="stoic-refresh">Refresh page for a new quote</p>
+    </section>
+  `;
 }
 
 function renderAbout(about) {
+  const emailContact = about.contact.find(c => c.type === "Email");
+  const emailValue = emailContact ? emailContact.value : "";
+  
   return `
     <section id="about">
       <h2 class="section-title">About</h2>
@@ -106,10 +340,14 @@ function renderAbout(about) {
         <div class="about-left">
           <img src="${about.image}" alt="Profile image of ${about.name}" class="about-image" />
           <p><strong>${about.name}</strong>, ${about.position}</p>
+          <div class="typewriter-container">
+            <span class="typewriter-prefix">I am a </span>
+            <span id="typewriter-text" class="typewriter-text"></span>
+          </div>
         </div>
         <div class="about-right">
           <p>${about.bio}</p>
-          <p class="location">Location: ${about.location}</p> <!-- Added class here -->
+          <p class="location">Location: ${about.location}</p>
           <div class="contact-details">
             ${about.contact
               .map(
@@ -117,6 +355,7 @@ function renderAbout(about) {
               <p>
                 <img src="${contact.icon}" alt="${contact.type} icon" class="icon" />
                 <a href="${contact.link}">${contact.value}</a>
+                ${contact.type === "Email" ? `<button class="copy-email-btn" onclick="copyEmail('${contact.value}', event)" aria-label="Copy email">📋</button>` : ""}
               </p>
             `
               )
@@ -184,6 +423,14 @@ function renderProjectsPage(projects) {
 function renderReadingListPage(books) {
   const bookEntries = Array.isArray(books) ? books : [];
   
+  // Get all unique tags
+  const allTags = new Set();
+  bookEntries.forEach(book => {
+    const tags = BOOK_TAGS[book.slug] || [];
+    tags.forEach(tag => allTags.add(tag));
+  });
+  const uniqueTags = Array.from(allTags).sort();
+  
   // Separate pinned and unpinned books
   const pinnedBooks = bookEntries.filter(book => book.pinned === true);
   const unpinnedBooks = bookEntries.filter(book => !book.pinned);
@@ -193,17 +440,24 @@ function renderReadingListPage(books) {
   
   const bookCards = sortedBooks
     .map(
-      (book) => `
-          <a class="book-card${book.pinned ? ' pinned' : ''}" href="?book=${book.slug}" aria-label="View details for ${book.title}">
+      (book) => {
+        const tags = BOOK_TAGS[book.slug] || [];
+        const tagsHTML = tags.length > 0 
+          ? `<div class="book-tags">${tags.map(tag => `<span class="book-tag" data-tag="${tag}">${tag}</span>`).join("")}</div>`
+          : "";
+        return `
+          <a class="book-card${book.pinned ? ' pinned' : ''}" href="?book=${book.slug}" aria-label="View details for ${book.title}" data-book-slug="${book.slug}">
             <img src="${book.cover}" alt="Cover of ${book.title}" loading="lazy" />
             <div class="book-overlay">
               <h3>${book.title}</h3>
               <p>${book.author}</p>
               <p>Published ${book.published}</p>
               <p>Read ${book.finished}</p>
+              ${tagsHTML}
             </div>
           </a>
-        `
+        `;
+      }
     )
     .join("");
 
@@ -211,11 +465,19 @@ function renderReadingListPage(books) {
     ? ""
     : '<p class="library-empty">My library is under construction — check back soon for more favorites!</p>';
 
+  const filterHTML = uniqueTags.length > 0
+    ? `<div class="library-filters">
+        <button class="filter-btn active" data-tag="all">All</button>
+        ${uniqueTags.map(tag => `<button class="filter-btn" data-tag="${tag}">${tag}</button>`).join("")}
+      </div>`
+    : "";
+
   return `
     <section id="library">
       <h2 class="section-title">Library</h2>
       <p class="library-intro">A growing collection of books that have shaped my curiosity lately.</p>
-      <div class="book-grid">${bookCards}</div>
+      ${filterHTML}
+      <div class="book-grid" id="book-grid">${bookCards}</div>
       ${emptyState}
     </section>
   `;
@@ -268,6 +530,106 @@ function renderBookPage(book) {
   `;
 }
 
+// Library Filter Functionality
+function setupLibraryFilters() {
+  const filterButtons = document.querySelectorAll(".filter-btn");
+  const bookCards = document.querySelectorAll(".book-card");
+
+  filterButtons.forEach(btn => {
+    btn.addEventListener("click", () => {
+      // Update active state
+      filterButtons.forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+
+      const selectedTag = btn.getAttribute("data-tag");
+
+      bookCards.forEach(card => {
+        if (selectedTag === "all") {
+          card.style.display = "";
+        } else {
+          const cardTags = card.querySelectorAll(".book-tag");
+          const hasTag = Array.from(cardTags).some(tagEl => tagEl.getAttribute("data-tag") === selectedTag);
+          card.style.display = hasTag ? "" : "none";
+        }
+      });
+    });
+  });
+}
+
+// Render Now Page
+function renderNowPage() {
+  return `
+    <section id="now-page">
+      <h2 class="section-title">Now</h2>
+      <p class="now-intro">What I'm focused on right now:</p>
+      <div class="now-content">
+        <div class="now-item">
+          <h3>Right now, I'm learning:</h3>
+          <p>REITs</p>
+        </div>
+        <div class="now-item">
+          <h3>Right now, I'm reading:</h3>
+          <p>Liar's Poker by Michael Lewis</p>
+        </div>
+        <div class="now-item">
+          <h3>Right now, I'm wrestling with:</h3>
+          <p>"Senioritus" <button class="senioritis-toggle" onclick="toggleSenioritis()">(click to read more)</button></p>
+          <div id="senioritis-explanation" class="senioritis-explanation" style="display: none;">
+            <p>Senioritis is the late-college mindset where motivation for classes fades, not because of laziness but because your energy shifts away from grades and toward preparing for real life. It is a restless mix of feeling mentally ready for a slower, more intentional pace while also sensing quiet anxiety about leaving the college bubble with its routines, friendships, and identity-defining experiences. It is not just burnout, but the emotional transition from student life to adulthood, felt one creeping day at a time.</p>
+          </div>
+        </div>
+      </div>
+      <p class="now-updated">Last updated: November 18, 2025</p>
+    </section>
+  `;
+}
+
+window.toggleSenioritis = function() {
+  const explanation = document.getElementById("senioritis-explanation");
+  const button = document.querySelector(".senioritis-toggle");
+  if (explanation) {
+    if (explanation.style.display === "none") {
+      explanation.style.display = "block";
+      if (button) button.textContent = "(click to hide)";
+    } else {
+      explanation.style.display = "none";
+      if (button) button.textContent = "(click to read more)";
+    }
+  }
+};
+
+// Render Inspiration Wall
+function renderInspirationWall(inspirationItems) {
+  if (!inspirationItems || inspirationItems.length === 0) {
+    return "";
+  }
+
+  return `
+    <section id="inspiration-wall">
+      <h2 class="section-title">Inspiration Wall</h2>
+      <p class="inspiration-intro">Moments, ideas, and experiences that have altered my worldview.</p>
+      <div class="inspiration-grid">
+        ${inspirationItems
+          .map(
+            (item) => `
+          <div class="inspiration-item">
+            ${item.image ? `<img src="${item.image}" alt="${item.title || 'Inspiration'}" loading="lazy" />` : ""}
+            ${item.audio ? `<audio controls><source src="${item.audio}" type="audio/mpeg"></audio>` : ""}
+            <div class="inspiration-overlay">
+              <h3>${item.title || ""}</h3>
+              <p>${item.description || ""}</p>
+              ${item.date ? `<small>${item.date}</small>` : ""}
+            </div>
+          </div>
+        `
+          )
+          .join("")}
+      </div>
+    </section>
+  `;
+}
+
+
 function renderRatingStars(rating) {
   const stars = [];
   for (let i = 1; i <= 5; i++) {
@@ -314,6 +676,13 @@ function renderProjectPage(project) {
 // Initialize theme on page load
 initializeTheme();
 
+// Initialize global features
+setupKeyboardNavigation();
+setupSwipeDetection();
+
+// Show loading screen
+const loadingInterval = showLoadingScreen();
+
 fetch("data.json")
   .then((response) => response.json())
   .then((data) => {
@@ -339,20 +708,31 @@ fetch("data.json")
       } else {
         setNavbar(data.navigation, "library");
         main.innerHTML = renderReadingListPage(data.readingList || []);
+        setTimeout(() => setupLibraryFilters(), 100);
       }
     } else if (page === "library") {
       setNavbar(data.navigation, "library");
       main.innerHTML = renderReadingListPage(data.readingList || []);
+      setTimeout(() => setupLibraryFilters(), 100);
     } else if (page === "projects") {
       setNavbar(data.navigation, "projects");
       main.innerHTML = renderProjectsPage(data.projects || []);
+    } else if (page === "now") {
+      setNavbar(data.navigation, "home");
+      main.innerHTML = renderNowPage();
     } else if (page === "home") {
       renderMain(data);
     } else {
       renderMain(data);
     }
+
+    // Hide loading screen
+    hideLoadingScreen(loadingInterval);
   })
-  .catch((error) => console.error("Error fetching data:", error));
+  .catch((error) => {
+    console.error("Error fetching data:", error);
+    hideLoadingScreen(loadingInterval);
+  });
 
 function renderNews(news, today = new Date(), phases = computePhases(today)) {
   const graduationDate = new Date("2026-05-18");
@@ -546,7 +926,10 @@ function cycleTheme() {
   const themes = ["bc", "hawaii", "dark"];
   const currentIndex = themes.indexOf(current);
   const nextIndex = (currentIndex + 1) % themes.length;
-  setTheme(themes[nextIndex]);
+  animateThemeTransition();
+  setTimeout(() => {
+    setTheme(themes[nextIndex]);
+  }, 150);
 }
 
 function updateThemeToggleLabel(theme) {

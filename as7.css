@@ -880,3 +880,300 @@ a:hover {
 [data-theme="dark"] a:hover {
   color: var(--secondary);
 }
+
+/* Loading Screen */
+.loading-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  transition: opacity 0.3s ease;
+}
+
+.loading-content {
+  text-align: center;
+}
+
+.loading-content p {
+  font-size: 1.2rem;
+  color: var(--accent);
+  font-weight: 500;
+}
+
+/* Theme Transition Overlay */
+.theme-transition-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--bg);
+  z-index: 9998;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+/* Typewriter Effect */
+.typewriter-container {
+  margin-top: 16px;
+  font-size: 1.1rem;
+  min-height: 2rem;
+}
+
+.typewriter-prefix {
+  color: var(--text);
+}
+
+.typewriter-text {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* Stoic Corner */
+#stoic-corner {
+  background: linear-gradient(135deg, var(--muted-bg) 0%, var(--bg) 100%);
+}
+
+.stoic-quote {
+  font-size: 1.2rem;
+  font-style: italic;
+  line-height: 1.8;
+  color: var(--text);
+  border-left: 4px solid var(--accent);
+  padding-left: 24px;
+  margin: 24px 0;
+}
+
+.stoic-refresh {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  font-style: italic;
+  margin-top: 16px;
+}
+
+/* Copy Email Button */
+.copy-email-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 4px 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  margin-left: 8px;
+  transition: all 0.2s ease;
+}
+
+.copy-email-btn:hover {
+  background: var(--accent);
+  color: var(--bg);
+  border-color: var(--accent);
+}
+
+/* Book Tags */
+.book-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.book-tag {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+
+/* Library Filters */
+.library-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 24px;
+  padding: 16px;
+  background: var(--muted-bg);
+  border-radius: 8px;
+}
+
+.filter-btn {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+  color: var(--text);
+}
+
+.filter-btn:hover {
+  background: var(--accent);
+  color: var(--bg);
+  border-color: var(--accent);
+}
+
+.filter-btn.active {
+  background: var(--accent);
+  color: var(--bg);
+  border-color: var(--accent);
+}
+
+/* Now Page */
+.now-intro {
+  font-size: 1.1rem;
+  color: var(--text-muted);
+  margin-bottom: 24px;
+}
+
+.now-content {
+  display: grid;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.now-item {
+  padding: 20px;
+  background: var(--muted-bg);
+  border-radius: 8px;
+  border-left: 4px solid var(--accent);
+}
+
+.now-item h3 {
+  color: var(--accent);
+  margin-bottom: 12px;
+  font-size: 1.1rem;
+}
+
+.now-updated {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  font-style: italic;
+  text-align: right;
+}
+
+/* Senioritis Explanation */
+.senioritis-toggle {
+  background: transparent;
+  border: none;
+  color: var(--accent);
+  cursor: pointer;
+  text-decoration: underline;
+  font-size: inherit;
+  padding: 0;
+  margin-left: 4px;
+}
+
+.senioritis-toggle:hover {
+  color: var(--secondary);
+}
+
+.senioritis-explanation {
+  margin-top: 16px;
+  padding: 16px;
+  background: var(--muted-bg);
+  border-radius: 8px;
+  border-left: 4px solid var(--accent);
+  font-style: italic;
+  line-height: 1.8;
+}
+
+/* Inspiration Wall */
+.inspiration-intro {
+  margin: 16px 0 24px;
+  color: var(--text-muted);
+  font-size: 1rem;
+  line-height: 1.75;
+}
+
+.inspiration-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 24px;
+  margin-top: 24px;
+}
+
+.inspiration-item {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px var(--card-shadow);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  background: var(--muted-bg);
+  min-height: 200px;
+}
+
+.inspiration-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px var(--card-hover-shadow);
+}
+
+.inspiration-item img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  display: block;
+}
+
+.inspiration-item audio {
+  width: 100%;
+  margin: 16px;
+}
+
+.inspiration-overlay {
+  padding: 20px;
+  background: var(--bg);
+}
+
+.inspiration-overlay h3 {
+  font-size: 1.1rem;
+  margin-bottom: 8px;
+  color: var(--accent);
+}
+
+.inspiration-overlay p {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+
+.inspiration-overlay small {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* Book Hover Quotes (for future enhancement) */
+.book-card:hover .book-quote-bubble {
+  display: block;
+}
+
+.book-quote-bubble {
+  display: none;
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg);
+  padding: 12px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  margin-bottom: 8px;
+  max-width: 200px;
+  font-size: 0.85rem;
+  z-index: 10;
+}
+
+/* Responsive Updates */
+@media (max-width: 768px) {
+  .inspiration-grid {
+    grid-template-columns: 1fr;
+  }
+}
