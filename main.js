@@ -39,7 +39,11 @@ const STOIC_QUOTES = [
   "The best revenge is not being like your enemy. — Marcus Aurelius",
   "He who fears death will never do anything worth of a man who is alive. — Seneca",
   "If you are distressed by anything external, the pain is not due to the thing itself, but to your estimate of it. — Marcus Aurelius",
-  "Wealth consists not in having great possessions, but in having few wants. — Epictetus"
+  "Wealth consists not in having great possessions, but in having few wants. — Epictetus",
+  "Waste no more time arguing about what a good man should be. Be one. — Marcus Aurelius",
+  "Never call yourself a philosopher, nor talk a great deal among the unlearned about theorems, but act conformably to them. — Epictetus",
+  "It is impossible for a man to learn what he thinks he already knows. — Epictetus",
+  "Lay hold of today's task, and you will not depend so much upon tomorrow's. — Seneca"
 ];
 
 // Book tags mapping (inferred from content)

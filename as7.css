@@ -402,17 +402,24 @@ section {
 
 .logo-grid {
   display: flex;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   gap: 24px;
   margin-top: 24px;
   padding: 24px;
-  align-items: center;
-  overflow-x: auto;
+  align-items: flex-start;
 }
 
 .logo-grid img {
   max-width: 200px;
   max-height: 150px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+.logo-grid img[alt="Case Competition Photo"] {
+  max-width: 500px;
+  max-height: 700px;
   width: auto;
   height: auto;
   object-fit: contain;
@@ -566,11 +573,19 @@ section {
 
 .book-detail-content {
   display: grid;
+  grid-template-columns: 200px 1fr;
   gap: 32px;
+  align-items: start;
+}
+
+.book-detail-cover {
+  position: sticky;
+  top: 24px;
 }
 
 .book-detail-cover img {
   width: 100%;
+  max-width: 200px;
   border-radius: 16px;
   box-shadow: 0 12px 24px var(--card-shadow);
 }
@@ -859,6 +874,19 @@ footer:hover .footer-motto {
 
   .book-detail-info h1 {
     font-size: 1.6rem;
+  }
+
+  .book-detail-content {
+    grid-template-columns: 1fr;
+  }
+
+  .book-detail-cover {
+    position: relative;
+    text-align: center;
+  }
+
+  .book-detail-cover img {
+    max-width: 150px;
   }
 }
 
