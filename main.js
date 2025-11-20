@@ -318,6 +318,7 @@ function renderMain(data) {
 
   addNewsSearchEventListener(data.news);
   attachPhaseNavigation(phases);
+  setupStoicQuoteClick();
 }
 
 function renderStoicCorner() {
@@ -325,12 +326,21 @@ function renderStoicCorner() {
   return `
     <section id="stoic-corner">
       <h2 class="section-title">💭 Stoic Corner</h2>
-      <blockquote class="stoic-quote">
+      <blockquote class="stoic-quote" id="stoic-quote" style="cursor: pointer;">
         "${quote}"
       </blockquote>
-      <p class="stoic-refresh">Refresh page for a new quote</p>
     </section>
   `;
+}
+
+function setupStoicQuoteClick() {
+  const stoicQuote = document.getElementById("stoic-quote");
+  if (stoicQuote) {
+    stoicQuote.addEventListener("click", () => {
+      const newQuote = getRandomStoicQuote();
+      stoicQuote.textContent = `"${newQuote}"`;
+    });
+  }
 }
 
 function renderAbout(about) {
