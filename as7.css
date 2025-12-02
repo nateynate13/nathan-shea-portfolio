@@ -130,8 +130,7 @@ nav ul li.active a {
   border-bottom: 2px solid var(--accent);
 }
 
-nav ul li.nav-library a,
-nav ul li.nav-projects a {
+nav ul li.nav-library a {
   background-color: rgba(var(--accent-rgb), 0.1);
   color: var(--accent);
   font-weight: 600;
@@ -141,21 +140,48 @@ nav ul li.nav-projects a {
 }
 
 nav ul li.nav-library a:hover,
-nav ul li.nav-library a:focus,
-nav ul li.nav-projects a:hover,
-nav ul li.nav-projects a:focus {
+nav ul li.nav-library a:focus {
   background-color: var(--accent);
   color: var(--bg);
   transform: translateY(-1px);
   box-shadow: 0 4px 8px rgba(var(--accent-rgb), 0.2);
 }
 
-nav ul li.nav-library.active a,
-nav ul li.nav-projects.active a {
+nav ul li.nav-library.active a {
   background-color: var(--accent);
   color: var(--bg);
   border-color: var(--accent);
   box-shadow: 0 6px 12px rgba(var(--accent-rgb), 0.25);
+  border-bottom: none;
+}
+
+nav ul li.nav-projects a {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #ffffff;
+  font-weight: 700;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  padding: 10px 20px;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 0.9rem;
+}
+
+nav ul li.nav-projects a:hover,
+nav ul li.nav-projects a:focus {
+  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.5);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+nav ul li.nav-projects.active a {
+  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
   border-bottom: none;
 }
 

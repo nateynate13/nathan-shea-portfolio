@@ -30,20 +30,20 @@ const LOADING_MESSAGES = [
   "Curating thoughts..."
 ];
 
-// Stoic quotes
+// Stoic quotes (verified and properly formatted)
 const STOIC_QUOTES = [
-  "The impediment to action advances action. What stands in the way becomes the way. — Marcus Aurelius",
-  "We suffer more often in imagination than in reality. — Seneca",
-  "You have power over your mind—not outside events. Realize this, and you will find strength. — Marcus Aurelius",
-  "It is not that we have a short time to live, but that we waste a lot of it. — Seneca",
-  "The best revenge is not being like your enemy. — Marcus Aurelius",
-  "He who fears death will never do anything worth of a man who is alive. — Seneca",
-  "If you are distressed by anything external, the pain is not due to the thing itself, but to your estimate of it. — Marcus Aurelius",
-  "Wealth consists not in having great possessions, but in having few wants. — Epictetus",
-  "Waste no more time arguing about what a good man should be. Be one. — Marcus Aurelius",
-  "Never call yourself a philosopher, nor talk a great deal among the unlearned about theorems, but act conformably to them. — Epictetus",
-  "It is impossible for a man to learn what he thinks he already knows. — Epictetus",
-  "Lay hold of today's task, and you will not depend so much upon tomorrow's. — Seneca"
+  { text: "The impediment to action advances action. What stands in the way becomes the way.", author: "Marcus Aurelius" },
+  { text: "We suffer more often in imagination than in reality.", author: "Seneca" },
+  { text: "You have power over your mind—not outside events. Realize this, and you will find strength.", author: "Marcus Aurelius" },
+  { text: "It is not that we have a short time to live, but that we waste a lot of it.", author: "Seneca" },
+  { text: "The best revenge is to be unlike him who performed the injury.", author: "Marcus Aurelius" },
+  { text: "Let us prepare our minds as if we'd come to the very end of life. Let us postpone nothing.", author: "Seneca" },
+  { text: "If you are distressed by anything external, the pain is not due to the thing itself, but to your estimate of it; and this you have the power to revoke at any moment.", author: "Marcus Aurelius" },
+  { text: "Wealth consists not in having great possessions, but in having few wants.", author: "Epictetus" },
+  { text: "Waste no more time arguing about what a good man should be. Be one.", author: "Marcus Aurelius" },
+  { text: "Never call yourself a philosopher, nor talk a great deal among the unlearned about theorems, but act conformably to them.", author: "Epictetus" },
+  { text: "It is impossible for a man to learn what he thinks he already knows.", author: "Epictetus" },
+  { text: "Begin at once to live, and count each separate day as a separate life.", author: "Seneca" }
 ];
 
 // Book tags mapping (inferred from content)
@@ -173,7 +173,8 @@ window.copyEmail = function(email, event) {
 
 // Get Random Stoic Quote
 function getRandomStoicQuote() {
-  return STOIC_QUOTES[Math.floor(Math.random() * STOIC_QUOTES.length)];
+  const quote = STOIC_QUOTES[Math.floor(Math.random() * STOIC_QUOTES.length)];
+  return `"${quote.text}" — ${quote.author}`;
 }
 
 // Keyboard Navigation
@@ -304,9 +305,8 @@ function renderMain(data) {
   const phases = computePhases(today);
   main.innerHTML = `
     ${renderAbout(data.about)}
-    ${renderStoicCorner()}
     ${renderNews(data.news, today, phases)}
-    ${renderProjects(data.projects)}
+    ${renderStoicCorner()}
     ${renderInspirationWall(data.inspiration || [])}
   `;
 
@@ -327,7 +327,7 @@ function renderStoicCorner() {
     <section id="stoic-corner">
       <h2 class="section-title">💭 Stoic Corner</h2>
       <blockquote class="stoic-quote" id="stoic-quote" style="cursor: pointer;">
-        "${quote}"
+        ${quote}
       </blockquote>
     </section>
   `;
@@ -338,7 +338,7 @@ function setupStoicQuoteClick() {
   if (stoicQuote) {
     stoicQuote.addEventListener("click", () => {
       const newQuote = getRandomStoicQuote();
-      stoicQuote.textContent = `"${newQuote}"`;
+      stoicQuote.textContent = newQuote;
     });
   }
 }
