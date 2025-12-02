@@ -880,7 +880,8 @@ function renderCountdownWidget(phases, today, gradCountdown) {
 
   return `
     <section id="life-countdown">
-      <h2 class="section-title">⏳ Current/Future Happenings</h2>
+      <h2 class="section-title">Now</h2>
+      <p class="now-subtext">Just trying to soak it all in</p>
       <div class="countdown-widget">
         <div class="countdown-phase-nav">
           <button id="prev-phase" aria-label="Previous Phase">←</button>
