@@ -61,7 +61,8 @@ const BOOK_TAGS = {
   "the-greeks-a-global-history": ["🌍 History"],
   "talking-to-strangers": ["🧠 Philosophy", "🌍 Society"],
   "making-motherhood-work": ["🌍 Society"],
-  "the-defining-decade": ["💭 Life", "📈 Business"]
+  "the-defining-decade": ["💭 Life", "📈 Business"],
+  "abundance": ["📈 Business", "🌍 Society"]
 };
 
 // Loading Screen Functions

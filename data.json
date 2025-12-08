@@ -253,6 +253,18 @@
   ],
   "readingList": [
     {
+      "slug": "abundance",
+      "title": "Abundance",
+      "author": "Ezra Klein and Derek Thompson",
+      "published": "March 2025",
+      "finished": "May 2025",
+      "cover": "assets/abundance.jpg",
+      "summary": "Abundance by Ezra Klein and Derek Thompson presents a vision for a future where society produces more than enough of what people need to live fulfilling lives. The authors argue that many of today's shortages are not inevitable but are the result of policy choices that constrain production and innovation. They advocate for an 'abundance agenda' that focuses on increasing the supply of essential resources such as housing, clean energy, transportation, and healthcare by removing bureaucratic obstacles and regulatory barriers. A #1 New York Times Bestseller, the book offers a compelling and hopeful perspective on building a more prosperous future through policy reform.",
+      "rating": 4,
+      "review": "I love Derek Thompson's podcast, Plain English, and he is probably my favorite journalist, as he talks about all sorts of topics, normally centered around economics. The book was no different, and it gave me hope, which is hard to come by these days.",
+      "reflection": ""
+    },
+    {
       "slug": "the-echo-of-greece",
       "title": "The Echo of Greece",
       "author": "Edith Hamilton",
