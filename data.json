@@ -253,6 +253,30 @@
   ],
   "readingList": [
     {
+      "slug": "liars-poker",
+      "title": "Liar's Poker",
+      "author": "Michael Lewis",
+      "published": "1989",
+      "finished": "December 2025",
+      "cover": "assets/liars_poker.jpg",
+      "summary": "Liar's Poker is Michael Lewis's firsthand, darkly funny account of 1980s Wall Street that exposes how greed, bravado, and skewed incentives—not brilliance—drove the rise of modern finance.",
+      "rating": 4.5,
+      "review": "Although I do feel slightly late to the Liar's Poker party, reading it was a time-travel like experience. Lewis' memoir style writing mixed with plain-english style lessons about the bond trading business model in the '80s and the 1987 stock market crash were fantastic, making this an easy book to zip through, even during final exam season. I totally understand how this book inspired a generation of wall street finance bros. Specifically, the demystification of these elite financiers, and the deprecating accounts of the fraternity-like environment that seem so silly spark a sense of ambition in me as well. The Big Short is definitely next on my list for Michael Lewis' work.",
+      "reflection": ""
+    },
+    {
+      "slug": "king-of-ashes",
+      "title": "King of Ashes",
+      "author": "S.A. Cosby",
+      "published": "2025",
+      "finished": "December 2025",
+      "cover": "assets/king_of_ashes.jpg",
+      "summary": "King of Ashes is a gritty Southern crime thriller about a man pulled back into his violent hometown to protect his family, only to discover that loyalty, revenge, and survival come at devastating moral cost.",
+      "rating": 4.5,
+      "review": "This was the first of S.A Cosby's books I have read. He has a quite prolific reputation, and the book itself was more than easy to finish, given the momentum of the plot. As someone who is a major advocate for The Wire being the greatest TV series ever made, King of Ashes was right up my alley. For whatever reason I have been against reading novels or fiction in general. I think it has to do with a subconscious relentless drive for knowledge and learning, which I feel pretentious saying, but at my age I don't want to 'waste' any time reading made up stories. That all said, I really enjoyed this book, and think it's in my best interest to mix in some fiction at least every once in a while.",
+      "reflection": ""
+    },
+    {
       "slug": "abundance",
       "title": "Abundance",
       "author": "Ezra Klein and Derek Thompson",

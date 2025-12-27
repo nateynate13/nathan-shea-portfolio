@@ -48,6 +48,8 @@ const STOIC_QUOTES = [
 
 // Book tags mapping (inferred from content)
 const BOOK_TAGS = {
+  "liars-poker": ["📈 Business", "🌍 History"],
+  "king-of-ashes": ["🌍 Society"],
   "the-echo-of-greece": ["🧠 Philosophy", "🌍 History"],
   "tuesdays-with-morrie": ["🧠 Philosophy", "💭 Life"],
   "a-safe-place": ["🎭 Identity", "🌍 Society"],
@@ -435,6 +437,33 @@ function renderProjectsPage(projects) {
   `;
 }
 
+// Helper function to parse finished date for sorting
+function parseFinishedDate(finished) {
+  if (!finished) return new Date(0);
+  
+  const monthNames = {
+    "January": 0, "February": 1, "March": 2, "April": 3, "May": 4, "June": 5,
+    "July": 6, "August": 7, "September": 8, "October": 9, "November": 10, "December": 11
+  };
+  
+  // Check for re-read dates first (use the most recent reading date)
+  const reReadMatch = finished.match(/re-read\s+(\w+)\s+(\d{4})/);
+  if (reReadMatch) {
+    const reReadMonth = monthNames[reReadMatch[1]] || 0;
+    const reReadYear = parseInt(reReadMatch[2], 10);
+    return new Date(reReadYear, reReadMonth);
+  }
+  
+  // Extract month and year from strings like "December 2025", "November 2025", etc.
+  const match = finished.match(/(\w+)\s+(\d{4})/);
+  if (!match) return new Date(0);
+  
+  const month = monthNames[match[1]] || 0;
+  const year = parseInt(match[2], 10);
+  
+  return new Date(year, month);
+}
+
 function renderReadingListPage(books) {
   const bookEntries = Array.isArray(books) ? books : [];
   
@@ -446,12 +475,12 @@ function renderReadingListPage(books) {
   });
   const uniqueTags = Array.from(allTags).sort();
   
-  // Separate pinned and unpinned books
-  const pinnedBooks = bookEntries.filter(book => book.pinned === true);
-  const unpinnedBooks = bookEntries.filter(book => !book.pinned);
-  
-  // Combine: pinned first, then unpinned
-  const sortedBooks = [...pinnedBooks, ...unpinnedBooks];
+  // Sort books by finished date (most recent first)
+  const sortedBooks = [...bookEntries].sort((a, b) => {
+    const dateA = parseFinishedDate(a.finished);
+    const dateB = parseFinishedDate(b.finished);
+    return dateB - dateA; // Most recent first
+  });
   
   const bookCards = sortedBooks
     .map(
