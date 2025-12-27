@@ -460,11 +460,55 @@ section {
 }
 
 /* Library */
+#library {
+  position: relative;
+  padding: 32px 24px;
+  background: 
+    linear-gradient(135deg, rgba(139, 90, 43, 0.08) 0%, rgba(160, 110, 55, 0.12) 100%),
+    linear-gradient(180deg, rgba(220, 180, 140, 0.15) 0%, rgba(180, 140, 100, 0.1) 100%);
+  border-radius: 16px;
+  box-shadow: 
+    inset 0 2px 8px rgba(85, 50, 25, 0.2),
+    0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+#library::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, 
+    rgba(120, 70, 35, 0.4) 0%, 
+    rgba(160, 100, 50, 0.5) 50%, 
+    rgba(120, 70, 35, 0.4) 100%);
+  border-radius: 16px 16px 0 0;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+#library::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, 
+    rgba(120, 70, 35, 0.4) 0%, 
+    rgba(160, 100, 50, 0.5) 50%, 
+    rgba(120, 70, 35, 0.4) 100%);
+  border-radius: 0 0 16px 16px;
+  box-shadow: inset 0 -1px 2px rgba(0, 0, 0, 0.2);
+}
+
 #library .library-intro {
-  margin: 16px 0 24px;
+  margin: 16px 0 32px;
   color: var(--text-muted);
   font-size: 1rem;
   line-height: 1.75;
+  position: relative;
+  z-index: 1;
 }
 
 .book-grid {
@@ -472,6 +516,62 @@ section {
   gap: 24px;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   margin-top: 24px;
+  position: relative;
+  padding: 32px 20px 28px;
+  background: 
+    linear-gradient(180deg, 
+      rgba(200, 150, 100, 0.06) 0%, 
+      rgba(180, 130, 80, 0.1) 50%,
+      rgba(200, 150, 100, 0.06) 100%
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 40px,
+      rgba(160, 110, 60, 0.03) 40px,
+      rgba(160, 110, 60, 0.03) 42px
+    );
+  border-radius: 12px;
+  box-shadow: 
+    inset 0 0 0 2px rgba(140, 85, 45, 0.25),
+    inset 0 6px 16px rgba(85, 50, 25, 0.1),
+    0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.book-grid::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 12px;
+  right: 12px;
+  height: 4px;
+  background: linear-gradient(90deg, 
+    transparent,
+    rgba(160, 100, 50, 0.4) 10%,
+    rgba(180, 120, 60, 0.5) 50%,
+    rgba(160, 100, 50, 0.4) 90%,
+    transparent
+  );
+  border-radius: 2px;
+  box-shadow: 0 1px 2px rgba(85, 50, 25, 0.3);
+}
+
+.book-grid::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 12px;
+  right: 12px;
+  height: 4px;
+  background: linear-gradient(90deg, 
+    transparent,
+    rgba(140, 85, 45, 0.4) 10%,
+    rgba(160, 100, 50, 0.5) 50%,
+    rgba(140, 85, 45, 0.4) 90%,
+    transparent
+  );
+  border-radius: 2px;
+  box-shadow: 0 -1px 2px rgba(85, 50, 25, 0.3);
 }
 
 .library-empty {
@@ -508,16 +608,23 @@ section {
 .book-card {
   position: relative;
   display: block;
-  border-radius: 16px;
+  border-radius: 8px 8px 4px 4px;
   overflow: hidden;
-  box-shadow: 0 8px 16px var(--card-shadow);
+  box-shadow: 
+    0 4px 8px rgba(0, 0, 0, 0.2),
+    0 2px 4px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
   transition: transform 0.25s ease, box-shadow 0.25s ease;
+  background: rgba(255, 255, 255, 0.02);
 }
 
 .book-card:hover,
 .book-card:focus {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 24px var(--card-hover-shadow);
+  transform: translateY(-6px);
+  box-shadow: 
+    0 8px 16px rgba(0, 0, 0, 0.3),
+    0 4px 8px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
 .book-card:focus {
@@ -899,9 +1006,27 @@ footer:hover .footer-motto {
   .book-grid {
     grid-template-columns: repeat(5, minmax(0, 1fr));
   }
+  
+  #library {
+    padding: 40px 32px;
+  }
 }
 
 @media (max-width: 600px) {
+  #library {
+    padding: 24px 16px;
+  }
+  
+  .book-grid {
+    padding: 16px 8px;
+    gap: 16px;
+  }
+  
+  .library-filters {
+    padding: 16px;
+    margin-bottom: 24px;
+  }
+  
   .book-overlay {
     font-size: 0.85rem;
   }
@@ -1058,30 +1183,53 @@ a:hover {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-bottom: 24px;
-  padding: 16px;
-  background: var(--muted-bg);
-  border-radius: 8px;
+  margin-bottom: 32px;
+  padding: 20px;
+  background: linear-gradient(180deg, rgba(180, 130, 80, 0.12), rgba(160, 110, 60, 0.08));
+  border-radius: 10px;
+  border: 1px solid rgba(140, 85, 45, 0.3);
+  box-shadow: 
+    inset 0 1px 2px rgba(255, 255, 255, 0.1),
+    inset 0 -1px 2px rgba(85, 50, 25, 0.2),
+    0 2px 4px rgba(0, 0, 0, 0.1);
+  position: relative;
+  z-index: 1;
 }
 
 .filter-btn {
-  background: var(--bg);
-  border: 1px solid var(--border);
+  background: linear-gradient(180deg, rgba(220, 180, 140, 0.4), rgba(180, 140, 100, 0.3));
+  border: 1px solid rgba(140, 85, 45, 0.4);
   padding: 8px 16px;
-  border-radius: 20px;
+  border-radius: 6px;
   cursor: pointer;
   font-size: 0.9rem;
   transition: all 0.2s ease;
   color: var(--text);
+  box-shadow: 
+    inset 0 1px 2px rgba(255, 255, 255, 0.2),
+    inset 0 -1px 2px rgba(85, 50, 25, 0.2),
+    0 1px 2px rgba(0, 0, 0, 0.1);
+  font-weight: 500;
 }
 
 .filter-btn:hover {
-  background: var(--accent);
-  color: var(--bg);
-  border-color: var(--accent);
+  background: linear-gradient(180deg, rgba(240, 200, 160, 0.5), rgba(200, 160, 120, 0.4));
+  border-color: rgba(160, 100, 60, 0.5);
+  box-shadow: 
+    inset 0 1px 2px rgba(255, 255, 255, 0.25),
+    inset 0 -1px 2px rgba(85, 50, 25, 0.25),
+    0 2px 4px rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
 }
 
 .filter-btn.active {
+  background: linear-gradient(180deg, rgba(180, 130, 80, 0.6), rgba(160, 110, 60, 0.5));
+  border-color: rgba(140, 85, 45, 0.6);
+  color: var(--text);
+  box-shadow: 
+    inset 0 2px 4px rgba(85, 50, 25, 0.3),
+    0 2px 4px rgba(0, 0, 0, 0.15);
+  font-weight: 600;
   background: var(--accent);
   color: var(--bg);
   border-color: var(--accent);
