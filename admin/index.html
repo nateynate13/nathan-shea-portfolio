@@ -84,23 +84,8 @@
       <div class="error-message" id="error-message" style="display: none;"></div>
     </div>
 
-    <!-- Supabase CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-    <!-- Config and Client -->
-    <script src="../js/config.js"></script>
-    <script src="../js/supabaseClient.js"></script>
-    <!-- Auth Check -->
-    <script>
-      // Wait for all scripts to load
-      async function waitForSupabaseClient(maxAttempts = 50) {
-        for (let i = 0; i < maxAttempts; i++) {
-          if (typeof window.supabaseClient !== 'undefined') {
-            return window.supabaseClient;
-          }
-          await new Promise(resolve => setTimeout(resolve, 100));
-        }
-        throw new Error('Supabase client failed to initialize. Please refresh the page.');
-      }
+    <script type="module">
+      import { supabase } from '../js/supabaseClient.js';
 
       document.addEventListener('DOMContentLoaded', async function() {
         const dashboard = document.getElementById('dashboard');
@@ -108,11 +93,8 @@
         const errorMessage = document.getElementById('error-message');
 
         try {
-          // Wait for Supabase client to be ready
-          const supabaseClient = await waitForSupabaseClient();
-
           // Check for active session
-          const { data: { session }, error: sessionError } = await supabaseClient.auth.getSession();
+          const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
           if (sessionError) {
             console.error('Session check error:', sessionError);
@@ -128,7 +110,7 @@
 
           // Check if user is an admin
           const userId = session.user.id;
-          const { data: adminData, error: adminError } = await supabaseClient
+          const { data: adminData, error: adminError } = await supabase
             .from('admins')
             .select('id')
             .eq('id', userId)
@@ -137,7 +119,7 @@
           if (adminError || !adminData) {
             // User is not an admin - log them out and redirect
             console.error('Admin check failed:', adminError);
-            await supabaseClient.auth.signOut();
+            await supabase.auth.signOut();
             
             errorMessage.textContent = 'Not authorized. You must be an admin to access this page.';
             errorMessage.style.display = 'block';

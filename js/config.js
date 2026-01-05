@@ -1,4 +1,4 @@
 // Supabase Configuration
 // Replace these placeholders with your actual Supabase project credentials
-const SUPABASE_URL = 'https://csvfqqhffujnsfgxahrm.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNzdmZxcWhmZnVqbnNmZ3hhaHJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc0NDg2OTYsImV4cCI6MjA4MzAyNDY5Nn0.35w6vLcvRCoPvIvxFcSec5FMO45mPE217ZJTeWclMn0';
+export const SUPABASE_URL = 'https://csvfqqhffujnsfgxahrm.supabase.co';
+export const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNzdmZxcWhmZnVqbnNmZ3hhaHJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc0NDg2OTYsImV4cCI6MjA4MzAyNDY5Nn0.35w6vLcvRCoPvIvxFcSec5FMO45mPE217ZJTeWclMn0';
