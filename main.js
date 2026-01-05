@@ -258,10 +258,39 @@ function renderNavbar(navigation, activeKey = null) {
   `;
 }
 
-function setNavbar(navigation, activeKey = null) {
+// Check if user is admin (async)
+async function checkIsAdmin() {
+  try {
+    const { supabase } = await import('./js/supabaseClient.js');
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return false;
+    
+    const { data: adminData } = await supabase
+      .from('admins')
+      .select('id')
+      .eq('id', session.user.id)
+      .single();
+    
+    return !!adminData;
+  } catch (error) {
+    console.error('Error checking admin status:', error);
+    return false;
+  }
+}
+
+function setNavbar(navigation, activeKey = null, isAdmin = false) {
   const header = document.getElementById("navbar");
   if (header) {
-    header.innerHTML = renderNavbar(navigation, activeKey);
+    // Add admin tab if user is admin
+    const navItems = [...navigation];
+    if (isAdmin) {
+      navItems.push({
+        text: "Admin",
+        href: "?page=admin",
+        key: "admin"
+      });
+    }
+    header.innerHTML = renderNavbar(navItems, activeKey);
     attachThemeToggle();
   }
 }
@@ -301,8 +330,8 @@ function computePhases(today = new Date()) {
   return [...currentPhases, ...futurePhases, ...pastPhases];
 }
 
-function renderMain(data) {
-  setNavbar(data.navigation, "home");
+function renderMain(data, isAdmin = false) {
+  setNavbar(data.navigation, "home", isAdmin);
   const main = document.querySelector("main");
   const today = new Date();
   const phases = computePhases(today);
@@ -471,7 +500,12 @@ function renderReadingListPage(books) {
   const allTags = new Set();
   bookEntries.forEach(book => {
     // Use tags from book object first, then fallback to BOOK_TAGS
-    const tags = (book.tags && Array.isArray(book.tags) ? book.tags : []) || BOOK_TAGS[book.slug] || [];
+    let tags = [];
+    if (book.tags && Array.isArray(book.tags) && book.tags.length > 0) {
+      tags = book.tags;
+    } else if (BOOK_TAGS[book.slug] && BOOK_TAGS[book.slug].length > 0) {
+      tags = BOOK_TAGS[book.slug];
+    }
     tags.forEach(tag => allTags.add(tag));
   });
   const uniqueTags = Array.from(allTags).sort();
@@ -488,18 +522,26 @@ function renderReadingListPage(books) {
     .map(
       (book) => {
         // Use tags from book object first, then fallback to BOOK_TAGS
-        const tags = (book.tags && Array.isArray(book.tags) ? book.tags : []) || BOOK_TAGS[book.slug] || [];
+        let tags = [];
+        if (book.tags && Array.isArray(book.tags) && book.tags.length > 0) {
+          tags = book.tags;
+        } else if (BOOK_TAGS[book.slug] && BOOK_TAGS[book.slug].length > 0) {
+          tags = BOOK_TAGS[book.slug];
+        }
         const tagsHTML = tags.length > 0 
           ? `<div class="book-tags">${tags.map(tag => `<span class="book-tag" data-tag="${tag}">${tag}</span>`).join("")}</div>`
           : "";
+        // Only show published/finished if they have values
+        const publishedText = book.published ? `<p>Published ${book.published}</p>` : '';
+        const finishedText = book.finished ? `<p>Read ${book.finished}</p>` : '';
         return `
           <a class="book-card${book.pinned ? ' pinned' : ''}" href="?book=${book.slug}" aria-label="View details for ${book.title}" data-book-slug="${book.slug}">
-            <img src="${book.cover}" alt="Cover of ${book.title}" loading="lazy" />
+            <img src="${book.cover || ''}" alt="Cover of ${book.title}" loading="lazy" onerror="this.style.display='none';" />
             <div class="book-overlay">
               <h3>${book.title}</h3>
-              <p>${book.author}</p>
-              <p>Published ${book.published}</p>
-              <p>Read ${book.finished}</p>
+              ${book.author ? `<p>${book.author}</p>` : ''}
+              ${publishedText}
+              ${finishedText}
               ${tagsHTML}
             </div>
           </a>
@@ -530,6 +572,42 @@ function renderReadingListPage(books) {
   `;
 }
 
+function renderAdminDashboard(books) {
+  // Filter to only show Supabase books (those with id from Supabase)
+  const supabaseBooks = books.filter(book => book.id);
+  
+  const booksList = supabaseBooks.length > 0
+    ? supabaseBooks.map(book => `
+        <div class="admin-book-item" data-book-id="${book.id || ''}">
+          <div class="admin-book-info">
+            <img src="${book.cover || ''}" alt="${book.title}" class="admin-book-cover" onerror="this.style.display='none';" />
+            <div class="admin-book-details">
+              <h3>${book.title}</h3>
+              ${book.author ? `<p>by ${book.author}</p>` : ''}
+              ${book.created_at ? `<p class="admin-book-meta">Added: ${new Date(book.created_at).toLocaleDateString()}</p>` : ''}
+            </div>
+          </div>
+          <button class="admin-delete-btn" data-book-id="${book.id || ''}" data-book-title="${book.title}" aria-label="Delete ${book.title}">
+            Delete
+          </button>
+        </div>
+      `).join('')
+    : '<p class="admin-empty">No books from Supabase yet. Add books via the admin form.</p>';
+  
+  return `
+    <section id="admin-dashboard">
+      <h2 class="section-title">Admin Dashboard</h2>
+      <div class="admin-actions">
+        <a href="/admin/add-book.html" class="admin-action-link">+ Add New Book</a>
+      </div>
+      <div class="admin-books-list">
+        <h3>Supabase Books (${supabaseBooks.length})</h3>
+        ${booksList}
+      </div>
+    </section>
+  `;
+}
+
 function renderBookPage(book) {
   const summaryContent = book.summary && book.summary.trim()
     ? book.summary
@@ -537,7 +615,7 @@ function renderBookPage(book) {
   const reviewContent = book.review && book.review.trim()
     ? book.review
     : "<em>Thoughts coming soon.</em>";
-  const reflectionSection = book.reflection
+  const reflectionSection = book.reflection && book.reflection.trim()
     ? `<h2>Quick Reflection</h2><p>${book.reflection}</p>`
     : "";
   
@@ -555,16 +633,16 @@ function renderBookPage(book) {
       </a>
       <div class="book-detail-content">
         <div class="book-detail-cover">
-          <img src="${book.cover}" alt="Cover of ${book.title}" />
+          <img src="${book.cover || ''}" alt="Cover of ${book.title}" onerror="this.style.display='none';" />
         </div>
         <div class="book-detail-info">
           <h1>${book.title}</h1>
-          <p class="book-author">by ${book.author}</p>
-          <p class="book-meta">Published ${book.published}</p>
-          <p class="book-meta">Read ${book.finished}</p>
-          <div class="book-rating" aria-label="Rated ${book.rating} out of 5 stars">
+          ${book.author ? `<p class="book-author">by ${book.author}</p>` : ''}
+          ${book.published ? `<p class="book-meta">Published ${book.published}</p>` : ''}
+          ${book.finished ? `<p class="book-meta">Read ${book.finished}</p>` : ''}
+          ${book.rating ? `<div class="book-rating" aria-label="Rated ${book.rating} out of 5 stars">
             ${renderRatingStars(book.rating)}
-          </div>
+          </div>` : ''}
           <h2>Summary</h2>
           <p>${summaryContent}</p>
           <h2>My Thoughts</h2>
@@ -753,6 +831,7 @@ async function loadLibraryBooks(staticBooks) {
         .replace(/^-+|-+$/g, '');
       
       return {
+        id: book.id, // Store Supabase ID for deletion
         slug: slug,
         title: book.title,
         author: book.author || '',
@@ -783,30 +862,55 @@ const loadingInterval = showLoadingScreen();
 
 fetch("data.json")
   .then((response) => response.json())
-  .then((data) => {
+  .then(async (data) => {
     const params = new URLSearchParams(window.location.search);
     const projectLink = params.get("project");
     const page = params.get("page");
     const bookSlug = params.get("book");
     const main = document.querySelector("main");
+    
+    // Check if user is admin
+    const isAdmin = await checkIsAdmin();
 
-    if (projectLink) {
+    if (page === "admin") {
+      if (!isAdmin) {
+        // Not admin - redirect to home
+        window.location.href = '/?page=home';
+        return;
+      }
+      // Load all books for admin dashboard
+      loadLibraryBooks(data.readingList || []).then((allBooks) => {
+        setNavbar(data.navigation, "admin", isAdmin);
+        main.innerHTML = renderAdminDashboard(allBooks);
+        setupAdminDeleteButtons();
+        hideLoadingScreen(loadingInterval);
+      }).catch((error) => {
+        console.error('Error loading books for admin:', error);
+        setNavbar(data.navigation, "admin", isAdmin);
+        main.innerHTML = renderAdminDashboard([]);
+        hideLoadingScreen(loadingInterval);
+      });
+      return;
+    } else if (projectLink) {
       const project = data.projects.find((proj) => proj.link === projectLink);
       if (project) {
-        setNavbar(data.navigation, "home");
+        setNavbar(data.navigation, "home", isAdmin);
         main.innerHTML = renderProjectPage(project);
       } else {
-        renderMain(data);
+        renderMain(data, isAdmin);
       }
     } else if (bookSlug) {
       // Load books from Supabase and static data to find the book
       loadLibraryBooks(data.readingList || []).then((allBooks) => {
+        console.log('Loaded books:', allBooks.length, 'Looking for slug:', bookSlug);
         const book = allBooks.find((item) => item.slug === bookSlug);
         if (book) {
-          setNavbar(data.navigation, "library");
+          console.log('Found book:', book.title);
+          setNavbar(data.navigation, "library", isAdmin);
           main.innerHTML = renderBookPage(book);
         } else {
-          setNavbar(data.navigation, "library");
+          console.log('Book not found, showing library page');
+          setNavbar(data.navigation, "library", isAdmin);
           main.innerHTML = renderReadingListPage(allBooks);
           setTimeout(() => setupLibraryFilters(), 100);
         }
@@ -816,10 +920,10 @@ fetch("data.json")
         // Fallback to static data
         const book = (data.readingList || []).find((item) => item.slug === bookSlug);
         if (book) {
-          setNavbar(data.navigation, "library");
+          setNavbar(data.navigation, "library", isAdmin);
           main.innerHTML = renderBookPage(book);
         } else {
-          setNavbar(data.navigation, "library");
+          setNavbar(data.navigation, "library", isAdmin);
           main.innerHTML = renderReadingListPage(data.readingList || []);
           setTimeout(() => setupLibraryFilters(), 100);
         }
@@ -827,7 +931,7 @@ fetch("data.json")
       });
       return; // Don't hide loading screen yet, wait for async load
     } else if (page === "library") {
-      setNavbar(data.navigation, "library");
+      setNavbar(data.navigation, "library", isAdmin);
       // Fetch books from Supabase and merge with static data
       loadLibraryBooks(data.readingList || []).then((allBooks) => {
         main.innerHTML = renderReadingListPage(allBooks);
@@ -842,15 +946,15 @@ fetch("data.json")
       });
       return; // Don't hide loading screen yet, wait for async load
     } else if (page === "projects") {
-      setNavbar(data.navigation, "projects");
+      setNavbar(data.navigation, "projects", isAdmin);
       main.innerHTML = renderProjectsPage(data.projects || []);
     } else if (page === "now") {
-      setNavbar(data.navigation, "home");
+      setNavbar(data.navigation, "home", isAdmin);
       main.innerHTML = renderNowPage();
     } else if (page === "home") {
-      renderMain(data);
+      renderMain(data, isAdmin);
     } else {
-      renderMain(data);
+      renderMain(data, isAdmin);
     }
 
     // Hide loading screen
@@ -1077,6 +1181,55 @@ function attachThemeToggle() {
 function initializeTheme() {
   const savedTheme = localStorage.getItem("theme") || "bc";
   setTheme(savedTheme);
+}
+
+// Setup admin delete buttons
+function setupAdminDeleteButtons() {
+  const deleteButtons = document.querySelectorAll('.admin-delete-btn');
+  deleteButtons.forEach(button => {
+    button.addEventListener('click', async function() {
+      const bookId = this.getAttribute('data-book-id');
+      const bookTitle = this.getAttribute('data-book-title');
+      
+      if (!bookId) {
+        alert('Cannot delete: Book ID not found. This book may be from static data.');
+        return;
+      }
+      
+      if (!confirm(`Are you sure you want to delete "${bookTitle}"? This action cannot be undone.`)) {
+        return;
+      }
+      
+      try {
+        const { supabase } = await import('./js/supabaseClient.js');
+        
+        // Delete from Supabase
+        const { error } = await supabase
+          .from('books')
+          .delete()
+          .eq('id', bookId);
+        
+        if (error) {
+          throw error;
+        }
+        
+        // Remove from UI
+        const bookItem = this.closest('.admin-book-item');
+        if (bookItem) {
+          bookItem.style.transition = 'opacity 0.3s';
+          bookItem.style.opacity = '0';
+          setTimeout(() => {
+            bookItem.remove();
+            // Reload the page to refresh the list
+            window.location.reload();
+          }, 300);
+        }
+      } catch (error) {
+        console.error('Error deleting book:', error);
+        alert(`Failed to delete book: ${error.message}`);
+      }
+    });
+  });
 }
 
 // Hidden admin trigger: 5 clicks within 2 seconds on footer (Library page only)
