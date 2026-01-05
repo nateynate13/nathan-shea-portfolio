@@ -470,22 +470,25 @@ function renderReadingListPage(books) {
   // Get all unique tags
   const allTags = new Set();
   bookEntries.forEach(book => {
-    const tags = BOOK_TAGS[book.slug] || [];
+    // Use tags from book object first, then fallback to BOOK_TAGS
+    const tags = (book.tags && Array.isArray(book.tags) ? book.tags : []) || BOOK_TAGS[book.slug] || [];
     tags.forEach(tag => allTags.add(tag));
   });
   const uniqueTags = Array.from(allTags).sort();
   
   // Sort books by finished date (most recent first)
+  // For books without finished date, use created_at or put them first
   const sortedBooks = [...bookEntries].sort((a, b) => {
-    const dateA = parseFinishedDate(a.finished);
-    const dateB = parseFinishedDate(b.finished);
+    const dateA = a.finished ? parseFinishedDate(a.finished) : (a.created_at ? new Date(a.created_at) : new Date(0));
+    const dateB = b.finished ? parseFinishedDate(b.finished) : (b.created_at ? new Date(b.created_at) : new Date(0));
     return dateB - dateA; // Most recent first
   });
   
   const bookCards = sortedBooks
     .map(
       (book) => {
-        const tags = BOOK_TAGS[book.slug] || [];
+        // Use tags from book object first, then fallback to BOOK_TAGS
+        const tags = (book.tags && Array.isArray(book.tags) ? book.tags : []) || BOOK_TAGS[book.slug] || [];
         const tagsHTML = tags.length > 0 
           ? `<div class="book-tags">${tags.map(tag => `<span class="book-tag" data-tag="${tag}">${tag}</span>`).join("")}</div>`
           : "";
@@ -724,6 +727,56 @@ initializeTheme();
 setupKeyboardNavigation();
 setupSwipeDetection();
 
+// Helper function to load books from Supabase and merge with static data
+async function loadLibraryBooks(staticBooks) {
+  try {
+    // Dynamically import Supabase client
+    const { supabase } = await import('./js/supabaseClient.js');
+    
+    // Fetch books from Supabase
+    const { data: supabaseBooks, error } = await supabase
+      .from('books')
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    if (error) {
+      console.error('Error fetching books from Supabase:', error);
+      return staticBooks;
+    }
+    
+    // Transform Supabase books to match expected format
+    const transformedBooks = (supabaseBooks || []).map(book => {
+      // Generate slug from title
+      const slug = book.title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+      
+      return {
+        slug: slug,
+        title: book.title,
+        author: book.author || '',
+        published: '', // Not stored in Supabase yet
+        finished: '', // Not stored in Supabase yet
+        cover: book.cover_url || '',
+        summary: book.description || '',
+        rating: null,
+        review: '',
+        reflection: '',
+        pinned: false,
+        tags: book.tags || [],
+        created_at: book.created_at || null
+      };
+    });
+    
+    // Merge Supabase books with static books (Supabase books first)
+    return [...transformedBooks, ...staticBooks];
+  } catch (error) {
+    console.error('Error loading books from Supabase:', error);
+    return staticBooks;
+  }
+}
+
 // Show loading screen
 const loadingInterval = showLoadingScreen();
 
@@ -745,19 +798,48 @@ fetch("data.json")
         renderMain(data);
       }
     } else if (bookSlug) {
-      const book = (data.readingList || []).find((item) => item.slug === bookSlug);
-      if (book) {
-        setNavbar(data.navigation, "library");
-        main.innerHTML = renderBookPage(book);
-      } else {
-        setNavbar(data.navigation, "library");
-        main.innerHTML = renderReadingListPage(data.readingList || []);
-        setTimeout(() => setupLibraryFilters(), 100);
-      }
+      // Load books from Supabase and static data to find the book
+      loadLibraryBooks(data.readingList || []).then((allBooks) => {
+        const book = allBooks.find((item) => item.slug === bookSlug);
+        if (book) {
+          setNavbar(data.navigation, "library");
+          main.innerHTML = renderBookPage(book);
+        } else {
+          setNavbar(data.navigation, "library");
+          main.innerHTML = renderReadingListPage(allBooks);
+          setTimeout(() => setupLibraryFilters(), 100);
+        }
+        hideLoadingScreen(loadingInterval);
+      }).catch((error) => {
+        console.error('Error loading library books:', error);
+        // Fallback to static data
+        const book = (data.readingList || []).find((item) => item.slug === bookSlug);
+        if (book) {
+          setNavbar(data.navigation, "library");
+          main.innerHTML = renderBookPage(book);
+        } else {
+          setNavbar(data.navigation, "library");
+          main.innerHTML = renderReadingListPage(data.readingList || []);
+          setTimeout(() => setupLibraryFilters(), 100);
+        }
+        hideLoadingScreen(loadingInterval);
+      });
+      return; // Don't hide loading screen yet, wait for async load
     } else if (page === "library") {
       setNavbar(data.navigation, "library");
-      main.innerHTML = renderReadingListPage(data.readingList || []);
-      setTimeout(() => setupLibraryFilters(), 100);
+      // Fetch books from Supabase and merge with static data
+      loadLibraryBooks(data.readingList || []).then((allBooks) => {
+        main.innerHTML = renderReadingListPage(allBooks);
+        setTimeout(() => setupLibraryFilters(), 100);
+        hideLoadingScreen(loadingInterval);
+      }).catch((error) => {
+        console.error('Error loading library books:', error);
+        // Fallback to static data
+        main.innerHTML = renderReadingListPage(data.readingList || []);
+        setTimeout(() => setupLibraryFilters(), 100);
+        hideLoadingScreen(loadingInterval);
+      });
+      return; // Don't hide loading screen yet, wait for async load
     } else if (page === "projects") {
       setNavbar(data.navigation, "projects");
       main.innerHTML = renderProjectsPage(data.projects || []);
