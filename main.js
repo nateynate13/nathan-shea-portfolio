@@ -995,3 +995,45 @@ function initializeTheme() {
   const savedTheme = localStorage.getItem("theme") || "bc";
   setTheme(savedTheme);
 }
+
+// Hidden admin trigger: 5 clicks within 2 seconds on footer (Library page only)
+(function() {
+  let clickCount = 0;
+  let clickTimer = null;
+  
+  function resetCounter() {
+    clickCount = 0;
+    if (clickTimer) {
+      clearTimeout(clickTimer);
+      clickTimer = null;
+    }
+  }
+  
+  function handleFooterClick() {
+    // Only activate on library page
+    const params = new URLSearchParams(window.location.search);
+    const page = params.get("page");
+    const bookSlug = params.get("book");
+    if (page !== "library" && !bookSlug) {
+      return;
+    }
+    
+    clickCount++;
+    
+    if (clickCount === 1) {
+      clickTimer = setTimeout(resetCounter, 2000);
+    }
+    
+    if (clickCount >= 5) {
+      resetCounter();
+      window.location.href = "/admin/login.html";
+    }
+  }
+  
+  document.addEventListener("DOMContentLoaded", function() {
+    const footer = document.querySelector("footer");
+    if (footer) {
+      footer.addEventListener("click", handleFooterClick);
+    }
+  });
+})();
