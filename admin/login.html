@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Login | Nathan M. Shea</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../as7.css" />
+    <style>
+      .login-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: calc(100vh - 200px);
+        padding: 40px 20px;
+      }
+      .login-form {
+        background-color: var(--muted-bg);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 40px;
+        max-width: 400px;
+        width: 100%;
+        box-shadow: var(--card-shadow);
+      }
+      .login-form h1 {
+        margin-bottom: 24px;
+        text-align: center;
+      }
+      .form-group {
+        margin-bottom: 20px;
+      }
+      .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: var(--text);
+      }
+      .form-group input {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        font-size: 16px;
+        background-color: var(--bg);
+        color: var(--text);
+        transition: border-color 0.3s ease;
+      }
+      .form-group input:focus {
+        outline: none;
+        border-color: var(--accent);
+      }
+      .error-message {
+        background-color: rgba(220, 53, 69, 0.1);
+        border: 1px solid rgba(220, 53, 69, 0.3);
+        color: #dc3545;
+        padding: 12px;
+        border-radius: 4px;
+        margin-bottom: 20px;
+        display: none;
+      }
+      .error-message.show {
+        display: block;
+      }
+      .submit-button {
+        width: 100%;
+        padding: 12px;
+        background-color: var(--accent);
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: opacity 0.3s ease;
+      }
+      .submit-button:hover {
+        opacity: 0.9;
+      }
+      .submit-button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="login-container">
+      <div class="login-form">
+        <h1>Admin Login</h1>
+        <div id="error-message" class="error-message"></div>
+        <form id="login-form">
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required autocomplete="email" />
+          </div>
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required autocomplete="current-password" />
+          </div>
+          <button type="submit" class="submit-button" id="submit-button">Login</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Config and Client -->
+    <script src="../js/config.js"></script>
+    <script src="../js/supabaseClient.js"></script>
+    <!-- Login Logic -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const loginForm = document.getElementById('login-form');
+        const errorMessage = document.getElementById('error-message');
+        const submitButton = document.getElementById('submit-button');
+
+        function showError(message) {
+          errorMessage.textContent = message;
+          errorMessage.classList.add('show');
+        }
+
+        function hideError() {
+          errorMessage.classList.remove('show');
+          errorMessage.textContent = '';
+        }
+
+        loginForm.addEventListener('submit', async function(e) {
+          e.preventDefault();
+          hideError();
+
+          const email = document.getElementById('email').value.trim();
+          const password = document.getElementById('password').value;
+
+          if (!email || !password) {
+            showError('Please enter both email and password.');
+            return;
+          }
+
+          // Disable button during submission
+          submitButton.disabled = true;
+          submitButton.textContent = 'Logging in...';
+
+          try {
+            // Wait for Supabase client to be ready
+            if (typeof window.supabaseClient === 'undefined') {
+              // Wait a bit for scripts to load
+              await new Promise(resolve => setTimeout(resolve, 100));
+              if (typeof window.supabaseClient === 'undefined') {
+                throw new Error('Supabase client not initialized. Please refresh the page.');
+              }
+            }
+
+            const { data, error } = await window.supabaseClient.auth.signInWithPassword({
+              email: email,
+              password: password
+            });
+
+            if (error) {
+              throw error;
+            }
+
+            if (data.user) {
+              // Successful login - redirect to /admin/
+              window.location.href = '/admin/';
+            } else {
+              showError('Login failed. Please try again.');
+            }
+          } catch (error) {
+            console.error('Login error:', error);
+            
+            // Provide user-friendly error messages
+            let errorMsg = 'An error occurred during login. Please try again.';
+            
+            if (error.message) {
+              if (error.message.includes('Invalid login credentials')) {
+                errorMsg = 'Invalid email or password. Please check your credentials and try again.';
+              } else if (error.message.includes('Email not confirmed')) {
+                errorMsg = 'Please verify your email address before logging in.';
+              } else if (error.message.includes('Too many requests')) {
+                errorMsg = 'Too many login attempts. Please wait a moment and try again.';
+              } else {
+                errorMsg = error.message;
+              }
+            }
+            
+            showError(errorMsg);
+          } finally {
+            submitButton.disabled = false;
+            submitButton.textContent = 'Login';
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
+
