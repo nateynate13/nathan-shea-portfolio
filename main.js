@@ -756,14 +756,15 @@ async function loadLibraryBooks(staticBooks) {
         slug: slug,
         title: book.title,
         author: book.author || '',
-        published: '', // Not stored in Supabase yet
-        finished: '', // Not stored in Supabase yet
+        published: book.published || '',
+        finished: book.finished || '',
         cover: book.cover_url || '',
         summary: book.description || '',
-        rating: null,
-        review: '',
-        reflection: '',
-        pinned: false,
+        rating: book.rating || null,
+        review: book.review || '',
+        reflection: book.reflection || '',
+        pinned: book.pinned || false,
+        pdf: book.pdf || null,
         tags: book.tags || [],
         created_at: book.created_at || null
       };

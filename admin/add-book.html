@@ -48,8 +48,10 @@
         margin-left: 4px;
       }
       .form-group input[type="text"],
+      .form-group input[type="number"],
       .form-group input[type="url"],
       .form-group input[type="file"],
+      .form-group input[type="checkbox"],
       .form-group textarea {
         width: 100%;
         padding: 12px;
@@ -62,6 +64,7 @@
         transition: border-color 0.2s ease, box-shadow 0.2s ease;
       }
       .form-group input[type="text"]:focus,
+      .form-group input[type="number"]:focus,
       .form-group input[type="url"]:focus,
       .form-group textarea:focus {
         outline: none;
@@ -164,17 +167,51 @@
             <input type="text" id="author" name="author" />
           </div>
           <div class="form-group">
-            <label for="description">Description</label>
-            <textarea id="description" name="description" rows="4"></textarea>
+            <label for="published">Published Year</label>
+            <input type="text" id="published" name="published" placeholder="e.g., 1989 or March 2025" />
+            <div class="help-text">Enter the publication year or date (e.g., "1989" or "March 2025")</div>
+          </div>
+          <div class="form-group">
+            <label for="finished">Finished Reading Date</label>
+            <input type="text" id="finished" name="finished" placeholder="e.g., December 2025" />
+            <div class="help-text">Enter when you finished reading (e.g., "December 2025" or "February 2025")</div>
+          </div>
+          <div class="form-group">
+            <label for="summary">Summary</label>
+            <textarea id="summary" name="summary" rows="4" placeholder="Brief summary of the book..."></textarea>
+            <div class="help-text">A concise summary of what the book is about</div>
+          </div>
+          <div class="form-group">
+            <label for="rating">Rating</label>
+            <input type="number" id="rating" name="rating" min="0" max="5" step="0.5" placeholder="4.5" />
+            <div class="help-text">Rate the book from 0 to 5 (can use half stars like 4.5)</div>
+          </div>
+          <div class="form-group">
+            <label for="review">Review</label>
+            <textarea id="review" name="review" rows="6" placeholder="Your thoughts and review of the book..."></textarea>
+            <div class="help-text">Your detailed review and thoughts about the book</div>
+          </div>
+          <div class="form-group">
+            <label for="reflection">Reflection</label>
+            <textarea id="reflection" name="reflection" rows="4" placeholder="Quick reflection or key takeaway..."></textarea>
+            <div class="help-text">A brief reflection or key takeaway from reading this book (optional)</div>
           </div>
           <div class="form-group">
             <label for="tags">Tags</label>
             <input type="text" id="tags" name="tags" placeholder="Comma-separated tags" />
-            <div class="help-text">Separate multiple tags with commas</div>
+            <div class="help-text">Separate multiple tags with commas (e.g., "philosophy, history, economics")</div>
           </div>
           <div class="form-group">
             <label for="link">Link (URL)</label>
             <input type="url" id="link" name="link" placeholder="https://..." />
+            <div class="help-text">Optional link to purchase or learn more about the book</div>
+          </div>
+          <div class="form-group">
+            <label for="pinned">
+              <input type="checkbox" id="pinned" name="pinned" style="width: auto; margin-right: 8px;" />
+              Pin to top of Library
+            </label>
+            <div class="help-text">Check this to pin the book to the top of the Library page</div>
           </div>
           <div class="form-group">
             <label for="cover">
@@ -182,7 +219,12 @@
               <span class="required">*</span>
             </label>
             <input type="file" id="cover" name="cover" accept="image/*" required />
-            <div class="help-text">Upload a cover image for the book</div>
+            <div class="help-text">Upload a cover image for the book (JPG, PNG, etc.)</div>
+          </div>
+          <div class="form-group">
+            <label for="pdf">PDF File (Optional)</label>
+            <input type="file" id="pdf" name="pdf" accept=".pdf" />
+            <div class="help-text">Upload a PDF file (e.g., related reading, passage excerpt) - will be stored in Supabase Storage</div>
           </div>
           <button type="submit" class="submit-button" id="submit-button">Add Book</button>
         </form>
@@ -262,10 +304,17 @@
 
           const title = document.getElementById('title').value.trim();
           const author = document.getElementById('author').value.trim();
-          const description = document.getElementById('description').value.trim();
+          const published = document.getElementById('published').value.trim();
+          const finished = document.getElementById('finished').value.trim();
+          const summary = document.getElementById('summary').value.trim();
+          const rating = document.getElementById('rating').value.trim();
+          const review = document.getElementById('review').value.trim();
+          const reflection = document.getElementById('reflection').value.trim();
           const tagsInput = document.getElementById('tags').value.trim();
           const link = document.getElementById('link').value.trim();
+          const pinned = document.getElementById('pinned').checked;
           const coverFile = document.getElementById('cover').files[0];
+          const pdfFile = document.getElementById('pdf').files[0];
 
           if (!title) {
             showError('Title is required.');
@@ -305,10 +354,41 @@
 
             const coverUrl = urlData.publicUrl;
 
+            // Upload PDF if provided
+            let pdfUrl = null;
+            if (pdfFile) {
+              const pdfExt = pdfFile.name.split('.').pop();
+              const pdfFileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${pdfExt}`;
+              const pdfPath = `book-pdfs/${pdfFileName}`;
+
+              const { data: pdfUploadData, error: pdfUploadError } = await supabase.storage
+                .from('book-pdfs')
+                .upload(pdfPath, pdfFile, {
+                  cacheControl: '3600',
+                  upsert: false
+                });
+
+              if (pdfUploadError) {
+                throw new Error(`Failed to upload PDF: ${pdfUploadError.message}`);
+              }
+
+              const { data: pdfUrlData } = supabase.storage
+                .from('book-pdfs')
+                .getPublicUrl(pdfPath);
+
+              pdfUrl = pdfUrlData.publicUrl;
+            }
+
             // Parse tags into array
             const tags = tagsInput
               ? tagsInput.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0)
               : [];
+
+            // Parse rating
+            const ratingValue = rating ? parseFloat(rating) : null;
+            if (ratingValue !== null && (ratingValue < 0 || ratingValue > 5)) {
+              throw new Error('Rating must be between 0 and 5');
+            }
 
             // Insert book into database
             const { data: bookData, error: insertError } = await supabase
@@ -316,10 +396,17 @@
               .insert({
                 title: title,
                 author: author || null,
-                description: description || null,
+                published: published || null,
+                finished: finished || null,
+                description: summary || null,
+                rating: ratingValue,
+                review: review || null,
+                reflection: reflection || null,
                 tags: tags.length > 0 ? tags : null,
                 link: link || null,
-                cover_url: coverUrl
+                pinned: pinned,
+                cover_url: coverUrl,
+                pdf: pdfUrl
               })
               .select()
               .single();
