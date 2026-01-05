@@ -262,16 +262,25 @@ function renderNavbar(navigation, activeKey = null) {
 async function checkIsAdmin() {
   try {
     const { supabase } = await import('./js/supabaseClient.js');
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return false;
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
     
-    const { data: adminData } = await supabase
+    // If no session or session error, not admin
+    if (sessionError || !session || !session.user || !session.user.id) {
+      return false;
+    }
+    
+    const { data: adminData, error: adminError } = await supabase
       .from('admins')
       .select('id')
       .eq('id', session.user.id)
       .single();
     
-    return !!adminData;
+    // If error or no admin data, not admin
+    if (adminError || !adminData) {
+      return false;
+    }
+    
+    return true;
   } catch (error) {
     console.error('Error checking admin status:', error);
     return false;
