@@ -691,7 +691,10 @@ function renderAdminDashboard(books) {
   
   return `
     <section id="admin-dashboard">
-      <h2 class="section-title">Admin Dashboard</h2>
+      <div class="admin-header">
+        <h2 class="section-title">Admin Dashboard</h2>
+        <button id="admin-logout-btn" class="admin-logout-btn">Logout</button>
+      </div>
       <div class="admin-actions">
         <a href="/admin/add-book.html" class="admin-action-link">+ Add New Book</a>
       </div>
@@ -1013,46 +1016,52 @@ fetch("data.json")
         setNavbar(data.navigation, "admin", isAdmin);
         main.innerHTML = renderAdminDashboard(allBooks);
         setupAdminDeleteButtons();
+        setupAdminLogout();
         hideLoadingScreen(loadingInterval);
       }).catch((error) => {
         console.error('Error loading books for admin:', error);
         setNavbar(data.navigation, "admin", isAdmin);
         main.innerHTML = renderAdminDashboard([]);
+        setupAdminLogout();
         hideLoadingScreen(loadingInterval);
       });
       return;
     }
     
     // For all other pages, check admin status in background (non-blocking)
+    // Don't show admin tab until check completes
     checkIsAdmin().then(result => {
       isAdmin = result;
-      // Update navbar if it's already rendered
-      const currentPage = page || (projectLink ? "home" : (bookSlug ? "library" : "home"));
-      setNavbar(data.navigation, currentPage, isAdmin);
+      // Only update navbar if user is actually an admin
+      if (result) {
+        const currentPage = page || (projectLink ? "home" : (bookSlug ? "library" : "home"));
+        setNavbar(data.navigation, currentPage, isAdmin);
+      }
     }).catch(error => {
       console.error('Error checking admin status:', error);
+      // On error, ensure admin tab is not shown
+      isAdmin = false;
     });
     
     if (projectLink) {
       const project = data.projects.find((proj) => proj.link === projectLink);
       if (project) {
-        setNavbar(data.navigation, "home", isAdmin);
+        setNavbar(data.navigation, "home", false); // Don't show admin tab until check completes
         main.innerHTML = renderProjectPage(project);
       } else {
-        renderMain(data, isAdmin);
+        renderMain(data, false); // Don't show admin tab until check completes
       }
     } else if (bookSlug) {
       // Load books from Supabase and static data to find the book
+      setNavbar(data.navigation, "library", false); // Don't show admin tab until check completes
       loadLibraryBooks(data.readingList || []).then((allBooks) => {
         console.log('Loaded books:', allBooks.length, 'Looking for slug:', bookSlug);
         const book = allBooks.find((item) => item.slug === bookSlug);
         if (book) {
           console.log('Found book:', book.title);
-          setNavbar(data.navigation, "library", isAdmin);
           main.innerHTML = renderBookPage(book);
         } else {
           console.log('Book not found, showing library page');
-          setNavbar(data.navigation, "library", isAdmin);
           main.innerHTML = renderReadingListPage(allBooks);
           setTimeout(() => setupLibraryFilters(), 100);
         }
@@ -1062,10 +1071,8 @@ fetch("data.json")
         // Fallback to static data
         const book = (data.readingList || []).find((item) => item.slug === bookSlug);
         if (book) {
-          setNavbar(data.navigation, "library", isAdmin);
           main.innerHTML = renderBookPage(book);
         } else {
-          setNavbar(data.navigation, "library", isAdmin);
           main.innerHTML = renderReadingListPage(data.readingList || []);
           setTimeout(() => setupLibraryFilters(), 100);
         }
@@ -1073,7 +1080,7 @@ fetch("data.json")
       });
       return; // Don't hide loading screen yet, wait for async load
     } else if (page === "library") {
-      setNavbar(data.navigation, "library", isAdmin);
+      setNavbar(data.navigation, "library", false); // Don't show admin tab until check completes
       // Fetch books from Supabase and merge with static data
       loadLibraryBooks(data.readingList || []).then((allBooks) => {
         main.innerHTML = renderReadingListPage(allBooks);
@@ -1088,15 +1095,15 @@ fetch("data.json")
       });
       return; // Don't hide loading screen yet, wait for async load
     } else if (page === "projects") {
-      setNavbar(data.navigation, "projects", isAdmin);
+      setNavbar(data.navigation, "projects", false); // Don't show admin tab until check completes
       main.innerHTML = renderProjectsPage(data.projects || []);
     } else if (page === "now") {
-      setNavbar(data.navigation, "home", isAdmin);
+      setNavbar(data.navigation, "home", false); // Don't show admin tab until check completes
       main.innerHTML = renderNowPage();
     } else if (page === "home") {
-      renderMain(data, isAdmin);
+      renderMain(data, false); // Don't show admin tab until check completes
     } else {
-      renderMain(data, isAdmin);
+      renderMain(data, false); // Don't show admin tab until check completes
     }
 
     // Hide loading screen
@@ -1372,6 +1379,32 @@ function setupAdminDeleteButtons() {
       }
     });
   });
+}
+
+function setupAdminLogout() {
+  const logoutBtn = document.getElementById('admin-logout-btn');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', async function() {
+      if (!confirm('Are you sure you want to logout?')) {
+        return;
+      }
+      
+      try {
+        const { supabase } = await import('./js/supabaseClient.js');
+        const { error } = await supabase.auth.signOut();
+        
+        if (error) {
+          throw error;
+        }
+        
+        // Redirect to home page
+        window.location.href = '/?page=home';
+      } catch (error) {
+        console.error('Error logging out:', error);
+        alert(`Failed to logout: ${error.message}`);
+      }
+    });
+  }
 }
 
 // Hidden admin trigger: 5 clicks within 2 seconds on footer (Library page only)
