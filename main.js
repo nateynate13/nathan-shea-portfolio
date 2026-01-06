@@ -548,7 +548,7 @@ function renderReadingListPage(books) {
   
   function addEmojiToTag(tag) {
     // If tag already has emoji, return as-is
-    if (/^[\u{1F300}-\u{1F9FF}]/.test(tag)) {
+    if (/^[\u{1F300}-\u{1F9FF}]/u.test(tag)) {
       return tag;
     }
     // Try to find emoji by matching tag name
@@ -600,7 +600,7 @@ function renderReadingListPage(books) {
         // Add emojis to tags for display
         const tagsWithEmojis = tags.map(tag => {
           // If tag already has emoji, use it; otherwise add emoji
-          if (/^[\u{1F300}-\u{1F9FF}]/.test(tag)) {
+          if (/^[\u{1F300}-\u{1F9FF}]/u.test(tag)) {
             return tag;
           }
           // Try to find emoji by matching tag name
@@ -787,8 +787,8 @@ function setupLibraryFilters() {
           const hasTag = Array.from(cardTags).some(tagEl => {
             const tagValue = tagEl.getAttribute("data-tag");
             // Remove emoji for comparison
-            const tagWithoutEmoji = tagValue.replace(/^[\u{1F300}-\u{1F9FF}]\s*/, '').trim();
-            const selectedWithoutEmoji = selectedTag.replace(/^[\u{1F300}-\u{1F9FF}]\s*/, '').trim();
+            const tagWithoutEmoji = tagValue.replace(/^[\u{1F300}-\u{1F9FF}]\s*/u, '').trim();
+            const selectedWithoutEmoji = selectedTag.replace(/^[\u{1F300}-\u{1F9FF}]\s*/u, '').trim();
             return tagValue === selectedTag || tagWithoutEmoji === selectedWithoutEmoji;
           });
           card.style.display = hasTag ? "" : "none";

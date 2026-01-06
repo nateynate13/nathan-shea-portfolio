@@ -361,7 +361,7 @@
         
         function getTagEmoji(tagName) {
           // Check if tag already has emoji
-          if (/^[\u{1F300}-\u{1F9FF}]/.test(tagName)) {
+          if (/^[\u{1F300}-\u{1F9FF}]/u.test(tagName)) {
             return tagName;
           }
           // Try to find emoji by matching tag name
@@ -376,7 +376,7 @@
         
         function stripEmoji(tag) {
           // Remove emoji and return clean tag name
-          return tag.replace(/^[\u{1F300}-\u{1F9FF}]\s*/, '').trim();
+          return tag.replace(/^[\u{1F300}-\u{1F9FF}]\s*/u, '').trim();
         }
         
         function renderSelectedTags() {
