@@ -986,23 +986,26 @@ fetch("data.json")
     const bookSlug = params.get("book");
     const main = document.querySelector("main");
     
-    // Check if user is admin (with error handling and timeout to prevent blocking)
+    // For admin page, we need to check admin status first
+    // For all other pages, check in background (non-blocking)
     let isAdmin = false;
-    try {
-      // Add timeout to prevent hanging
-      isAdmin = await Promise.race([
-        checkIsAdmin(),
-        new Promise((resolve) => setTimeout(() => resolve(false), 3000)) // 3 second timeout
-      ]);
-    } catch (error) {
-      console.error('Error checking admin status:', error);
-      isAdmin = false; // Default to false if check fails
-    }
-
+    
     if (page === "admin") {
+      // For admin page, wait for check with timeout
+      try {
+        isAdmin = await Promise.race([
+          checkIsAdmin(),
+          new Promise((resolve) => setTimeout(() => resolve(false), 2000)) // 2 second timeout
+        ]);
+      } catch (error) {
+        console.error('Error checking admin status:', error);
+        isAdmin = false;
+      }
+      
       if (!isAdmin) {
         // Not admin - redirect to home
         window.location.href = '/?page=home';
+        hideLoadingScreen(loadingInterval);
         return;
       }
       // Load all books for admin dashboard
@@ -1018,7 +1021,19 @@ fetch("data.json")
         hideLoadingScreen(loadingInterval);
       });
       return;
-    } else if (projectLink) {
+    }
+    
+    // For all other pages, check admin status in background (non-blocking)
+    checkIsAdmin().then(result => {
+      isAdmin = result;
+      // Update navbar if it's already rendered
+      const currentPage = page || (projectLink ? "home" : (bookSlug ? "library" : "home"));
+      setNavbar(data.navigation, currentPage, isAdmin);
+    }).catch(error => {
+      console.error('Error checking admin status:', error);
+    });
+    
+    if (projectLink) {
       const project = data.projects.find((proj) => proj.link === projectLink);
       if (project) {
         setNavbar(data.navigation, "home", isAdmin);
