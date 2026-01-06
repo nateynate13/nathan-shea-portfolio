@@ -530,6 +530,32 @@ function parseFinishedDate(finished) {
 function renderReadingListPage(books) {
   const bookEntries = Array.isArray(books) ? books : [];
   
+  // Tag emoji mapping for display
+  const tagEmojis = {
+    'Business': '📈',
+    'History': '🌍',
+    'Society': '🌍',
+    'Philosophy': '🧠',
+    'Life': '💭',
+    'Identity': '🎭',
+    'Sports': '🏀'
+  };
+  
+  function addEmojiToTag(tag) {
+    // If tag already has emoji, return as-is
+    if (/^[\u{1F300}-\u{1F9FF}]/.test(tag)) {
+      return tag;
+    }
+    // Try to find emoji by matching tag name
+    for (const [key, emoji] of Object.entries(tagEmojis)) {
+      if (tag.includes(key)) {
+        return `${emoji} ${tag.replace(key, '').trim() || key}`;
+      }
+    }
+    // No emoji found, return as-is
+    return tag;
+  }
+  
   // Get all unique tags
   const allTags = new Set();
   bookEntries.forEach(book => {
@@ -540,7 +566,11 @@ function renderReadingListPage(books) {
     } else if (BOOK_TAGS[book.slug] && BOOK_TAGS[book.slug].length > 0) {
       tags = BOOK_TAGS[book.slug];
     }
-    tags.forEach(tag => allTags.add(tag));
+    // Add emojis for display and store both versions
+    tags.forEach(tag => {
+      const tagWithEmoji = addEmojiToTag(tag);
+      allTags.add(tagWithEmoji);
+    });
   });
   const uniqueTags = Array.from(allTags).sort();
   
@@ -562,8 +592,31 @@ function renderReadingListPage(books) {
         } else if (BOOK_TAGS[book.slug] && BOOK_TAGS[book.slug].length > 0) {
           tags = BOOK_TAGS[book.slug];
         }
-        const tagsHTML = tags.length > 0 
-          ? `<div class="book-tags">${tags.map(tag => `<span class="book-tag" data-tag="${tag}">${tag}</span>`).join("")}</div>`
+        // Add emojis to tags for display
+        const tagsWithEmojis = tags.map(tag => {
+          // If tag already has emoji, use it; otherwise add emoji
+          if (/^[\u{1F300}-\u{1F9FF}]/.test(tag)) {
+            return tag;
+          }
+          // Try to find emoji by matching tag name
+          const tagEmojis = {
+            'Business': '📈',
+            'History': '🌍',
+            'Society': '🌍',
+            'Philosophy': '🧠',
+            'Life': '💭',
+            'Identity': '🎭',
+            'Sports': '🏀'
+          };
+          for (const [key, emoji] of Object.entries(tagEmojis)) {
+            if (tag.includes(key)) {
+              return `${emoji} ${tag.replace(key, '').trim() || key}`;
+            }
+          }
+          return tag;
+        });
+        const tagsHTML = tagsWithEmojis.length > 0 
+          ? `<div class="book-tags">${tagsWithEmojis.map(tag => `<span class="book-tag" data-tag="${tag}">${tag}</span>`).join("")}</div>`
           : "";
         // Only show published/finished if they have values
         const publishedText = book.published ? `<p>Published ${book.published}</p>` : '';
@@ -621,9 +674,12 @@ function renderAdminDashboard(books) {
               ${book.created_at ? `<p class="admin-book-meta">Added: ${new Date(book.created_at).toLocaleDateString()}</p>` : ''}
             </div>
           </div>
-          <button class="admin-delete-btn" data-book-id="${book.id || ''}" data-book-title="${book.title}" aria-label="Delete ${book.title}">
-            Delete
-          </button>
+          <div class="admin-book-actions">
+            <a href="/admin/edit-book.html?id=${book.id}" class="admin-edit-btn">Edit</a>
+            <button class="admin-delete-btn" data-book-id="${book.id || ''}" data-book-title="${book.title}" aria-label="Delete ${book.title}">
+              Delete
+            </button>
+          </div>
         </div>
       `).join('')
     : '<p class="admin-empty">No books from Supabase yet. Add books via the admin form.</p>';
@@ -696,18 +752,40 @@ function setupLibraryFilters() {
 
   filterButtons.forEach(btn => {
     btn.addEventListener("click", () => {
+      const selectedTag = btn.getAttribute("data-tag");
+      const isCurrentlyActive = btn.classList.contains("active");
+      
+      // If clicking the already active button, deselect and show all
+      if (isCurrentlyActive && selectedTag !== "all") {
+        filterButtons.forEach(b => b.classList.remove("active"));
+        // Find and activate the "all" button
+        const allBtn = document.querySelector('.filter-btn[data-tag="all"]');
+        if (allBtn) allBtn.classList.add("active");
+        
+        // Show all books
+        bookCards.forEach(card => {
+          card.style.display = "";
+        });
+        return;
+      }
+      
       // Update active state
       filterButtons.forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
-
-      const selectedTag = btn.getAttribute("data-tag");
 
       bookCards.forEach(card => {
         if (selectedTag === "all") {
           card.style.display = "";
         } else {
           const cardTags = card.querySelectorAll(".book-tag");
-          const hasTag = Array.from(cardTags).some(tagEl => tagEl.getAttribute("data-tag") === selectedTag);
+          // Check if any tag matches (with or without emoji)
+          const hasTag = Array.from(cardTags).some(tagEl => {
+            const tagValue = tagEl.getAttribute("data-tag");
+            // Remove emoji for comparison
+            const tagWithoutEmoji = tagValue.replace(/^[\u{1F300}-\u{1F9FF}]\s*/, '').trim();
+            const selectedWithoutEmoji = selectedTag.replace(/^[\u{1F300}-\u{1F9FF}]\s*/, '').trim();
+            return tagValue === selectedTag || tagWithoutEmoji === selectedWithoutEmoji;
+          });
           card.style.display = hasTag ? "" : "none";
         }
       });

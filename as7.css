@@ -1466,6 +1466,27 @@ a:hover {
   color: var(--text-muted);
 }
 
+.admin-book-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.admin-edit-btn {
+  padding: 8px 16px;
+  background-color: var(--accent);
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: opacity 0.2s ease;
+}
+
+.admin-edit-btn:hover {
+  opacity: 0.9;
+}
+
 .admin-delete-btn {
   padding: 8px 16px;
   background-color: #d93025;

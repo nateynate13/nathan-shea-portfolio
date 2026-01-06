@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Add Book | Admin | Nathan M. Shea</title>
+    <title>Edit Book | Admin | Nathan M. Shea</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -215,7 +215,7 @@
     <div class="admin-container">
       <div class="form-container" id="form-container" style="display: none;">
         <a href="/admin/" class="back-link">← Back to Admin Dashboard</a>
-        <h1>Add New Book</h1>
+        <h1>Edit Book</h1>
         <div id="error-message" class="error-message"></div>
         <div id="success-message" class="success-message"></div>
         <form id="add-book-form">
@@ -298,17 +298,17 @@
           <div class="form-group">
             <label for="cover">
               Cover Image
-              <span class="required">*</span>
             </label>
-            <input type="file" id="cover" name="cover" accept="image/*" required />
-            <div class="help-text">Upload a cover image for the book (JPG, PNG, etc.)</div>
+            <input type="file" id="cover" name="cover" accept="image/*" />
+            <div class="help-text">Upload a new cover image (leave empty to keep current image)</div>
+            <div id="current-cover" style="margin-top: 8px;"></div>
           </div>
           <div class="form-group">
             <label for="pdf">PDF File (Optional)</label>
             <input type="file" id="pdf" name="pdf" accept=".pdf" />
             <div class="help-text">Upload a PDF file (e.g., related reading, passage excerpt) - will be stored in Supabase Storage</div>
           </div>
-          <button type="submit" class="submit-button" id="submit-button">Add Book</button>
+          <button type="submit" class="submit-button" id="submit-button">Update Book</button>
         </form>
       </div>
       <div class="loading-message" id="loading">Checking authentication...</div>
@@ -453,6 +453,56 @@
             return;
           }
 
+          // User is authenticated and is an admin - load book data
+          const urlParams = new URLSearchParams(window.location.search);
+          const bookId = urlParams.get('id');
+          
+          if (!bookId) {
+            showError('No book ID provided.');
+            return;
+          }
+          
+          // Load book data
+          const { data: bookData, error: bookError } = await supabase
+            .from('books')
+            .select('*')
+            .eq('id', bookId)
+            .single();
+          
+          if (bookError || !bookData) {
+            showError('Book not found.');
+            return;
+          }
+          
+          // Pre-fill form
+          document.getElementById('title').value = bookData.title || '';
+          document.getElementById('author').value = bookData.author || '';
+          document.getElementById('published').value = bookData.published || '';
+          document.getElementById('finished').value = bookData.finished || '';
+          document.getElementById('summary').value = bookData.description || '';
+          document.getElementById('rating').value = bookData.rating || '';
+          document.getElementById('review').value = bookData.review || '';
+          document.getElementById('reflection').value = bookData.reflection || '';
+          document.getElementById('link').value = bookData.link || '';
+          document.getElementById('pinned').checked = bookData.pinned || false;
+          
+          // Load tags
+          if (bookData.tags && Array.isArray(bookData.tags)) {
+            bookData.tags.forEach(tag => {
+              selectedTags.add(tag);
+            });
+            renderSelectedTags();
+          }
+          
+          // Show current cover
+          if (bookData.cover_url) {
+            const currentCoverDiv = document.getElementById('current-cover');
+            currentCoverDiv.innerHTML = `<img src="${bookData.cover_url}" alt="Current cover" style="max-width: 100px; border-radius: 4px;" />`;
+          }
+          
+          // Store book ID for update
+          addBookForm.setAttribute('data-book-id', bookId);
+          
           // User is authenticated and is an admin - show form
           loading.style.display = 'none';
           formContainer.style.display = 'block';
@@ -488,41 +538,53 @@
             return;
           }
 
-          if (!coverFile) {
-            showError('Cover image is required.');
+          const bookId = addBookForm.getAttribute('data-book-id');
+          if (!bookId) {
+            showError('Book ID not found.');
             return;
           }
 
           // Disable button during submission
           submitButton.disabled = true;
-          submitButton.textContent = 'Adding book...';
+          submitButton.textContent = 'Updating book...';
 
           try {
-            // Upload cover image to Supabase Storage
-            const fileExt = coverFile.name.split('.').pop();
-            const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
-            const filePath = `book-covers/${fileName}`;
+            // Get current book data to preserve cover if not changing
+            const { data: currentBook } = await supabase
+              .from('books')
+              .select('cover_url, pdf')
+              .eq('id', bookId)
+              .single();
+            
+            let coverUrl = currentBook?.cover_url || null;
+            
+            // Upload new cover image if provided
+            if (coverFile) {
+              const fileExt = coverFile.name.split('.').pop();
+              const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+              const filePath = `book-covers/${fileName}`;
 
-            const { data: uploadData, error: uploadError } = await supabase.storage
-              .from('book-covers')
-              .upload(filePath, coverFile, {
-                cacheControl: '3600',
-                upsert: false
-              });
+              const { data: uploadData, error: uploadError } = await supabase.storage
+                .from('book-covers')
+                .upload(filePath, coverFile, {
+                  cacheControl: '3600',
+                  upsert: false
+                });
 
-            if (uploadError) {
-              throw new Error(`Failed to upload image: ${uploadError.message}`);
+              if (uploadError) {
+                throw new Error(`Failed to upload image: ${uploadError.message}`);
+              }
+
+              // Get public URL
+              const { data: urlData } = supabase.storage
+                .from('book-covers')
+                .getPublicUrl(filePath);
+
+              coverUrl = urlData.publicUrl;
             }
 
-            // Get public URL
-            const { data: urlData } = supabase.storage
-              .from('book-covers')
-              .getPublicUrl(filePath);
-
-            const coverUrl = urlData.publicUrl;
-
-            // Upload PDF if provided
-            let pdfUrl = null;
+            // Upload PDF if provided, otherwise keep existing
+            let pdfUrl = currentBook?.pdf || null;
             if (pdfFile) {
               const pdfExt = pdfFile.name.split('.').pop();
               const pdfFileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${pdfExt}`;
@@ -554,10 +616,10 @@
               throw new Error('Rating must be between 0 and 5');
             }
 
-            // Insert book into database
-            const { data: bookData, error: insertError } = await supabase
+            // Update book in database
+            const { data: bookData, error: updateError } = await supabase
               .from('books')
-              .insert({
+              .update({
                 title: title,
                 author: author || null,
                 published: published || null,
@@ -572,24 +634,25 @@
                 cover_url: coverUrl,
                 pdf: pdfUrl
               })
+              .eq('id', bookId)
               .select()
               .single();
 
-            if (insertError) {
-              throw new Error(`Failed to add book: ${insertError.message}`);
+            if (updateError) {
+              throw new Error(`Failed to update book: ${updateError.message}`);
             }
 
             // Success - redirect to Library page
-            showSuccess('Book added successfully! Redirecting...');
+            showSuccess('Book updated successfully! Redirecting...');
             setTimeout(() => {
               window.location.href = '/?page=library';
             }, 1500);
 
           } catch (error) {
             console.error('Error adding book:', error);
-            showError(error.message || 'An error occurred while adding the book. Please try again.');
+            showError(error.message || 'An error occurred while updating the book. Please try again.');
             submitButton.disabled = false;
-            submitButton.textContent = 'Add Book';
+            submitButton.textContent = 'Update Book';
           }
         });
       });
