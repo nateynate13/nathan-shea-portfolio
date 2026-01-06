@@ -262,27 +262,52 @@ function renderNavbar(navigation, activeKey = null) {
 async function checkIsAdmin() {
   try {
     const { supabase } = await import('./js/supabaseClient.js');
+    
+    // Check for session
     const { data: { session }, error: sessionError } = await supabase.auth.getSession();
     
-    // If no session or session error, not admin
-    if (sessionError || !session || !session.user || !session.user.id) {
+    // Explicitly check: if any of these are missing, not admin
+    if (sessionError) {
+      console.log('Admin check: Session error', sessionError);
       return false;
     }
     
+    if (!session) {
+      console.log('Admin check: No session');
+      return false;
+    }
+    
+    if (!session.user) {
+      console.log('Admin check: No user in session');
+      return false;
+    }
+    
+    if (!session.user.id) {
+      console.log('Admin check: No user ID');
+      return false;
+    }
+    
+    // Check admin table
     const { data: adminData, error: adminError } = await supabase
       .from('admins')
       .select('id')
       .eq('id', session.user.id)
       .single();
     
-    // If error or no admin data, not admin
-    if (adminError || !adminData) {
+    if (adminError) {
+      console.log('Admin check: Admin query error', adminError);
       return false;
     }
     
+    if (!adminData) {
+      console.log('Admin check: No admin data found');
+      return false;
+    }
+    
+    console.log('Admin check: User is admin');
     return true;
   } catch (error) {
-    console.error('Error checking admin status:', error);
+    console.error('Admin check: Exception caught', error);
     return false;
   }
 }
