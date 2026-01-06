@@ -263,6 +263,11 @@ async function checkIsAdmin() {
   try {
     const { supabase } = await import('./js/supabaseClient.js');
     
+    if (!supabase) {
+      console.log('Admin check: Supabase client not available');
+      return false;
+    }
+    
     // Check for session
     const { data: { session }, error: sessionError } = await supabase.auth.getSession();
     
@@ -981,8 +986,18 @@ fetch("data.json")
     const bookSlug = params.get("book");
     const main = document.querySelector("main");
     
-    // Check if user is admin
-    const isAdmin = await checkIsAdmin();
+    // Check if user is admin (with error handling and timeout to prevent blocking)
+    let isAdmin = false;
+    try {
+      // Add timeout to prevent hanging
+      isAdmin = await Promise.race([
+        checkIsAdmin(),
+        new Promise((resolve) => setTimeout(() => resolve(false), 3000)) // 3 second timeout
+      ]);
+    } catch (error) {
+      console.error('Error checking admin status:', error);
+      isAdmin = false; // Default to false if check fails
+    }
 
     if (page === "admin") {
       if (!isAdmin) {
