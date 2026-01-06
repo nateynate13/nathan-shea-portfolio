@@ -150,8 +150,8 @@
             }
 
             if (data.user) {
-              // Successful login - redirect to /admin/
-              window.location.href = '/admin/';
+              // Successful login - redirect to admin tab in main site
+              window.location.href = '/?page=admin';
             } else {
               showError('Login failed. Please try again.');
             }
