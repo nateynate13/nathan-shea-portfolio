@@ -575,12 +575,16 @@
                 throw new Error(`Failed to upload image: ${uploadError.message}`);
               }
 
-              // Get public URL
+              // Get public URL using the path from upload response
+              const uploadedPath = uploadData.path;
               const { data: urlData } = supabase.storage
                 .from('book-covers')
-                .getPublicUrl(filePath);
+                .getPublicUrl(uploadedPath);
 
               coverUrl = urlData.publicUrl;
+              
+              console.log('Cover uploaded to:', uploadedPath);
+              console.log('Cover public URL:', coverUrl);
             }
 
             // Upload PDF if provided, otherwise keep existing
@@ -601,11 +605,16 @@
                 throw new Error(`Failed to upload PDF: ${pdfUploadError.message}`);
               }
 
+              // Get public URL using the path from upload response
+              const uploadedPdfPath = pdfUploadData.path;
               const { data: pdfUrlData } = supabase.storage
                 .from('book-pdfs')
-                .getPublicUrl(pdfPath);
+                .getPublicUrl(uploadedPdfPath);
 
               pdfUrl = pdfUrlData.publicUrl;
+              
+              console.log('PDF uploaded to:', uploadedPdfPath);
+              console.log('PDF public URL:', pdfUrl);
             }
 
             // Tags are already processed (emojis stripped)
