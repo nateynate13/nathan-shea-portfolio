@@ -230,11 +230,16 @@ function renderNavbar(navigation, activeKey = null) {
   const currentTheme = getCurrentTheme();
   return `
     <nav>
-      <ul>
+      <button class="hamburger-menu" id="hamburger-menu" aria-label="Toggle menu" aria-expanded="false">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <ul id="nav-menu">
         ${navigation
           .map(
             (item) => {
-              const classes = [item.class, item.key && item.key === activeKey ? "active" : ""]
+              const classes = [item.key && item.key === activeKey ? "active" : ""]
                 .filter(Boolean)
                 .join(" ");
               const ariaCurrent = item.key && item.key === activeKey ? ' aria-current="page"' : "";
@@ -331,6 +336,45 @@ function setNavbar(navigation, activeKey = null, isAdmin = false) {
     }
     header.innerHTML = renderNavbar(navItems, activeKey);
     attachThemeToggle();
+    attachHamburgerMenu();
+  }
+}
+
+function attachHamburgerMenu() {
+  const hamburger = document.getElementById("hamburger-menu");
+  const navMenu = document.getElementById("nav-menu");
+  
+  if (hamburger && navMenu) {
+    hamburger.addEventListener("click", () => {
+      const isExpanded = hamburger.getAttribute("aria-expanded") === "true";
+      hamburger.setAttribute("aria-expanded", !isExpanded);
+      navMenu.classList.toggle("active");
+      hamburger.classList.toggle("active");
+      document.body.classList.toggle("menu-open");
+    });
+
+    // Close menu when clicking on a link
+    const navLinks = navMenu.querySelectorAll("a");
+    navLinks.forEach(link => {
+      link.addEventListener("click", () => {
+        navMenu.classList.remove("active");
+        hamburger.classList.remove("active");
+        hamburger.setAttribute("aria-expanded", "false");
+        document.body.classList.remove("menu-open");
+      });
+    });
+
+    // Close menu when clicking outside
+    document.addEventListener("click", (e) => {
+      if (navMenu.classList.contains("active") && 
+          !navMenu.contains(e.target) && 
+          !hamburger.contains(e.target)) {
+        navMenu.classList.remove("active");
+        hamburger.classList.remove("active");
+        hamburger.setAttribute("aria-expanded", "false");
+        document.body.classList.remove("menu-open");
+      }
+    });
   }
 }
 
@@ -376,7 +420,8 @@ function renderMain(data, isAdmin = false) {
   const phases = computePhases(today);
   main.innerHTML = `
     ${renderAbout(data.about)}
-    ${renderNews(data.news, today, phases)}
+    ${renderNowSection(today, phases)}
+    ${renderNews(data.news)}
     ${renderStoicCorner()}
     ${renderInspirationWall(data.inspiration || [])}
   `;
@@ -664,7 +709,64 @@ function renderReadingListPage(books) {
   `;
 }
 
-function renderAdminDashboard(books) {
+async function loadSupabaseNews() {
+  try {
+    const { supabase } = await import('./js/supabaseClient.js');
+    if (!supabase) return [];
+    
+    const { data: newsData, error } = await supabase
+      .from('news')
+      .select('*')
+      .order('date', { ascending: false });
+    
+    if (error) {
+      console.error('Error fetching news from Supabase:', error);
+      return [];
+    }
+    
+    return (newsData || []).map(item => ({
+      id: item.id,
+      title: item.title,
+      date: item.date,
+      content: item.content,
+      created_at: item.created_at
+    }));
+  } catch (error) {
+    console.error('Error loading news from Supabase:', error);
+    return [];
+  }
+}
+
+async function loadSupabaseProjects() {
+  try {
+    const { supabase } = await import('./js/supabaseClient.js');
+    if (!supabase) return [];
+    
+    const { data: projectsData, error } = await supabase
+      .from('projects')
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    if (error) {
+      console.error('Error fetching projects from Supabase:', error);
+      return [];
+    }
+    
+    return (projectsData || []).map(item => ({
+      id: item.id,
+      title: item.title,
+      short_description: item.short_description,
+      link: item.link,
+      details: item.details,
+      created_at: item.created_at
+    }));
+  } catch (error) {
+    console.error('Error loading projects from Supabase:', error);
+    return [];
+  }
+}
+
+function renderAdminDashboard(books, news = [], projects = []) {
   // Filter to only show Supabase books (those with id from Supabase)
   const supabaseBooks = books.filter(book => book.id);
   
@@ -681,13 +783,53 @@ function renderAdminDashboard(books) {
           </div>
           <div class="admin-book-actions">
             <a href="/admin/edit-book.html?id=${book.id}" class="admin-edit-btn">Edit</a>
-            <button class="admin-delete-btn" data-book-id="${book.id || ''}" data-book-title="${book.title}" aria-label="Delete ${book.title}">
+            <button class="admin-delete-btn" data-type="book" data-item-id="${book.id || ''}" data-item-title="${book.title}" aria-label="Delete ${book.title}">
               Delete
             </button>
           </div>
         </div>
       `).join('')
     : '<p class="admin-empty">No books from Supabase yet. Add books via the admin form.</p>';
+
+  const newsList = news.length > 0
+    ? news.map(item => `
+        <div class="admin-book-item" data-news-id="${item.id || ''}">
+          <div class="admin-book-info">
+            <div class="admin-book-details">
+              <h3>${item.title}</h3>
+              ${item.date ? `<p>Date: ${item.date}</p>` : ''}
+              ${item.created_at ? `<p class="admin-book-meta">Added: ${new Date(item.created_at).toLocaleDateString()}</p>` : ''}
+            </div>
+          </div>
+          <div class="admin-book-actions">
+            <a href="/admin/edit-news.html?id=${item.id}" class="admin-edit-btn">Edit</a>
+            <button class="admin-delete-btn" data-type="news" data-item-id="${item.id || ''}" data-item-title="${item.title}" aria-label="Delete ${item.title}">
+              Delete
+            </button>
+          </div>
+        </div>
+      `).join('')
+    : '<p class="admin-empty">No news items from Supabase yet. Add news via the admin form.</p>';
+
+  const projectsList = projects.length > 0
+    ? projects.map(item => `
+        <div class="admin-book-item" data-project-id="${item.id || ''}">
+          <div class="admin-book-info">
+            <div class="admin-book-details">
+              <h3>${item.title}</h3>
+              ${item.short_description ? `<p>${item.short_description.substring(0, 100)}${item.short_description.length > 100 ? '...' : ''}</p>` : ''}
+              ${item.created_at ? `<p class="admin-book-meta">Added: ${new Date(item.created_at).toLocaleDateString()}</p>` : ''}
+            </div>
+          </div>
+          <div class="admin-book-actions">
+            <a href="/admin/edit-project.html?id=${item.id}" class="admin-edit-btn">Edit</a>
+            <button class="admin-delete-btn" data-type="project" data-item-id="${item.id || ''}" data-item-title="${item.title}" aria-label="Delete ${item.title}">
+              Delete
+            </button>
+          </div>
+        </div>
+      `).join('')
+    : '<p class="admin-empty">No projects from Supabase yet. Add projects via the admin form.</p>';
   
   return `
     <section id="admin-dashboard">
@@ -697,10 +839,20 @@ function renderAdminDashboard(books) {
       </div>
       <div class="admin-actions">
         <a href="/admin/add-book.html" class="admin-action-link">+ Add New Book</a>
+        <a href="/admin/add-news.html" class="admin-action-link">+ Add New News</a>
+        <a href="/admin/add-project.html" class="admin-action-link">+ Add New Project</a>
       </div>
       <div class="admin-books-list">
         <h3>Supabase Books (${supabaseBooks.length})</h3>
         ${booksList}
+      </div>
+      <div class="admin-books-list" style="margin-top: 32px;">
+        <h3>Supabase News (${news.length})</h3>
+        ${newsList}
+      </div>
+      <div class="admin-books-list" style="margin-top: 32px;">
+        <h3>Supabase Projects (${projects.length})</h3>
+        ${projectsList}
       </div>
     </section>
   `;
@@ -1011,17 +1163,21 @@ fetch("data.json")
         hideLoadingScreen(loadingInterval);
         return;
       }
-      // Load all books for admin dashboard
-      loadLibraryBooks(data.readingList || []).then((allBooks) => {
+      // Load all books, news, and projects for admin dashboard
+      Promise.all([
+        loadLibraryBooks(data.readingList || []),
+        loadSupabaseNews(),
+        loadSupabaseProjects()
+      ]).then(([allBooks, news, projects]) => {
         setNavbar(data.navigation, "admin", isAdmin);
-        main.innerHTML = renderAdminDashboard(allBooks);
+        main.innerHTML = renderAdminDashboard(allBooks, news, projects);
         setupAdminDeleteButtons();
         setupAdminLogout();
         hideLoadingScreen(loadingInterval);
       }).catch((error) => {
-        console.error('Error loading books for admin:', error);
+        console.error('Error loading data for admin:', error);
         setNavbar(data.navigation, "admin", isAdmin);
-        main.innerHTML = renderAdminDashboard([]);
+        main.innerHTML = renderAdminDashboard([], [], []);
         setupAdminLogout();
         hideLoadingScreen(loadingInterval);
       });
@@ -1114,7 +1270,21 @@ fetch("data.json")
     hideLoadingScreen(loadingInterval);
   });
 
-function renderNews(news, today = new Date(), phases = computePhases(today)) {
+function renderNews(news) {
+  return `
+    <section id="news">
+      <h2 class="section-title">News</h2>
+      <div class="search">
+        <input type="search" name="news" id="news-search" placeholder="Search News..." />
+      </div>
+      <ul class="newslist">
+        ${news.slice(0, 5).map((item) => renderNewsItems(item)).join("")}
+      </ul>
+    </section>
+  `;
+}
+
+function renderNowSection(today = new Date(), phases = computePhases(today)) {
   const graduationDate = new Date("2026-05-18");
   const showGradCountdown = today < new Date("2026-01-12");
 
@@ -1131,24 +1301,13 @@ function renderNews(news, today = new Date(), phases = computePhases(today)) {
       <div class="progress-bar">
         <div class="progress-fill" style="width: ${gradProgress}%"></div>
       </div>
-      <small>${gradProgress}% of college completed (since Aug 21, 2023)</small>
+      <small>${gradProgress}% of college completed (since Aug 22, 2022)</small>
     </div>`
     : "";
 
   const countdownHTML = renderCountdownWidget(phases, today, gradCountdown);
 
-  return `
-    <section id="news">
-      <h2 class="section-title">News</h2>
-      <div class="search">
-        <input type="search" name="news" id="news-search" placeholder="Search News..." />
-      </div>
-      <ul class="newslist">
-        ${news.slice(0, 5).map((item) => renderNewsItems(item)).join("")}
-      </ul>
-      ${countdownHTML}
-    </section>
-  `;
+  return countdownHTML;
 }
 
 
@@ -1337,45 +1496,49 @@ function setupAdminDeleteButtons() {
   const deleteButtons = document.querySelectorAll('.admin-delete-btn');
   deleteButtons.forEach(button => {
     button.addEventListener('click', async function() {
-      const bookId = this.getAttribute('data-book-id');
-      const bookTitle = this.getAttribute('data-book-title');
+      const itemType = this.getAttribute('data-type') || 'book';
+      const itemId = this.getAttribute('data-item-id');
+      const itemTitle = this.getAttribute('data-item-title');
       
-      if (!bookId) {
-        alert('Cannot delete: Book ID not found. This book may be from static data.');
+      if (!itemId) {
+        alert(`Cannot delete: ${itemType} ID not found. This item may be from static data.`);
         return;
       }
       
-      if (!confirm(`Are you sure you want to delete "${bookTitle}"? This action cannot be undone.`)) {
+      if (!confirm(`Are you sure you want to delete "${itemTitle}"? This action cannot be undone.`)) {
         return;
       }
       
       try {
         const { supabase } = await import('./js/supabaseClient.js');
         
+        // Determine the table name
+        const tableName = itemType === 'book' ? 'books' : (itemType === 'news' ? 'news' : 'projects');
+        
         // Delete from Supabase
         const { error } = await supabase
-          .from('books')
+          .from(tableName)
           .delete()
-          .eq('id', bookId);
+          .eq('id', itemId);
         
         if (error) {
           throw error;
         }
         
         // Remove from UI
-        const bookItem = this.closest('.admin-book-item');
-        if (bookItem) {
-          bookItem.style.transition = 'opacity 0.3s';
-          bookItem.style.opacity = '0';
+        const itemElement = this.closest('.admin-book-item');
+        if (itemElement) {
+          itemElement.style.transition = 'opacity 0.3s';
+          itemElement.style.opacity = '0';
           setTimeout(() => {
-            bookItem.remove();
+            itemElement.remove();
             // Reload the page to refresh the list
             window.location.reload();
           }, 300);
         }
       } catch (error) {
-        console.error('Error deleting book:', error);
-        alert(`Failed to delete book: ${error.message}`);
+        console.error(`Error deleting ${itemType}:`, error);
+        alert(`Failed to delete ${itemType}: ${error.message}`);
       }
     });
   });

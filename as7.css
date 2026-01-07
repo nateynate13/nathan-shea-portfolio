@@ -130,59 +130,39 @@ nav ul li.active a {
   border-bottom: 2px solid var(--accent);
 }
 
-nav ul li.nav-library a {
-  background-color: rgba(var(--accent-rgb), 0.1);
-  color: var(--accent);
-  font-weight: 600;
-  border-radius: 999px;
-  border: 1px solid rgba(var(--accent-rgb), 0.3);
-  transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+/* Hamburger Menu */
+.hamburger-menu {
+  display: none;
+  flex-direction: column;
+  justify-content: space-around;
+  width: 30px;
+  height: 30px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  z-index: 1001;
 }
 
-nav ul li.nav-library a:hover,
-nav ul li.nav-library a:focus {
-  background-color: var(--accent);
-  color: var(--bg);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(var(--accent-rgb), 0.2);
-}
-
-nav ul li.nav-library.active a {
-  background-color: var(--accent);
-  color: var(--bg);
-  border-color: var(--accent);
-  box-shadow: 0 6px 12px rgba(var(--accent-rgb), 0.25);
-  border-bottom: none;
-}
-
-nav ul li.nav-projects a {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: #ffffff;
-  font-weight: 700;
-  border-radius: 8px;
-  border: 2px solid transparent;
-  padding: 10px 20px;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+.hamburger-menu span {
+  width: 100%;
+  height: 3px;
+  background-color: var(--text);
+  border-radius: 3px;
   transition: all 0.3s ease;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-size: 0.9rem;
+  transform-origin: center;
 }
 
-nav ul li.nav-projects a:hover,
-nav ul li.nav-projects a:focus {
-  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.5);
-  border-color: rgba(255, 255, 255, 0.3);
+.hamburger-menu.active span:nth-child(1) {
+  transform: rotate(45deg) translate(8px, 8px);
 }
 
-nav ul li.nav-projects.active a {
-  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
-  color: #ffffff;
-  border-color: rgba(255, 255, 255, 0.5);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
-  border-bottom: none;
+.hamburger-menu.active span:nth-child(2) {
+  opacity: 0;
+}
+
+.hamburger-menu.active span:nth-child(3) {
+  transform: rotate(-45deg) translate(8px, -8px);
 }
 
 /* Theme Toggle Button */
@@ -968,31 +948,191 @@ footer:hover .footer-motto {
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  section {
-    padding: 24px;
-    margin: 16px;
+  /* Hamburger Menu */
+  .hamburger-menu {
+    display: flex;
   }
 
+  nav {
+    flex-wrap: nowrap;
+    position: relative;
+  }
+
+  nav ul {
+    position: fixed;
+    top: 0;
+    left: -100%;
+    width: 280px;
+    height: 100vh;
+    background-color: var(--bg);
+    flex-direction: column;
+    padding: 80px 24px 24px;
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+    transition: left 0.3s ease;
+    z-index: 1000;
+    overflow-y: auto;
+  }
+
+  nav ul.active {
+    left: 0;
+  }
+
+  /* Mobile menu overlay */
+  body.menu-open::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+  }
+
+  nav ul li {
+    width: 100%;
+    margin: 0;
+  }
+
+  nav ul li a {
+    display: block;
+    width: 100%;
+    padding: 12px 16px;
+    border-radius: 8px;
+  }
+
+  .theme-toggle {
+    margin-left: auto;
+  }
+
+  /* Section spacing */
+  section {
+    padding: 20px 16px;
+    margin: 12px 8px;
+  }
+
+  /* Typography - scale down fonts */
+  .section-title {
+    font-size: 24px;
+    margin-bottom: 16px;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-size: 1.1em;
+  }
+
+  .book-detail-info h1 {
+    font-size: 1.5rem;
+  }
+
+  .book-detail-info h2 {
+    font-size: 1.2rem;
+  }
+
+  .project-card h2 {
+    font-size: 20px;
+  }
+
+  .project-details h2 {
+    font-size: 22px;
+  }
+
+  /* About section - fix overflow */
   .about-container {
     grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 16px;
   }
 
   .about-left {
     align-items: center;
   }
 
-  nav {
+  .about-image {
+    width: 180px;
+    height: 180px;
+  }
+
+  .about-right {
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .contact-details {
+    margin-top: 12px;
+  }
+
+  .contact-details p {
+    font-size: 14px;
+    margin: 6px 0;
+    flex-wrap: wrap;
+  }
+
+  .location {
+    font-size: 13px;
+    margin-top: 8px;
+  }
+
+  /* Now section - fix overflow */
+  #life-countdown {
+    padding: 20px 16px;
+  }
+
+  .countdown-widget {
+    gap: 16px;
     flex-direction: column;
-    align-items: flex-start;
   }
 
-  nav ul {
-    width: 100%;
+  .countdown-card {
+    min-width: 100%;
+    padding: 16px;
   }
 
-  .theme-toggle {
+  .countdown-phase-nav {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  #phase-container {
     width: 100%;
-    justify-content: center;
+    order: 2;
+  }
+
+  #prev-phase,
+  #next-phase {
+    order: 1;
+    flex: 1;
+    font-size: 18px;
+    padding: 10px;
+  }
+
+  /* Reduce vertical spacing */
+  p, li, .about-right, .contact-details {
+    margin-bottom: 12px;
+  }
+
+  .now-item {
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+
+  .now-item h3 {
+    font-size: 1rem;
+    margin-bottom: 8px;
+  }
+
+  .projects-grid {
+    gap: 16px;
+    padding: 16px;
+  }
+
+  .project-card {
+    padding: 16px;
+  }
+
+  .logo-grid {
+    gap: 16px;
+    padding: 16px;
   }
 }
 
@@ -1013,30 +1153,43 @@ footer:hover .footer-motto {
 }
 
 @media (max-width: 600px) {
+  /* Further reduce spacing on small phones */
+  section {
+    padding: 16px 12px;
+    margin: 8px 4px;
+  }
+
+  .section-title {
+    font-size: 20px;
+    margin-bottom: 12px;
+  }
+
   #library {
-    padding: 24px 16px;
+    padding: 20px 12px;
   }
   
   .book-grid {
-    padding: 16px 8px;
-    gap: 16px;
+    padding: 12px 8px;
+    gap: 12px;
   }
   
   .library-filters {
-    padding: 16px;
-    margin-bottom: 24px;
+    padding: 12px;
+    margin-bottom: 16px;
   }
   
   .book-overlay {
     font-size: 0.85rem;
+    padding: 16px;
   }
 
   .book-detail-info h1 {
-    font-size: 1.6rem;
+    font-size: 1.4rem;
   }
 
   .book-detail-content {
     grid-template-columns: 1fr;
+    gap: 20px;
   }
 
   .book-detail-cover {
@@ -1046,6 +1199,20 @@ footer:hover .footer-motto {
 
   .book-detail-cover img {
     max-width: 150px;
+  }
+
+  .about-image {
+    width: 150px;
+    height: 150px;
+  }
+
+  .countdown-card {
+    padding: 12px;
+  }
+
+  .countdown-card h3 {
+    font-size: 1rem;
+    margin-bottom: 12px;
   }
 }
 

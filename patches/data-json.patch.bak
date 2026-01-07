@@ -1,0 +1,157 @@
+diff --git a/data.json b/data.json
+index 40e2021ef592ca8899ce41fad5fc3c1c4cd06545..a106b5ac9bddf6d27ccd5dff3bf66fa3450e7f5d 100644
+--- a/data.json
++++ b/data.json
+@@ -1,48 +1,42 @@
+ {
+   "navigation": [
+     {
+-      "text": "About",
+-      "href": "#about"
++      "text": "Home",
++      "href": "?page=home",
++      "key": "home"
+     },
+     {
+       "text": "Reading List",
+       "href": "?page=reading-list",
+       "class": "nav-reading-list",
+       "key": "reading-list"
+     },
+-    {
+-      "text": "News",
+-      "href": "#news"
+-    },
+-    {
+-      "text": "Projects",
+-      "href": "#projects"
+-    },
+     {
+       "text": "Resume",
+-      "href": "https://drive.google.com/file/d/1tbp_nDSwqQS8ff9Bu7LcjKKdlDt8dV-c/view?usp=sharing"
++      "href": "https://drive.google.com/file/d/1tbp_nDSwqQS8ff9Bu7LcjKKdlDt8dV-c/view?usp=sharing",
++      "target": "_blank"
+     }
+   ],
+   "about": {
+     "name": "Nathan Makaneole Shea",
+     "position": "Junior at Boston College",
+     "location": "140 Commonwealth Ave, Chestnut Hill, MA",
+     "image": "https://cdn.glitch.global/a15ff499-089c-4458-9cda-ff05922dfdb5/IMG_4537.jpeg?v=1735511693404",
+     "bio": "Hi, I’m Nate, I am a Boston College student in the Class of 2026 studying computer science with a minor in finance. I’m passionate about problem-solving, logic, and finding cross-sector solutions for real-world challenges. I'm deeply committed to lifelong learning and an avid reader of history, philosophy, sociology, and political science.",
+     "contact": [
+       {
+         "type": "Email",
+         "value": "nathan.shea@bc.edu",
+         "icon": "https://cdn.glitch.global/fc4f0962-1f1a-4a77-b23f-d5885a78fbca/360_F_170650817_gT28zz1u3arUvEqdYp7YpuTfVTiGoAJL.jpg?v=1729293398817",
+         "link": "mailto:nathan.shea@bc.edu"
+       },
+       {
+         "type": "Phone",
+         "value": "(808) 721-9318",
+         "icon": "https://cdn.glitch.global/fc4f0962-1f1a-4a77-b23f-d5885a78fbca/download-2.png?v=1729293397707"
+       },
+       {
+         "type": "LinkedIn",
+         "value": "www.linkedin.com/in/nathan-shea-905747271",
+         "icon": "https://cdn.glitch.global/fc4f0962-1f1a-4a77-b23f-d5885a78fbca/linkedin-logo-linkedin-symbol-linkedin-icon-free-free-vector.jpg?v=1729293396492",
+         "link": "https://www.linkedin.com/in/nathan-shea-905747271"
+@@ -165,50 +159,98 @@
+     },
+     {
+       "title": "Project 4: Strategic Financial Analysis of The Walt Disney Company",
+       "short_description": "Conducted a multi-year financial performance analysis of Walt Disney Co., using key ratios and benchmarking against Comcast to assess long-term investment viability.",
+       "link": "project4.html",
+       "details": {
+         "title": "Project 4: Strategic Financial Analysis of The Walt Disney Company",
+         "description": "In this project, I worked as part of a student analyst team to perform a multi-year financial analysis of The Walt Disney Company, examining performance trends from 2020–2022 using SEC filings and public data. Our analysis focused on profitability, liquidity, efficiency, and solvency metrics, while also identifying operational risks related to streaming, ESG compliance, and healthcare cost exposure. To contextualize Disney's financial health, we used Comcast/NBCUniversal as a benchmark across key ratios. We synthesized this research into an investor-oriented thesis, recommending Disney as a long-term investment based on its post-COVID rebound, diversified revenue streams, low debt load, and future-forward strategy in both digital content and physical expansion.",
+         "technologies": [
+           "Excel",
+           "Financial Ratios",
+           "SEC Filings (10-K, 10-Q, 8-K)",
+           "Investment Analysis"
+         ],
+         "logos": [
+           {
+             "alt": "Disney Logo",
+             "src": "https://cdn.glitch.global/a15ff499-089c-4458-9cda-ff05922dfdb5/Dizlogo.png?v=1747439392662"
+           }
+         ],
+         "back_link": "index.html"
+       }
+     }
+   ],
+   "readingList": [
++    {
++      "slug": "the-defining-decade",
++      "title": "The Defining Decade: Why Your Twenties Matter and How to Make the Most of Them Now",
++      "author": "Meg Jay, PhD",
++      "published": "2021",
++      "finished": "October 2024 (re-read October 2025; originally August 2023)",
++      "cover": "https://m.media-amazon.com/images/I/41Bn8LLJCvL._SY445_SX342_ControlCacheEqualizer_.jpg",
++      "summary": "",
++      "rating": 4,
++      "review": "",
++      "reflection": "I do believe every twentysomething needs to read this book. It grounded me, helped me set long-term goals, and pushed me to embrace the agency that comes with life after college."
++    },
++    {
++      "slug": "talking-to-strangers",
++      "title": "Talking to Strangers: What We Should Know about the People We Don't Know",
++      "author": "Malcolm Gladwell",
++      "published": "2019",
++      "finished": "December 2024",
++      "cover": "https://m.media-amazon.com/images/I/61Uv-rmFUbL._AC_UF1000,1000_QL80_.jpg",
++      "summary": "",
++      "rating": 4.5,
++      "review": "",
++      "reflection": "Gladwell's idea of our instinct to default to truth reframed how I see trust and perception. It nudged me to balance empathy with a bit more skepticism when I meet new people—very stoic of me!"
++    },
++    {
++      "slug": "making-motherhood-work",
++      "title": "Making Motherhood Work: How Women Manage Careers and Caregiving",
++      "author": "Caitlyn Collins",
++      "published": "2019",
++      "finished": "November 2024",
++      "cover": "https://m.media-amazon.com/images/I/41-Vg8zHZbL._SY445_SX342_ControlCacheEqualizer_.jpg",
++      "summary": "",
++      "rating": 4,
++      "review": "",
++      "reflection": "Assigned reading for my Family Sociology class unexpectedly opened my eyes to how uneven the experience of working parents is in the U.S. Maybe Sweden is the place to raise a family after all."
++    },
++    {
++      "slug": "the-charisma-myth",
++      "title": "The Charisma Myth: How Anyone Can Master the Art and Science of Personal Magnetism",
++      "author": "Olivia Fox Cabane",
++      "published": "2012",
++      "finished": "June 2025",
++      "cover": "https://m.media-amazon.com/images/I/81hS0u0bqXL._SY522_.jpg",
++      "summary": "",
++      "rating": 5,
++      "review": "",
++      "reflection": "As an introvert, this book transformed my social and professional confidence. Presence, power, and warmth all come back to mindfulness—and Cabane's techniques make improvement feel achievable."
++    },
+     {
+       "slug": "the-greeks-a-global-history",
+       "title": "The Greeks: A Global History",
+       "author": "Roderick Beaton",
+       "published": "October 2021",
+       "finished": "January 2025",
+       "cover": "https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1615674629i/57007971.jpg",
+       "summary": "More than two thousand years ago, the Greek city-states, led by Athens and Sparta, laid the foundation for much of modern science, the arts, politics, and law. But the influence of the Greeks did not end with the rise and fall of this classical civilization. As historian Roderick Beaton illustrates, over three millennia Greek speakers produced a series of civilizations that were rooted in southeastern Europe but again and again ranged widely across the globe. In The Greeks, Beaton traces this history from the Bronze Age Mycenaeans who built powerful fortresses at home and strong trade routes abroad, to the dramatic Eurasian conquests of Alexander the Great, to the pious Byzantines who sought to export Christianity worldwide, to today’s Greek diaspora, which flourishes on five continents. The product of decades of research, this is the story of the Greeks and their global impact told as never before.",
+       "rating": 4.5,
+       "review": "I felt like I owed it to myself to brush up on the incredible history of Greece, and wow was Beaton's work dense and comprehensive. I feel like the Greek's influence on modern life as we know it is widely recognized, and yet the scale of that influence is so much more widespread than we give it credit for. From the alphabet to foundations of modern societal structure, they sort of came up with everything. As I write this post my semester abroad, it's amazing to reflect back on the feelings of intellectual legacy I felt while in naturally beautiful Greece."
+     },
+     {
+       "slug": "why-so-serious-nikola-jokic",
+       "title": "Why So Serious?: The Untold Story of NBA Champion Nikola Jokic",
+       "author": "Mike Singer",
+       "published": "December 2024",
+       "finished": "June 2025",
+       "cover": "https://m.media-amazon.com/images/I/7134MSgq6gL._SY522_.jpg",
+       "summary": "Behind his veiled public persona, who really is Nikola Jokic? Filled with exclusive, sure-to-be-headline-making interviews, including unique insights from Jokic himself, Why So Serious? delves deep into the soul of the mysterious center and reveals how the big man developed his relentless work ethic, exceptional court vision, and magical playing style that has redefined dominance in the NBA.",
+       "rating": 5,
+       "review": "To me, as a life long NBA fan and self proclaimed 'ball-knower,' watching Nikola Jokic play basketball is almost a religious experience. The way he moves so fluidly, always makes the right play, and only looks to score when his absolutely needs him to, and the fact that he treats being the best player in the NBA like his day job! It's safe to say that I'm obsessed. I even traveled solo to Belgrade to watch some Serbian Euroleauge hoops. This book was just a fun read. You realize how great of a human being Nikola Jokic, and it just adds to his legacy in my eyes. What a guy!"
+     },
+     {
+       "slug": "the-return-hisham-matar",
+       "title": "The Return: Fathers, Sons and the Land in Between",

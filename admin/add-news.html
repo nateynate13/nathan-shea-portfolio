@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Add News | Admin | Nathan M. Shea</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../as7.css" />
+    <style>
+      .admin-container {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        min-height: calc(100vh - 200px);
+        padding: 40px 20px;
+      }
+      .form-container {
+        background-color: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 40px;
+        max-width: 600px;
+        width: 100%;
+        box-shadow: var(--card-shadow);
+      }
+      .form-container h1 {
+        margin-bottom: 32px;
+        text-align: center;
+        color: var(--accent);
+        font-size: 24px;
+        font-weight: 400;
+      }
+      .form-group {
+        margin-bottom: 24px;
+      }
+      .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--text);
+      }
+      .form-group label .required {
+        color: #d93025;
+        margin-left: 4px;
+      }
+      .form-group input[type="text"],
+      .form-group input[type="date"],
+      .form-group textarea {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        font-size: 14px;
+        font-family: inherit;
+        background-color: var(--bg);
+        color: var(--text);
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      }
+      .form-group input[type="text"]:focus,
+      .form-group input[type="date"]:focus,
+      .form-group textarea:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 2px rgba(var(--accent-rgb), 0.1);
+      }
+      .form-group textarea {
+        resize: vertical;
+        min-height: 120px;
+      }
+      .form-group .help-text {
+        font-size: 12px;
+        color: var(--text-muted);
+        margin-top: 4px;
+      }
+      .submit-button {
+        width: 100%;
+        padding: 12px 24px;
+        background-color: var(--accent);
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: opacity 0.2s ease;
+        margin-top: 8px;
+      }
+      .submit-button:hover {
+        opacity: 0.9;
+      }
+      .submit-button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+      .error-message {
+        background-color: rgba(220, 53, 69, 0.1);
+        border: 1px solid rgba(220, 53, 69, 0.3);
+        color: #d93025;
+        padding: 12px;
+        border-radius: 4px;
+        margin-bottom: 24px;
+        font-size: 14px;
+        display: none;
+      }
+      .error-message.show {
+        display: block;
+      }
+      .success-message {
+        background-color: rgba(52, 168, 83, 0.1);
+        border: 1px solid rgba(52, 168, 83, 0.3);
+        color: #34a853;
+        padding: 12px;
+        border-radius: 4px;
+        margin-bottom: 24px;
+        font-size: 14px;
+        display: none;
+      }
+      .success-message.show {
+        display: block;
+      }
+      .loading-message {
+        text-align: center;
+        padding: 40px;
+        color: var(--text-muted);
+      }
+      .back-link {
+        display: inline-block;
+        margin-bottom: 16px;
+        color: var(--accent);
+        text-decoration: none;
+        font-size: 14px;
+      }
+      .back-link:hover {
+        text-decoration: underline;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="admin-container">
+      <div class="form-container" id="form-container" style="display: none;">
+        <a href="/?page=admin" class="back-link">← Back to Admin Dashboard</a>
+        <h1>Add New News Item</h1>
+        <div id="error-message" class="error-message"></div>
+        <div id="success-message" class="success-message"></div>
+        <form id="add-news-form">
+          <div class="form-group">
+            <label for="title">
+              Title
+              <span class="required">*</span>
+            </label>
+            <input type="text" id="title" name="title" required />
+          </div>
+          <div class="form-group">
+            <label for="date">
+              Date
+              <span class="required">*</span>
+            </label>
+            <input type="date" id="date" name="date" required />
+            <div class="help-text">The date when this news item occurred or was published</div>
+          </div>
+          <div class="form-group">
+            <label for="content">
+              Content
+              <span class="required">*</span>
+            </label>
+            <textarea id="content" name="content" rows="6" placeholder="News item content..." required></textarea>
+            <div class="help-text">The main content/text of the news item</div>
+          </div>
+          <button type="submit" class="submit-button" id="submit-button">Add News Item</button>
+        </form>
+      </div>
+      <div class="loading-message" id="loading">Checking authentication...</div>
+    </div>
+
+    <script type="module">
+      import { supabase } from '../js/supabaseClient.js';
+
+      document.addEventListener('DOMContentLoaded', async function() {
+        const formContainer = document.getElementById('form-container');
+        const loading = document.getElementById('loading');
+        const errorMessage = document.getElementById('error-message');
+        const successMessage = document.getElementById('success-message');
+        const addNewsForm = document.getElementById('add-news-form');
+        const submitButton = document.getElementById('submit-button');
+
+        function showError(message) {
+          errorMessage.textContent = message;
+          errorMessage.classList.add('show');
+          successMessage.classList.remove('show');
+        }
+
+        function hideError() {
+          errorMessage.classList.remove('show');
+        }
+
+        function showSuccess(message) {
+          successMessage.textContent = message;
+          successMessage.classList.add('show');
+          errorMessage.classList.remove('show');
+        }
+
+        // Check authentication and admin status
+        try {
+          const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+
+          if (sessionError) {
+            console.error('Session check error:', sessionError);
+            window.location.href = '/admin/login.html';
+            return;
+          }
+
+          if (!session) {
+            window.location.href = '/admin/login.html';
+            return;
+          }
+
+          // Check if user is an admin
+          const userId = session.user.id;
+          const { data: adminData, error: adminError } = await supabase
+            .from('admins')
+            .select('id')
+            .eq('id', userId)
+            .single();
+
+          if (adminError || !adminData) {
+            // Not an admin - redirect to admin tab
+            window.location.href = '/?page=admin';
+            return;
+          }
+
+          // User is authenticated and is an admin - show form
+          loading.style.display = 'none';
+          formContainer.style.display = 'block';
+
+        } catch (error) {
+          console.error('Authentication check failed:', error);
+          window.location.href = '/admin/login.html';
+        }
+
+        // Handle form submission
+        addNewsForm.addEventListener('submit', async function(e) {
+          e.preventDefault();
+          hideError();
+
+          const title = document.getElementById('title').value.trim();
+          const date = document.getElementById('date').value.trim();
+          const content = document.getElementById('content').value.trim();
+
+          if (!title) {
+            showError('Title is required.');
+            return;
+          }
+
+          if (!date) {
+            showError('Date is required.');
+            return;
+          }
+
+          if (!content) {
+            showError('Content is required.');
+            return;
+          }
+
+          // Disable button during submission
+          submitButton.disabled = true;
+          submitButton.textContent = 'Adding news item...';
+
+          try {
+            // Insert news item into database
+            const { data: newsData, error: insertError } = await supabase
+              .from('news')
+              .insert({
+                title: title,
+                date: date,
+                content: content
+              })
+              .select()
+              .single();
+
+            if (insertError) {
+              throw new Error(`Failed to add news item: ${insertError.message}`);
+            }
+
+            // Success - redirect to admin dashboard
+            showSuccess('News item added successfully! Redirecting...');
+            setTimeout(() => {
+              window.location.href = '/?page=admin';
+            }, 1500);
+
+          } catch (error) {
+            console.error('Error adding news item:', error);
+            showError(error.message || 'An error occurred while adding the news item. Please try again.');
+            submitButton.disabled = false;
+            submitButton.textContent = 'Add News Item';
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
+

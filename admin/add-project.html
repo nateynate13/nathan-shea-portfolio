@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Add Project | Admin | Nathan M. Shea</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../as7.css" />
+    <style>
+      .admin-container {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        min-height: calc(100vh - 200px);
+        padding: 40px 20px;
+      }
+      .form-container {
+        background-color: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 40px;
+        max-width: 800px;
+        width: 100%;
+        box-shadow: var(--card-shadow);
+      }
+      .form-container h1 {
+        margin-bottom: 32px;
+        text-align: center;
+        color: var(--accent);
+        font-size: 24px;
+        font-weight: 400;
+      }
+      .form-group {
+        margin-bottom: 24px;
+      }
+      .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--text);
+      }
+      .form-group label .required {
+        color: #d93025;
+        margin-left: 4px;
+      }
+      .form-group input[type="text"],
+      .form-group input[type="url"],
+      .form-group textarea {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        font-size: 14px;
+        font-family: inherit;
+        background-color: var(--bg);
+        color: var(--text);
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      }
+      .form-group input[type="text"]:focus,
+      .form-group input[type="url"]:focus,
+      .form-group textarea:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 2px rgba(var(--accent-rgb), 0.1);
+      }
+      .form-group textarea {
+        resize: vertical;
+        min-height: 100px;
+      }
+      .form-group .help-text {
+        font-size: 12px;
+        color: var(--text-muted);
+        margin-top: 4px;
+      }
+      .submit-button {
+        width: 100%;
+        padding: 12px 24px;
+        background-color: var(--accent);
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: opacity 0.2s ease;
+        margin-top: 8px;
+      }
+      .submit-button:hover {
+        opacity: 0.9;
+      }
+      .submit-button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+      .error-message {
+        background-color: rgba(220, 53, 69, 0.1);
+        border: 1px solid rgba(220, 53, 69, 0.3);
+        color: #d93025;
+        padding: 12px;
+        border-radius: 4px;
+        margin-bottom: 24px;
+        font-size: 14px;
+        display: none;
+      }
+      .error-message.show {
+        display: block;
+      }
+      .success-message {
+        background-color: rgba(52, 168, 83, 0.1);
+        border: 1px solid rgba(52, 168, 83, 0.3);
+        color: #34a853;
+        padding: 12px;
+        border-radius: 4px;
+        margin-bottom: 24px;
+        font-size: 14px;
+        display: none;
+      }
+      .success-message.show {
+        display: block;
+      }
+      .loading-message {
+        text-align: center;
+        padding: 40px;
+        color: var(--text-muted);
+      }
+      .back-link {
+        display: inline-block;
+        margin-bottom: 16px;
+        color: var(--accent);
+        text-decoration: none;
+        font-size: 14px;
+      }
+      .back-link:hover {
+        text-decoration: underline;
+      }
+      .array-input-group {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 8px;
+      }
+      .array-input-group input {
+        flex: 1;
+      }
+      .array-add-btn {
+        padding: 12px 16px;
+        background-color: var(--accent);
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: opacity 0.2s ease;
+      }
+      .array-add-btn:hover {
+        opacity: 0.9;
+      }
+      .array-items {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 12px;
+        background-color: var(--muted-bg);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        min-height: 40px;
+        margin-top: 8px;
+      }
+      .array-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        background-color: var(--accent);
+        color: white;
+        border-radius: 16px;
+        font-size: 13px;
+      }
+      .array-item .array-item-remove {
+        cursor: pointer;
+        font-weight: bold;
+        opacity: 0.8;
+      }
+      .array-item .array-item-remove:hover {
+        opacity: 1;
+      }
+      .logo-item {
+        padding: 12px;
+        background-color: var(--muted-bg);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        margin-bottom: 12px;
+      }
+      .logo-item-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+      .logo-item-remove {
+        padding: 4px 8px;
+        background-color: #d93025;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: 12px;
+        cursor: pointer;
+      }
+      .logo-item-remove:hover {
+        opacity: 0.9;
+      }
+      .section-divider {
+        border-top: 2px solid var(--border);
+        margin: 32px 0;
+        padding-top: 32px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="admin-container">
+      <div class="form-container" id="form-container" style="display: none;">
+        <a href="/?page=admin" class="back-link">← Back to Admin Dashboard</a>
+        <h1>Add New Project</h1>
+        <div id="error-message" class="error-message"></div>
+        <div id="success-message" class="success-message"></div>
+        <form id="add-project-form">
+          <div class="form-group">
+            <label for="title">
+              Title
+              <span class="required">*</span>
+            </label>
+            <input type="text" id="title" name="title" required />
+          </div>
+          <div class="form-group">
+            <label for="short_description">
+              Short Description
+              <span class="required">*</span>
+            </label>
+            <textarea id="short_description" name="short_description" rows="3" placeholder="Brief description for the project card..." required></textarea>
+            <div class="help-text">A brief description shown on the project card</div>
+          </div>
+          <div class="form-group">
+            <label for="link">
+              Link
+              <span class="required">*</span>
+            </label>
+            <input type="text" id="link" name="link" placeholder="project-slug.html" required />
+            <div class="help-text">URL-friendly slug (e.g., "my-project.html")</div>
+          </div>
+
+          <div class="section-divider"></div>
+          <h3 style="margin-bottom: 16px; color: var(--accent);">Project Details</h3>
+
+          <div class="form-group">
+            <label for="details_title">
+              Details Title
+              <span class="required">*</span>
+            </label>
+            <input type="text" id="details_title" name="details_title" required />
+            <div class="help-text">Title shown on the project details page (can be the same as main title)</div>
+          </div>
+          <div class="form-group">
+            <label for="details_description">
+              Details Description
+              <span class="required">*</span>
+            </label>
+            <textarea id="details_description" name="details_description" rows="8" placeholder="Full project description..." required></textarea>
+            <div class="help-text">Full description of the project (supports newlines)</div>
+          </div>
+          <div class="form-group">
+            <label for="technologies">Technologies</label>
+            <div class="array-input-group">
+              <input type="text" id="technology-input" placeholder="e.g., React, Python, SQL" />
+              <button type="button" class="array-add-btn" id="add-technology-btn">Add</button>
+            </div>
+            <div id="technologies-list" class="array-items"></div>
+            <div class="help-text">List of technologies used in this project</div>
+          </div>
+          <div class="form-group">
+            <label>Logos/Images</label>
+            <div id="logos-list"></div>
+            <div class="array-input-group">
+              <input type="text" id="logo-alt-input" placeholder="Alt text" style="flex: 1;" />
+              <input type="text" id="logo-src-input" placeholder="Image URL (e.g., assets/logo.png)" style="flex: 1;" />
+              <input type="text" id="logo-link-input" placeholder="Link URL (optional)" style="flex: 1;" />
+              <input type="text" id="logo-style-input" placeholder="Style (optional, e.g., width: 300px;)" style="flex: 1;" />
+              <button type="button" class="array-add-btn" id="add-logo-btn">Add Logo</button>
+            </div>
+            <div class="help-text">Add logos or images associated with this project</div>
+          </div>
+
+          <button type="submit" class="submit-button" id="submit-button">Add Project</button>
+        </form>
+      </div>
+      <div class="loading-message" id="loading">Checking authentication...</div>
+    </div>
+
+    <script type="module">
+      import { supabase } from '../js/supabaseClient.js';
+
+      document.addEventListener('DOMContentLoaded', async function() {
+        const formContainer = document.getElementById('form-container');
+        const loading = document.getElementById('loading');
+        const errorMessage = document.getElementById('error-message');
+        const successMessage = document.getElementById('success-message');
+        const addProjectForm = document.getElementById('add-project-form');
+        const submitButton = document.getElementById('submit-button');
+
+        const technologies = [];
+        const logos = [];
+
+        function showError(message) {
+          errorMessage.textContent = message;
+          errorMessage.classList.add('show');
+          successMessage.classList.remove('show');
+        }
+
+        function hideError() {
+          errorMessage.classList.remove('show');
+        }
+
+        function showSuccess(message) {
+          successMessage.textContent = message;
+          successMessage.classList.add('show');
+          errorMessage.classList.remove('show');
+        }
+
+        function renderTechnologies() {
+          const container = document.getElementById('technologies-list');
+          container.innerHTML = '';
+          technologies.forEach((tech, index) => {
+            const item = document.createElement('span');
+            item.className = 'array-item';
+            item.innerHTML = `
+              ${tech}
+              <span class="array-item-remove" data-index="${index}">×</span>
+            `;
+            container.appendChild(item);
+          });
+        }
+
+        function renderLogos() {
+          const container = document.getElementById('logos-list');
+          container.innerHTML = '';
+          logos.forEach((logo, index) => {
+            const item = document.createElement('div');
+            item.className = 'logo-item';
+            item.innerHTML = `
+              <div class="logo-item-header">
+                <strong>${logo.alt || 'Logo ' + (index + 1)}</strong>
+                <button type="button" class="logo-item-remove" data-index="${index}">Remove</button>
+              </div>
+              <div style="font-size: 12px; color: var(--text-muted);">
+                <div>Src: ${logo.src}</div>
+                ${logo.link ? `<div>Link: ${logo.link}</div>` : ''}
+                ${logo.style ? `<div>Style: ${logo.style}</div>` : ''}
+              </div>
+            `;
+            container.appendChild(item);
+          });
+        }
+
+        // Technology management
+        document.getElementById('add-technology-btn').addEventListener('click', function() {
+          const input = document.getElementById('technology-input');
+          const tech = input.value.trim();
+          if (tech && !technologies.includes(tech)) {
+            technologies.push(tech);
+            renderTechnologies();
+            input.value = '';
+          }
+        });
+
+        document.getElementById('technologies-list').addEventListener('click', function(e) {
+          if (e.target.classList.contains('array-item-remove')) {
+            const index = parseInt(e.target.getAttribute('data-index'));
+            technologies.splice(index, 1);
+            renderTechnologies();
+          }
+        });
+
+        // Logo management
+        document.getElementById('add-logo-btn').addEventListener('click', function() {
+          const alt = document.getElementById('logo-alt-input').value.trim();
+          const src = document.getElementById('logo-src-input').value.trim();
+          const link = document.getElementById('logo-link-input').value.trim();
+          const style = document.getElementById('logo-style-input').value.trim();
+
+          if (!alt || !src) {
+            showError('Alt text and image source are required for logos.');
+            return;
+          }
+
+          const logo = { alt, src };
+          if (link) logo.link = link;
+          if (style) logo.style = style;
+
+          logos.push(logo);
+          renderLogos();
+
+          document.getElementById('logo-alt-input').value = '';
+          document.getElementById('logo-src-input').value = '';
+          document.getElementById('logo-link-input').value = '';
+          document.getElementById('logo-style-input').value = '';
+        });
+
+        document.getElementById('logos-list').addEventListener('click', function(e) {
+          if (e.target.classList.contains('logo-item-remove')) {
+            const index = parseInt(e.target.getAttribute('data-index'));
+            logos.splice(index, 1);
+            renderLogos();
+          }
+        });
+
+        // Check authentication and admin status
+        try {
+          const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+
+          if (sessionError) {
+            console.error('Session check error:', sessionError);
+            window.location.href = '/admin/login.html';
+            return;
+          }
+
+          if (!session) {
+            window.location.href = '/admin/login.html';
+            return;
+          }
+
+          // Check if user is an admin
+          const userId = session.user.id;
+          const { data: adminData, error: adminError } = await supabase
+            .from('admins')
+            .select('id')
+            .eq('id', userId)
+            .single();
+
+          if (adminError || !adminData) {
+            window.location.href = '/?page=admin';
+            return;
+          }
+
+          loading.style.display = 'none';
+          formContainer.style.display = 'block';
+
+        } catch (error) {
+          console.error('Authentication check failed:', error);
+          window.location.href = '/admin/login.html';
+        }
+
+        // Handle form submission
+        addProjectForm.addEventListener('submit', async function(e) {
+          e.preventDefault();
+          hideError();
+
+          const title = document.getElementById('title').value.trim();
+          const short_description = document.getElementById('short_description').value.trim();
+          const link = document.getElementById('link').value.trim();
+          const details_title = document.getElementById('details_title').value.trim();
+          const details_description = document.getElementById('details_description').value.trim();
+
+          if (!title || !short_description || !link || !details_title || !details_description) {
+            showError('All required fields must be filled.');
+            return;
+          }
+
+          submitButton.disabled = true;
+          submitButton.textContent = 'Adding project...';
+
+          try {
+            const details = {
+              title: details_title,
+              description: details_description,
+              technologies: technologies.length > 0 ? technologies : [],
+              logos: logos.length > 0 ? logos : [],
+              back_link: 'index.html'
+            };
+
+            const { data: projectData, error: insertError } = await supabase
+              .from('projects')
+              .insert({
+                title: title,
+                short_description: short_description,
+                link: link,
+                details: details
+              })
+              .select()
+              .single();
+
+            if (insertError) {
+              throw new Error(`Failed to add project: ${insertError.message}`);
+            }
+
+            showSuccess('Project added successfully! Redirecting...');
+            setTimeout(() => {
+              window.location.href = '/?page=admin';
+            }, 1500);
+
+          } catch (error) {
+            console.error('Error adding project:', error);
+            showError(error.message || 'An error occurred while adding the project. Please try again.');
+            submitButton.disabled = false;
+            submitButton.textContent = 'Add Project';
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
+
