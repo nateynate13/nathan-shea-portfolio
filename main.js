@@ -4,6 +4,7 @@ const PHASES = [
   { name: "Natixis Internship in Boston 💼", start: "2025-06-02", end: "2025-08-15" },
   { name: "Summer Break 🌅", start: "2025-08-16", end: "2025-08-24" },
   { name: "BC Senior Fall Semester 🍁", start: "2025-08-25", end: "2025-12-18" },
+  { name: "Winter Break ❄️", start: "2025-12-17", end: "2026-01-12" },
   { name: "BC Senior Spring Semester 🌸", start: "2026-01-12", end: "2026-05-18" },
 ];
 
@@ -409,6 +410,11 @@ function computePhases(today = new Date()) {
   const pastPhases = enriched
     .filter((phase) => phase.end < currentDate)
     .sort((a, b) => b.start - a.start);
+
+  // If multiple phases are current (e.g., transition day), prioritize later phases
+  if (currentPhases.length > 1) {
+    currentPhases.sort((a, b) => b.start - a.start); // Later start date takes precedence
+  }
 
   // If no current phase, default to BC Spring Semester (last phase)
   if (currentPhases.length === 0) {
@@ -1247,11 +1253,20 @@ fetch("data.json")
     if (projectLink) {
       // Load projects to check if project exists in merged data
       loadAllProjects(data.projects || []).then((allProjects) => {
-        const project = allProjects.find((proj) => proj.link === projectLink);
+        // Try to find project by link (for both static and Supabase projects)
+        let project = allProjects.find((proj) => proj.link === projectLink);
+        
+        // If not found by link, try to find by ID (for Supabase projects using ID as link)
+        if (!project) {
+          project = allProjects.find((proj) => proj.id && proj.id.toString() === projectLink);
+        }
+        
         if (project) {
           setNavbar(data.navigation, "home", false);
           main.innerHTML = renderProjectPage(project);
+          hideLoadingScreen(loadingInterval);
         } else {
+          console.error('Project not found:', projectLink, 'Available projects:', allProjects.map(p => ({ link: p.link, id: p.id, title: p.title })));
           renderMain(data, false).then(() => {
             hideLoadingScreen(loadingInterval);
           }).catch((error) => {
@@ -1260,13 +1275,14 @@ fetch("data.json")
           });
           return;
         }
-        hideLoadingScreen(loadingInterval);
       }).catch((error) => {
         console.error('Error loading projects:', error);
+        // Fallback to static projects only
         const project = data.projects.find((proj) => proj.link === projectLink);
         if (project) {
           setNavbar(data.navigation, "home", false);
           main.innerHTML = renderProjectPage(project);
+          hideLoadingScreen(loadingInterval);
         } else {
           renderMain(data, false).then(() => {
             hideLoadingScreen(loadingInterval);
@@ -1276,7 +1292,6 @@ fetch("data.json")
           });
           return;
         }
-        hideLoadingScreen(loadingInterval);
       });
       return; // Don't hide loading screen yet, wait for async load
     } else if (bookSlug) {
@@ -1444,17 +1459,20 @@ function renderNewsItems(newsItem) {
   `;
 }
 
-function toggleContent(event, link) {
+window.toggleContent = function(event, link) {
   event.preventDefault();
+  event.stopPropagation();
   const content = link.nextElementSibling;
-  if (content.style.display === "none") {
-    content.style.display = "block";
-    link.textContent = "Show Less";
-  } else {
-    content.style.display = "none";
-    link.textContent = "Show More";
+  if (content && content.classList.contains('news-content')) {
+    if (content.style.display === "none" || !content.style.display) {
+      content.style.display = "block";
+      link.textContent = "Show Less";
+    } else {
+      content.style.display = "none";
+      link.textContent = "Show More";
+    }
   }
-}
+};
 
 function getCurrentPhase(date = new Date()) {
   const now = new Date(date);

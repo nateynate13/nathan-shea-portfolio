@@ -1038,45 +1038,61 @@ footer:hover .footer-motto {
   }
 
   /* About section - stack vertically on mobile */
-  .about-container {
-    grid-template-columns: 1fr;
-    gap: 20px;
+  #about .about-container {
+    grid-template-columns: 1fr !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 16px;
     padding: 16px;
-    display: flex;
-    flex-direction: column;
   }
 
-  .about-left {
+  #about .about-left {
+    display: flex !important;
+    flex-direction: column !important;
     align-items: center;
+    width: 100%;
+    margin-bottom: 0;
+    gap: 12px;
     order: 1;
-    margin-bottom: 20px;
   }
 
-  .about-image {
+  #about .about-image {
     width: 180px;
     height: 180px;
-    margin-bottom: 12px;
+    margin-bottom: 0;
   }
 
-  .about-right {
+  #about .about-left p {
+    text-align: center;
+    margin-bottom: 8px;
+  }
+
+  #about .typewriter-container {
+    text-align: center;
+    margin-bottom: 16px;
+  }
+
+  #about .about-right {
     font-size: 14px;
     line-height: 1.6;
+    width: 100%;
     order: 2;
   }
 
-  .contact-details {
+  #about .contact-details {
     margin-top: 12px;
   }
 
-  .contact-details p {
+  #about .contact-details p {
     font-size: 14px;
     margin: 6px 0;
     flex-wrap: wrap;
   }
 
-  .location {
+  #about .location {
     font-size: 13px;
-    margin-top: 8px;
+    margin-top: 12px;
+    margin-bottom: 12px;
   }
 
   /* Now section - thinner arrows, wider current item */
@@ -1097,12 +1113,11 @@ footer:hover .footer-motto {
   .countdown-phase-nav {
     display: flex;
     align-items: stretch;
-    gap: 8px;
+    gap: 6px;
   }
 
   #phase-container {
-    flex: 0 0 66.67%;
-    order: 2;
+    flex: 1;
     min-width: 0;
   }
 
@@ -1112,16 +1127,17 @@ footer:hover .footer-motto {
 
   #prev-phase,
   #next-phase {
-    flex: 0 0 16.67%;
-    font-size: 20px;
-    padding: 8px 4px;
-    min-width: 40px;
+    flex: 0 0 32px;
+    font-size: 24px;
+    padding: 12px 6px;
+    min-width: 32px;
+    max-width: 32px;
     writing-mode: vertical-rl;
     text-orientation: mixed;
-    height: auto;
     display: flex;
     align-items: center;
     justify-content: center;
+    height: auto;
   }
 
   /* Reduce vertical spacing */
