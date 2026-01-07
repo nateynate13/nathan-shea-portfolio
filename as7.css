@@ -1037,25 +1037,31 @@ footer:hover .footer-motto {
     font-size: 22px;
   }
 
-  /* About section - fix overflow */
+  /* About section - stack vertically on mobile */
   .about-container {
     grid-template-columns: 1fr;
     gap: 20px;
     padding: 16px;
+    display: flex;
+    flex-direction: column;
   }
 
   .about-left {
     align-items: center;
+    order: 1;
+    margin-bottom: 20px;
   }
 
   .about-image {
     width: 180px;
     height: 180px;
+    margin-bottom: 12px;
   }
 
   .about-right {
     font-size: 14px;
     line-height: 1.6;
+    order: 2;
   }
 
   .contact-details {
@@ -1073,7 +1079,7 @@ footer:hover .footer-motto {
     margin-top: 8px;
   }
 
-  /* Now section - fix overflow */
+  /* Now section - thinner arrows, wider current item */
   #life-countdown {
     padding: 20px 16px;
   }
@@ -1089,21 +1095,33 @@ footer:hover .footer-motto {
   }
 
   .countdown-phase-nav {
-    flex-wrap: wrap;
-    gap: 12px;
+    display: flex;
+    align-items: stretch;
+    gap: 8px;
   }
 
   #phase-container {
-    width: 100%;
+    flex: 0 0 66.67%;
     order: 2;
+    min-width: 0;
+  }
+
+  .phase-card {
+    width: 100%;
   }
 
   #prev-phase,
   #next-phase {
-    order: 1;
-    flex: 1;
-    font-size: 18px;
-    padding: 10px;
+    flex: 0 0 16.67%;
+    font-size: 20px;
+    padding: 8px 4px;
+    min-width: 40px;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    height: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   /* Reduce vertical spacing */

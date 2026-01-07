@@ -410,18 +410,33 @@ function computePhases(today = new Date()) {
     .filter((phase) => phase.end < currentDate)
     .sort((a, b) => b.start - a.start);
 
+  // If no current phase, default to BC Spring Semester (last phase)
+  if (currentPhases.length === 0) {
+    const bcSpring = enriched.find(p => p.name.includes("BC Senior Spring Semester"));
+    if (bcSpring) {
+      bcSpring.isCurrent = true;
+      return [bcSpring, ...futurePhases, ...pastPhases.filter(p => p.name !== bcSpring.name)];
+    }
+  }
+
   return [...currentPhases, ...futurePhases, ...pastPhases];
 }
 
-function renderMain(data, isAdmin = false) {
+async function renderMain(data, isAdmin = false) {
   setNavbar(data.navigation, "home", isAdmin);
   const main = document.querySelector("main");
   const today = new Date();
   const phases = computePhases(today);
+  
+  // Load news and projects from Supabase and merge with static data
+  const allNews = await loadAllNews(data.news || []);
+  const allProjects = await loadAllProjects(data.projects || []);
+  
   main.innerHTML = `
     ${renderAbout(data.about)}
     ${renderNowSection(today, phases)}
-    ${renderNews(data.news)}
+    ${renderNews(allNews)}
+    ${renderProjects(allProjects)}
     ${renderStoicCorner()}
     ${renderInspirationWall(data.inspiration || [])}
   `;
@@ -432,7 +447,7 @@ function renderMain(data, isAdmin = false) {
     if (typewriterEl) initTypewriter(typewriterEl, TYPEWRITER_ROLES);
   }, 100);
 
-  addNewsSearchEventListener(data.news);
+  addNewsSearchEventListener(allNews);
   attachPhaseNavigation(phases);
   setupStoicQuoteClick();
 }
@@ -763,6 +778,36 @@ async function loadSupabaseProjects() {
   } catch (error) {
     console.error('Error loading projects from Supabase:', error);
     return [];
+  }
+}
+
+// Helper function to load news from Supabase and merge with static data
+async function loadAllNews(staticNews) {
+  try {
+    const supabaseNews = await loadSupabaseNews();
+    // Merge Supabase news with static news (Supabase news first, sorted by date)
+    const allNews = [...supabaseNews, ...staticNews];
+    // Sort by date (most recent first)
+    return allNews.sort((a, b) => {
+      const dateA = new Date(a.date || '1900-01-01');
+      const dateB = new Date(b.date || '1900-01-01');
+      return dateB - dateA;
+    });
+  } catch (error) {
+    console.error('Error loading news:', error);
+    return staticNews;
+  }
+}
+
+// Helper function to load projects from Supabase and merge with static data
+async function loadAllProjects(staticProjects) {
+  try {
+    const supabaseProjects = await loadSupabaseProjects();
+    // Merge Supabase projects with static projects (Supabase projects first)
+    return [...supabaseProjects, ...staticProjects];
+  } catch (error) {
+    console.error('Error loading projects:', error);
+    return staticProjects;
   }
 }
 
@@ -1200,13 +1245,40 @@ fetch("data.json")
     });
     
     if (projectLink) {
-      const project = data.projects.find((proj) => proj.link === projectLink);
-      if (project) {
-        setNavbar(data.navigation, "home", false); // Don't show admin tab until check completes
-        main.innerHTML = renderProjectPage(project);
-      } else {
-        renderMain(data, false); // Don't show admin tab until check completes
-      }
+      // Load projects to check if project exists in merged data
+      loadAllProjects(data.projects || []).then((allProjects) => {
+        const project = allProjects.find((proj) => proj.link === projectLink);
+        if (project) {
+          setNavbar(data.navigation, "home", false);
+          main.innerHTML = renderProjectPage(project);
+        } else {
+          renderMain(data, false).then(() => {
+            hideLoadingScreen(loadingInterval);
+          }).catch((error) => {
+            console.error('Error rendering main:', error);
+            hideLoadingScreen(loadingInterval);
+          });
+          return;
+        }
+        hideLoadingScreen(loadingInterval);
+      }).catch((error) => {
+        console.error('Error loading projects:', error);
+        const project = data.projects.find((proj) => proj.link === projectLink);
+        if (project) {
+          setNavbar(data.navigation, "home", false);
+          main.innerHTML = renderProjectPage(project);
+        } else {
+          renderMain(data, false).then(() => {
+            hideLoadingScreen(loadingInterval);
+          }).catch((error) => {
+            console.error('Error rendering main:', error);
+            hideLoadingScreen(loadingInterval);
+          });
+          return;
+        }
+        hideLoadingScreen(loadingInterval);
+      });
+      return; // Don't hide loading screen yet, wait for async load
     } else if (bookSlug) {
       // Load books from Supabase and static data to find the book
       setNavbar(data.navigation, "library", false); // Don't show admin tab until check completes
@@ -1252,14 +1324,35 @@ fetch("data.json")
       return; // Don't hide loading screen yet, wait for async load
     } else if (page === "projects") {
       setNavbar(data.navigation, "projects", false); // Don't show admin tab until check completes
-      main.innerHTML = renderProjectsPage(data.projects || []);
+      // Load projects from Supabase and merge with static data
+      loadAllProjects(data.projects || []).then((allProjects) => {
+        main.innerHTML = renderProjectsPage(allProjects);
+        hideLoadingScreen(loadingInterval);
+      }).catch((error) => {
+        console.error('Error loading projects:', error);
+        main.innerHTML = renderProjectsPage(data.projects || []);
+        hideLoadingScreen(loadingInterval);
+      });
+      return; // Don't hide loading screen yet, wait for async load
     } else if (page === "now") {
       setNavbar(data.navigation, "home", false); // Don't show admin tab until check completes
       main.innerHTML = renderNowPage();
     } else if (page === "home") {
-      renderMain(data, false); // Don't show admin tab until check completes
+      renderMain(data, false).then(() => {
+        hideLoadingScreen(loadingInterval);
+      }).catch((error) => {
+        console.error('Error rendering main:', error);
+        hideLoadingScreen(loadingInterval);
+      });
+      return; // Don't hide loading screen yet, wait for async load
     } else {
-      renderMain(data, false); // Don't show admin tab until check completes
+      renderMain(data, false).then(() => {
+        hideLoadingScreen(loadingInterval);
+      }).catch((error) => {
+        console.error('Error rendering main:', error);
+        hideLoadingScreen(loadingInterval);
+      });
+      return; // Don't hide loading screen yet, wait for async load
     }
 
     // Hide loading screen
@@ -1377,6 +1470,11 @@ function getCurrentPhase(date = new Date()) {
 }
 
 function renderCountdownWidget(phases, today, gradCountdown) {
+  // Find BC Spring Semester index for default display
+  const bcSpringIndex = phases.findIndex(p => p.name.includes("BC Senior Spring Semester"));
+  const hasCurrentPhase = phases.some(p => p.isCurrent);
+  const defaultIndex = hasCurrentPhase ? phases.findIndex(p => p.isCurrent) : (bcSpringIndex >= 0 ? bcSpringIndex : 0);
+  
   const phaseCards = phases
     .map((phase, i) => {
       const start = new Date(phase.start);
@@ -1397,8 +1495,11 @@ function renderCountdownWidget(phases, today, gradCountdown) {
         content += `<p>Phase Complete ✅</p>`;
       }
 
+      // Show the default phase (current phase or BC Spring if no current)
+      const shouldShow = i === defaultIndex;
+
       return `<div class="countdown-card phase-card" data-index="${i}" style="display: ${
-        isCurrent ? "block" : "none"
+        shouldShow ? "block" : "none"
       };">${content}</div>`;
     })
     .join("");
@@ -1423,8 +1524,16 @@ function renderCountdownWidget(phases, today, gradCountdown) {
 
 function attachPhaseNavigation(phases) {
   const cards = document.querySelectorAll(".phase-card");
+  // Find current phase, defaulting to BC Spring Semester if none
   let current = phases.findIndex((p) => p.isCurrent);
-  if (current === -1) current = 0;
+  if (current === -1) {
+    // Default to BC Spring Semester (last phase)
+    current = phases.length - 1;
+    // Show the last card
+    if (cards.length > 0) {
+      cards[current].style.display = 'block';
+    }
+  }
 
   function showCard(index) {
     cards.forEach((card, i) => {

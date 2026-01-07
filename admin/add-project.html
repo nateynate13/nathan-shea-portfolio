@@ -213,6 +213,74 @@
       .logo-item-remove:hover {
         opacity: 0.9;
       }
+      .file-upload-area {
+        border: 2px dashed var(--border);
+        border-radius: 8px;
+        padding: 40px 20px;
+        text-align: center;
+        background-color: var(--muted-bg);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-bottom: 16px;
+      }
+      .file-upload-area:hover,
+      .file-upload-area.drag-over {
+        border-color: var(--accent);
+        background-color: rgba(var(--accent-rgb), 0.05);
+      }
+      .file-upload-area input[type="file"] {
+        display: none;
+      }
+      .file-upload-text {
+        color: var(--text-muted);
+        font-size: 14px;
+      }
+      .file-upload-text strong {
+        color: var(--accent);
+      }
+      .uploaded-file-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px;
+        background-color: var(--muted-bg);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        margin-bottom: 8px;
+      }
+      .uploaded-file-preview {
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 4px;
+      }
+      .uploaded-file-info {
+        flex: 1;
+      }
+      .uploaded-file-name {
+        font-weight: 500;
+        margin-bottom: 4px;
+      }
+      .uploaded-file-size {
+        font-size: 12px;
+        color: var(--text-muted);
+      }
+      .uploaded-file-actions {
+        display: flex;
+        gap: 8px;
+      }
+      .uploaded-file-remove {
+        padding: 6px 12px;
+        background-color: #d93025;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: 12px;
+        cursor: pointer;
+      }
+      .uploaded-file-remove:hover {
+        opacity: 0.9;
+      }
       .section-divider {
         border-top: 2px solid var(--border);
         margin: 32px 0;
@@ -281,16 +349,19 @@
             <div class="help-text">List of technologies used in this project</div>
           </div>
           <div class="form-group">
-            <label>Logos/Images</label>
-            <div id="logos-list"></div>
-            <div class="array-input-group">
-              <input type="text" id="logo-alt-input" placeholder="Alt text" style="flex: 1;" />
-              <input type="text" id="logo-src-input" placeholder="Image URL (e.g., assets/logo.png)" style="flex: 1;" />
-              <input type="text" id="logo-link-input" placeholder="Link URL (optional)" style="flex: 1;" />
-              <input type="text" id="logo-style-input" placeholder="Style (optional, e.g., width: 300px;)" style="flex: 1;" />
-              <button type="button" class="array-add-btn" id="add-logo-btn">Add Logo</button>
+            <label>
+              Logos/Images
+              <span class="required">*</span>
+            </label>
+            <div class="file-upload-area" id="logo-upload-area">
+              <input type="file" id="logo-files" name="logo-files" accept="image/*,.pdf" multiple />
+              <div class="file-upload-text">
+                <strong>Click to upload</strong> or drag and drop<br/>
+                JPG, PNG, or PDF files (multiple files supported)
+              </div>
             </div>
-            <div class="help-text">Add logos or images associated with this project</div>
+            <div id="uploaded-files-list"></div>
+            <div class="help-text">Upload logos or images associated with this project. You can upload multiple files at once.</div>
           </div>
 
           <button type="submit" class="submit-button" id="submit-button">Add Project</button>
@@ -311,7 +382,7 @@
         const submitButton = document.getElementById('submit-button');
 
         const technologies = [];
-        const logos = [];
+        const uploadedFiles = []; // Store File objects and their metadata
 
         function showError(message) {
           errorMessage.textContent = message;
@@ -343,21 +414,34 @@
           });
         }
 
-        function renderLogos() {
-          const container = document.getElementById('logos-list');
+        function formatFileSize(bytes) {
+          if (bytes === 0) return '0 Bytes';
+          const k = 1024;
+          const sizes = ['Bytes', 'KB', 'MB'];
+          const i = Math.floor(Math.log(bytes) / Math.log(k));
+          return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        }
+
+        function renderUploadedFiles() {
+          const container = document.getElementById('uploaded-files-list');
           container.innerHTML = '';
-          logos.forEach((logo, index) => {
+          uploadedFiles.forEach((fileData, index) => {
             const item = document.createElement('div');
-            item.className = 'logo-item';
+            item.className = 'uploaded-file-item';
+            
+            const isImage = fileData.file.type.startsWith('image/');
+            const preview = isImage 
+              ? `<img src="${fileData.preview}" alt="Preview" class="uploaded-file-preview" />`
+              : `<div class="uploaded-file-preview" style="background: var(--border); display: flex; align-items: center; justify-content: center; color: var(--text-muted);">PDF</div>`;
+            
             item.innerHTML = `
-              <div class="logo-item-header">
-                <strong>${logo.alt || 'Logo ' + (index + 1)}</strong>
-                <button type="button" class="logo-item-remove" data-index="${index}">Remove</button>
+              ${preview}
+              <div class="uploaded-file-info">
+                <div class="uploaded-file-name">${fileData.file.name}</div>
+                <div class="uploaded-file-size">${formatFileSize(fileData.file.size)}</div>
               </div>
-              <div style="font-size: 12px; color: var(--text-muted);">
-                <div>Src: ${logo.src}</div>
-                ${logo.link ? `<div>Link: ${logo.link}</div>` : ''}
-                ${logo.style ? `<div>Style: ${logo.style}</div>` : ''}
+              <div class="uploaded-file-actions">
+                <button type="button" class="uploaded-file-remove" data-index="${index}">Remove</button>
               </div>
             `;
             container.appendChild(item);
@@ -383,36 +467,64 @@
           }
         });
 
-        // Logo management
-        document.getElementById('add-logo-btn').addEventListener('click', function() {
-          const alt = document.getElementById('logo-alt-input').value.trim();
-          const src = document.getElementById('logo-src-input').value.trim();
-          const link = document.getElementById('logo-link-input').value.trim();
-          const style = document.getElementById('logo-style-input').value.trim();
+        // File upload management
+        const fileInput = document.getElementById('logo-files');
+        const uploadArea = document.getElementById('logo-upload-area');
+        const uploadedFilesList = document.getElementById('uploaded-files-list');
 
-          if (!alt || !src) {
-            showError('Alt text and image source are required for logos.');
-            return;
-          }
+        function handleFiles(files) {
+          Array.from(files).forEach(file => {
+            // Check file type
+            const isImage = file.type.startsWith('image/');
+            const isPDF = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+            
+            if (!isImage && !isPDF) {
+              showError(`File "${file.name}" is not a valid image or PDF file.`);
+              return;
+            }
 
-          const logo = { alt, src };
-          if (link) logo.link = link;
-          if (style) logo.style = style;
+            const fileData = {
+              file: file,
+              preview: isImage ? URL.createObjectURL(file) : null
+            };
+            uploadedFiles.push(fileData);
+          });
+          renderUploadedFiles();
+        }
 
-          logos.push(logo);
-          renderLogos();
-
-          document.getElementById('logo-alt-input').value = '';
-          document.getElementById('logo-src-input').value = '';
-          document.getElementById('logo-link-input').value = '';
-          document.getElementById('logo-style-input').value = '';
+        // Click to upload
+        uploadArea.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', (e) => {
+          handleFiles(e.target.files);
+          fileInput.value = ''; // Reset input
         });
 
-        document.getElementById('logos-list').addEventListener('click', function(e) {
-          if (e.target.classList.contains('logo-item-remove')) {
+        // Drag and drop
+        uploadArea.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          uploadArea.classList.add('drag-over');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+          uploadArea.classList.remove('drag-over');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+          e.preventDefault();
+          uploadArea.classList.remove('drag-over');
+          handleFiles(e.dataTransfer.files);
+        });
+
+        // Remove uploaded file
+        uploadedFilesList.addEventListener('click', (e) => {
+          if (e.target.classList.contains('uploaded-file-remove')) {
             const index = parseInt(e.target.getAttribute('data-index'));
-            logos.splice(index, 1);
-            renderLogos();
+            const fileData = uploadedFiles[index];
+            if (fileData.preview) {
+              URL.revokeObjectURL(fileData.preview);
+            }
+            uploadedFiles.splice(index, 1);
+            renderUploadedFiles();
           }
         });
 
@@ -468,15 +580,64 @@
             return;
           }
 
+          if (uploadedFiles.length === 0) {
+            showError('Please upload at least one logo/image file.');
+            return;
+          }
+
           submitButton.disabled = true;
-          submitButton.textContent = 'Adding project...';
+          submitButton.textContent = 'Uploading files...';
 
           try {
+            // Upload all files to Supabase Storage
+            const uploadedLogos = [];
+            for (let i = 0; i < uploadedFiles.length; i++) {
+              const fileData = uploadedFiles[i];
+              const file = fileData.file;
+              const fileExt = file.name.split('.').pop();
+              const fileName = `${Date.now()}_${i}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+              const storagePath = `project-images/${fileName}`;
+
+              const { data: uploadData, error: uploadError } = await supabase.storage
+                .from('project-images')
+                .upload(storagePath, file, {
+                  cacheControl: '3600',
+                  upsert: false
+                });
+
+              if (uploadError) {
+                throw new Error(`Failed to upload ${file.name}: ${uploadError.message}`);
+              }
+
+              // Get public URL
+              const uploadedPath = uploadData.path;
+              const urlResponse = supabase.storage
+                .from('project-images')
+                .getPublicUrl(uploadedPath);
+
+              let fileUrl = urlResponse?.data?.publicUrl || urlResponse?.publicUrl;
+              
+              if (!fileUrl) {
+                const { SUPABASE_URL } = await import('../js/config.js');
+                fileUrl = `${SUPABASE_URL}/storage/v1/object/public/project-images/${uploadedPath}`;
+              }
+
+              // Create logo object
+              const logo = {
+                alt: file.name.split('.')[0], // Use filename without extension as alt text
+                src: fileUrl
+              };
+              
+              uploadedLogos.push(logo);
+            }
+
+            submitButton.textContent = 'Adding project...';
+
             const details = {
               title: details_title,
               description: details_description,
               technologies: technologies.length > 0 ? technologies : [],
-              logos: logos.length > 0 ? logos : [],
+              logos: uploadedLogos,
               back_link: 'index.html'
             };
 
