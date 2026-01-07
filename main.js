@@ -1095,26 +1095,40 @@ function renderRatingStars(rating) {
 }
 
 function renderProjectPage(project) {
+  // Ensure project has details object
+  if (!project.details) {
+    console.error('Project missing details:', project);
+    return `<section id="project-details">
+      <h2>Error</h2>
+      <p>Project details are missing.</p>
+      <a href="?page=projects">Back to Projects</a>
+    </section>`;
+  }
+  
+  const details = project.details;
+  const technologies = details.technologies || [];
+  const logos = details.logos || [];
+  
   return `
     <section id="project-details">
-      <h2>${project.details.title}</h2>
-      <p>${project.details.description}</p>
+      <h2>${details.title || project.title || 'Untitled Project'}</h2>
+      <p>${details.description || ''}</p>
+      ${technologies.length > 0 ? `
       <h3>Technologies Used:</h3>
       <ul>
-        ${project.details.technologies
-          .map((tech) => `<li>${tech}</li>`)
-          .join("")}
+        ${technologies.map((tech) => `<li>${tech}</li>`).join("")}
       </ul>
-     <div class="logo-grid">
-  ${project.details.logos
-    .map((logo) => {
-      const imgTag = `<img src="${logo.src}" alt="${logo.alt}" style="${logo.style || ""}" class="${logo.alt.toLowerCase().replace(/\s+/g, "-")}" />`;
-      return logo.link
-        ? `<a href="${logo.link}" target="_blank">${imgTag}</a>`
-        : imgTag;
-    })
-    .join("")}
-</div>
+      ` : ''}
+      ${logos.length > 0 ? `
+      <div class="logo-grid">
+        ${logos.map((logo) => {
+          const imgTag = `<img src="${logo.src}" alt="${logo.alt || ''}" style="${logo.style || ""}" class="${(logo.alt || '').toLowerCase().replace(/\s+/g, "-")}" />`;
+          return logo.link
+            ? `<a href="${logo.link}" target="_blank">${imgTag}</a>`
+            : imgTag;
+        }).join("")}
+      </div>
+      ` : ''}
 
       <a href="?page=projects">Back to Projects</a>
     </section>
@@ -1252,16 +1266,32 @@ fetch("data.json")
     
     if (projectLink) {
       // Decode the project link in case it's URL encoded
-      const decodedProjectLink = decodeURIComponent(projectLink);
+      let decodedProjectLink;
+      try {
+        decodedProjectLink = decodeURIComponent(projectLink);
+      } catch (e) {
+        decodedProjectLink = projectLink;
+      }
       
       // Load projects to check if project exists in merged data
       loadAllProjects(data.projects || []).then((allProjects) => {
+        console.log('Looking for project with link:', decodedProjectLink, 'Total projects:', allProjects.length);
+        console.log('Project links:', allProjects.map(p => ({ link: p.link, id: p.id, title: p.title })));
+        
         // Try to find project by link (for both static and Supabase projects)
         let project = allProjects.find((proj) => {
           if (!proj.link) return false;
           // Compare both encoded and decoded versions
-          return proj.link === decodedProjectLink || proj.link === projectLink || 
-                 decodeURIComponent(proj.link) === decodedProjectLink;
+          const projLink = proj.link;
+          try {
+            const decodedProjLink = decodeURIComponent(projLink);
+            return projLink === decodedProjectLink || 
+                   projLink === projectLink || 
+                   decodedProjLink === decodedProjectLink ||
+                   decodedProjLink === projectLink;
+          } catch (e) {
+            return projLink === decodedProjectLink || projLink === projectLink;
+          }
         });
         
         // If not found by link, try to find by ID (for Supabase projects using ID as link)
@@ -1270,9 +1300,20 @@ fetch("data.json")
         }
         
         if (project) {
+          console.log('Found project:', project.title, project);
           setNavbar(data.navigation, "home", false);
-          main.innerHTML = renderProjectPage(project);
-          hideLoadingScreen(loadingInterval);
+          try {
+            main.innerHTML = renderProjectPage(project);
+            hideLoadingScreen(loadingInterval);
+          } catch (error) {
+            console.error('Error rendering project page:', error, project);
+            renderMain(data, false).then(() => {
+              hideLoadingScreen(loadingInterval);
+            }).catch((err) => {
+              console.error('Error rendering main:', err);
+              hideLoadingScreen(loadingInterval);
+            });
+          }
         } else {
           console.error('Project not found. Looking for:', decodedProjectLink, 'Available projects:', allProjects.map(p => ({ link: p.link, id: p.id, title: p.title })));
           renderMain(data, false).then(() => {
@@ -1289,8 +1330,15 @@ fetch("data.json")
         const project = data.projects.find((proj) => proj.link === decodedProjectLink || proj.link === projectLink);
         if (project) {
           setNavbar(data.navigation, "home", false);
-          main.innerHTML = renderProjectPage(project);
-          hideLoadingScreen(loadingInterval);
+          try {
+            main.innerHTML = renderProjectPage(project);
+            hideLoadingScreen(loadingInterval);
+          } catch (err) {
+            console.error('Error rendering project page:', err);
+            renderMain(data, false).then(() => {
+              hideLoadingScreen(loadingInterval);
+            });
+          }
         } else {
           renderMain(data, false).then(() => {
             hideLoadingScreen(loadingInterval);
