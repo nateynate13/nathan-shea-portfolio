@@ -1039,9 +1039,9 @@ footer:hover .footer-motto {
 
   /* About section - stack vertically on mobile */
   #about .about-container {
-    grid-template-columns: 1fr !important;
     display: flex !important;
     flex-direction: column !important;
+    grid-template-columns: none !important;
     gap: 16px;
     padding: 16px;
   }
@@ -1050,7 +1050,8 @@ footer:hover .footer-motto {
     display: flex !important;
     flex-direction: column !important;
     align-items: center;
-    width: 100%;
+    width: 100% !important;
+    max-width: 100% !important;
     margin-bottom: 0;
     gap: 12px;
     order: 1;
@@ -1065,22 +1066,26 @@ footer:hover .footer-motto {
   #about .about-left p {
     text-align: center;
     margin-bottom: 8px;
+    width: 100%;
   }
 
   #about .typewriter-container {
     text-align: center;
     margin-bottom: 16px;
+    width: 100%;
   }
 
   #about .about-right {
     font-size: 14px;
     line-height: 1.6;
-    width: 100%;
+    width: 100% !important;
+    max-width: 100% !important;
     order: 2;
   }
 
   #about .contact-details {
     margin-top: 12px;
+    width: 100%;
   }
 
   #about .contact-details p {
@@ -1171,8 +1176,18 @@ footer:hover .footer-motto {
 }
 
 @media (min-width: 769px) {
-  .about-container {
+  #about .about-container {
+    display: grid !important;
     grid-template-columns: 1fr 2fr;
+    flex-direction: row;
+  }
+  
+  #about .about-left {
+    order: initial;
+  }
+  
+  #about .about-right {
+    order: initial;
   }
 }
 

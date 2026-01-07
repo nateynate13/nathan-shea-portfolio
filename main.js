@@ -1251,14 +1251,22 @@ fetch("data.json")
     });
     
     if (projectLink) {
+      // Decode the project link in case it's URL encoded
+      const decodedProjectLink = decodeURIComponent(projectLink);
+      
       // Load projects to check if project exists in merged data
       loadAllProjects(data.projects || []).then((allProjects) => {
         // Try to find project by link (for both static and Supabase projects)
-        let project = allProjects.find((proj) => proj.link === projectLink);
+        let project = allProjects.find((proj) => {
+          if (!proj.link) return false;
+          // Compare both encoded and decoded versions
+          return proj.link === decodedProjectLink || proj.link === projectLink || 
+                 decodeURIComponent(proj.link) === decodedProjectLink;
+        });
         
         // If not found by link, try to find by ID (for Supabase projects using ID as link)
         if (!project) {
-          project = allProjects.find((proj) => proj.id && proj.id.toString() === projectLink);
+          project = allProjects.find((proj) => proj.id && (proj.id.toString() === decodedProjectLink || proj.id.toString() === projectLink));
         }
         
         if (project) {
@@ -1266,7 +1274,7 @@ fetch("data.json")
           main.innerHTML = renderProjectPage(project);
           hideLoadingScreen(loadingInterval);
         } else {
-          console.error('Project not found:', projectLink, 'Available projects:', allProjects.map(p => ({ link: p.link, id: p.id, title: p.title })));
+          console.error('Project not found. Looking for:', decodedProjectLink, 'Available projects:', allProjects.map(p => ({ link: p.link, id: p.id, title: p.title })));
           renderMain(data, false).then(() => {
             hideLoadingScreen(loadingInterval);
           }).catch((error) => {
@@ -1278,7 +1286,7 @@ fetch("data.json")
       }).catch((error) => {
         console.error('Error loading projects:', error);
         // Fallback to static projects only
-        const project = data.projects.find((proj) => proj.link === projectLink);
+        const project = data.projects.find((proj) => proj.link === decodedProjectLink || proj.link === projectLink);
         if (project) {
           setNavbar(data.navigation, "home", false);
           main.innerHTML = renderProjectPage(project);
@@ -1445,6 +1453,38 @@ function addNewsSearchEventListener(news) {
     newsList.innerHTML = filteredNews
       .map((item) => renderNewsItems(item))
       .join("");
+    
+    // Re-attach event listeners after re-rendering
+    attachNewsToggleListeners();
+  });
+  
+  // Attach initial event listeners
+  attachNewsToggleListeners();
+}
+
+function attachNewsToggleListeners() {
+  const showMoreLinks = document.querySelectorAll(".show-more");
+  showMoreLinks.forEach(link => {
+    // Remove existing listeners by cloning
+    const newLink = link.cloneNode(true);
+    link.parentNode.replaceChild(newLink, link);
+    
+    // Add new event listener
+    newLink.addEventListener("click", function(event) {
+      event.preventDefault();
+      event.stopPropagation();
+      const content = this.nextElementSibling;
+      if (content && content.classList.contains('news-content')) {
+        if (content.style.display === "none" || !content.style.display) {
+          content.style.display = "block";
+          this.textContent = "Show Less";
+        } else {
+          content.style.display = "none";
+          this.textContent = "Show More";
+        }
+      }
+      return false;
+    });
   });
 }
 
@@ -1453,26 +1493,11 @@ function renderNewsItems(newsItem) {
     <li>
       <strong>${newsItem.title}</strong>
       <em>${newsItem.date || "Unknown Date"}</em>
-      <a href="#" class="show-more" onclick="toggleContent(event, this)">Show More</a>
+      <a href="#" class="show-more">Show More</a>
       <p class="news-content" style="display: none;">${newsItem.content}</p>
     </li>
   `;
 }
-
-window.toggleContent = function(event, link) {
-  event.preventDefault();
-  event.stopPropagation();
-  const content = link.nextElementSibling;
-  if (content && content.classList.contains('news-content')) {
-    if (content.style.display === "none" || !content.style.display) {
-      content.style.display = "block";
-      link.textContent = "Show Less";
-    } else {
-      content.style.display = "none";
-      link.textContent = "Show More";
-    }
-  }
-};
 
 function getCurrentPhase(date = new Date()) {
   const now = new Date(date);
@@ -1488,10 +1513,20 @@ function getCurrentPhase(date = new Date()) {
 }
 
 function renderCountdownWidget(phases, today, gradCountdown) {
-  // Find BC Spring Semester index for default display
+  // Find Winter Break and BC Spring Semester indexes for default display
+  const winterBreakIndex = phases.findIndex(p => p.name.includes("Winter Break"));
   const bcSpringIndex = phases.findIndex(p => p.name.includes("BC Senior Spring Semester"));
   const hasCurrentPhase = phases.some(p => p.isCurrent);
-  const defaultIndex = hasCurrentPhase ? phases.findIndex(p => p.isCurrent) : (bcSpringIndex >= 0 ? bcSpringIndex : 0);
+  
+  // Default to first current phase, or Winter Break if no current phase (and it exists), or BC Spring as last resort
+  let defaultIndex = 0;
+  if (hasCurrentPhase) {
+    defaultIndex = phases.findIndex(p => p.isCurrent);
+  } else if (winterBreakIndex >= 0) {
+    defaultIndex = winterBreakIndex;
+  } else if (bcSpringIndex >= 0) {
+    defaultIndex = bcSpringIndex;
+  }
   
   const phaseCards = phases
     .map((phase, i) => {
@@ -1542,13 +1577,21 @@ function renderCountdownWidget(phases, today, gradCountdown) {
 
 function attachPhaseNavigation(phases) {
   const cards = document.querySelectorAll(".phase-card");
-  // Find current phase, defaulting to BC Spring Semester if none
+  // Find current phase, defaulting to Winter Break or BC Spring Semester if none
   let current = phases.findIndex((p) => p.isCurrent);
   if (current === -1) {
-    // Default to BC Spring Semester (last phase)
-    current = phases.length - 1;
-    // Show the last card
-    if (cards.length > 0) {
+    // Default to Winter Break if it exists, otherwise BC Spring Semester
+    const winterBreakIndex = phases.findIndex(p => p.name.includes("Winter Break"));
+    const bcSpringIndex = phases.findIndex(p => p.name.includes("BC Senior Spring Semester"));
+    if (winterBreakIndex >= 0) {
+      current = winterBreakIndex;
+    } else if (bcSpringIndex >= 0) {
+      current = bcSpringIndex;
+    } else {
+      current = phases.length - 1;
+    }
+    // Show the default card
+    if (cards.length > 0 && cards[current]) {
       cards[current].style.display = 'block';
     }
   }
