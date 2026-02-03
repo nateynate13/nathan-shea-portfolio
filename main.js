@@ -1450,7 +1450,7 @@ function renderNews(news) {
 
 function renderNowSection(today = new Date(), phases = computePhases(today)) {
   const graduationDate = new Date("2026-05-18");
-  const showGradCountdown = today < new Date("2026-01-12");
+  const showGradCountdown = today < graduationDate;
 
   const collegeStartDate = new Date("2022-08-22");
   const totalCollegeDays = (graduationDate - collegeStartDate) / (1000 * 60 * 60 * 24);
