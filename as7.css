@@ -1747,3 +1747,276 @@ a:hover {
 .admin-logout-btn:hover {
   opacity: 0.9;
 }
+
+/* ============================================
+   READING STATS DASHBOARD & BOOKSHELF STYLES
+   ============================================ */
+
+/* --- Homepage Reading Goal Widget --- */
+.reading-goal-card {
+  display: block;
+  text-decoration: none;
+  color: var(--text);
+  margin-top: 24px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.reading-goal-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px var(--card-hover-shadow);
+}
+
+.reading-goal-card h3 {
+  margin-bottom: 16px;
+  color: var(--accent);
+  font-family: "Playfair Display", "Didot", "Georgia", serif;
+  font-size: 1.1rem;
+}
+
+.reading-goal-text {
+  text-align: center;
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  margin-top: 12px;
+  margin-bottom: 0;
+}
+
+.goal-percent {
+  display: inline-block;
+  font-size: 0.85rem;
+  color: var(--accent);
+  margin-left: 8px;
+  font-weight: 600;
+}
+
+/* --- Bookshelf Visual --- */
+.bookshelf-mini,
+.bookshelf-large {
+  position: relative;
+}
+
+.bookshelf-spines {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  padding: 0 8px;
+  min-height: 40px;
+  flex-wrap: wrap;
+}
+
+.bookshelf-mini .bookshelf-spines {
+  min-height: 40px;
+  justify-content: center;
+}
+
+.bookshelf-large .bookshelf-spines {
+  min-height: 60px;
+  justify-content: flex-start;
+}
+
+.bookshelf-spine {
+  border-radius: 2px 2px 0 0;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.bookshelf-spine:hover {
+  transform: scaleY(1.05);
+}
+
+.bookshelf-spine.filled {
+  background-color: var(--accent);
+  filter: hue-rotate(var(--spine-hue-shift, 0deg));
+  box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.15),
+              inset 1px 0 0 rgba(255, 255, 255, 0.1);
+}
+
+.bookshelf-spine.empty {
+  background: transparent;
+  border: 1.5px dashed var(--border);
+}
+
+/* Mini (homepage widget) spine sizes */
+.bookshelf-mini .bookshelf-spine {
+  width: 8px;
+  height: 32px;
+}
+
+.bookshelf-mini .bookshelf-spine.empty {
+  height: 28px;
+}
+
+/* Large (dashboard) spine sizes */
+.bookshelf-spine.large {
+  width: 12px;
+  height: 48px;
+}
+
+.bookshelf-spine.large.empty {
+  height: 42px;
+}
+
+.bookshelf-shelf {
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(180deg,
+    rgba(120, 70, 35, 0.5),
+    rgba(90, 50, 25, 0.7));
+  border-radius: 0 0 2px 2px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+[data-theme="dark"] .bookshelf-shelf {
+  background: linear-gradient(180deg,
+    rgba(100, 100, 100, 0.5),
+    rgba(70, 70, 70, 0.7));
+}
+
+/* --- Full Dashboard (Library Page) --- */
+.reading-dashboard {
+  margin-bottom: 32px;
+  position: relative;
+  z-index: 1;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.dashboard-header h3 {
+  font-family: "Playfair Display", "Didot", "Georgia", serif;
+  font-size: 1.3rem;
+  color: var(--accent);
+  margin: 0;
+}
+
+.dashboard-year-select {
+  padding: 8px 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background-color: var(--muted-bg);
+  color: var(--text);
+  font-size: 0.9rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.dashboard-year-select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(var(--accent-rgb), 0.1);
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.dashboard-card {
+  background-color: var(--muted-bg);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 2px 8px var(--card-shadow);
+}
+
+.dashboard-card h4 {
+  font-family: "Playfair Display", "Didot", "Georgia", serif;
+  font-size: 1rem;
+  color: var(--text);
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+.dashboard-bookshelf-card {
+  grid-column: 1 / -1;
+}
+
+.dashboard-card canvas {
+  max-height: 250px;
+}
+
+.dashboard-empty-msg {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  font-style: italic;
+  text-align: center;
+  padding: 20px 0;
+}
+
+/* --- Responsive: Tablet (max-width: 768px) --- */
+@media (max-width: 768px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .dashboard-year-select {
+    width: 100%;
+  }
+
+  .bookshelf-mini .bookshelf-spine {
+    width: 6px;
+    height: 26px;
+  }
+
+  .bookshelf-mini .bookshelf-spine.empty {
+    height: 22px;
+  }
+
+  .bookshelf-spine.large {
+    width: 10px;
+    height: 40px;
+  }
+
+  .bookshelf-spine.large.empty {
+    height: 34px;
+  }
+}
+
+/* --- Responsive: Small phones (max-width: 600px) --- */
+@media (max-width: 600px) {
+  .dashboard-card {
+    padding: 16px;
+  }
+
+  .dashboard-card h4 {
+    font-size: 0.9rem;
+  }
+
+  .dashboard-card canvas {
+    max-height: 200px;
+  }
+
+  .bookshelf-spines {
+    gap: 2px;
+  }
+
+  .bookshelf-mini .bookshelf-spine {
+    width: 5px;
+    height: 22px;
+  }
+
+  .bookshelf-mini .bookshelf-spine.empty {
+    height: 18px;
+  }
+
+  .bookshelf-spine.large {
+    width: 8px;
+    height: 34px;
+  }
+
+  .bookshelf-spine.large.empty {
+    height: 28px;
+  }
+}

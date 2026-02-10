@@ -456,6 +456,11 @@ async function renderMain(data, isAdmin = false) {
   addNewsSearchEventListener(allNews);
   attachPhaseNavigation(phases);
   setupStoicQuoteClick();
+
+  // Load books for reading goal widget on homepage
+  loadLibraryBooks(data.readingList || []).then(allBooks => {
+    populateReadingGoalWidget(allBooks);
+  }).catch(err => console.error('Error loading reading goal widget:', err));
 }
 
 function renderStoicCorner() {
@@ -598,6 +603,443 @@ function parseFinishedDate(finished) {
   return new Date(year, month);
 }
 
+// ============================================
+// READING STATS UTILITY FUNCTIONS
+// ============================================
+
+function getBooksByYear(books, year) {
+  return books.filter(book => {
+    if (!book.finished) return false;
+    // Skip books marked as "not finished"
+    if (book.finished.toLowerCase().includes('not finished')) return false;
+    const date = parseFinishedDate(book.finished);
+    return date.getFullYear() === year;
+  });
+}
+
+function getBooksPerMonth(books, year) {
+  const yearBooks = getBooksByYear(books, year);
+  const months = Array(12).fill(0);
+  yearBooks.forEach(book => {
+    const date = parseFinishedDate(book.finished);
+    months[date.getMonth()]++;
+  });
+  return months;
+}
+
+function getTagBreakdown(books, year) {
+  const yearBooks = getBooksByYear(books, year);
+  const tagCounts = {};
+  yearBooks.forEach(book => {
+    let tags = [];
+    if (book.tags && Array.isArray(book.tags) && book.tags.length > 0) {
+      tags = book.tags;
+    } else if (BOOK_TAGS[book.slug] && BOOK_TAGS[book.slug].length > 0) {
+      tags = BOOK_TAGS[book.slug];
+    }
+    tags.forEach(tag => {
+      // Strip emoji prefix for clean grouping
+      const cleanTag = tag.replace(/^[\p{Emoji_Presentation}\p{Extended_Pictographic}]\s*/u, '').trim();
+      tagCounts[cleanTag] = (tagCounts[cleanTag] || 0) + 1;
+    });
+  });
+  return tagCounts;
+}
+
+function getRatingDistribution(books, year) {
+  const yearBooks = getBooksByYear(books, year);
+  const ratings = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+  yearBooks.forEach(book => {
+    if (book.rating && book.rating > 0) {
+      const bucket = Math.round(book.rating);
+      if (bucket >= 1 && bucket <= 5) {
+        ratings[bucket]++;
+      }
+    }
+  });
+  return ratings;
+}
+
+function getAvailableYears(books) {
+  const years = new Set();
+  books.forEach(book => {
+    if (book.finished && !book.finished.toLowerCase().includes('not finished')) {
+      const date = parseFinishedDate(book.finished);
+      const year = date.getFullYear();
+      if (year > 2000) years.add(year);
+    }
+  });
+  return Array.from(years).sort((a, b) => b - a);
+}
+
+async function loadReadingGoal(year) {
+  try {
+    const { supabase } = await import('./js/supabaseClient.js');
+    const { data, error } = await supabase
+      .from('reading_goals')
+      .select('goal_count')
+      .eq('goal_year', year)
+      .single();
+
+    if (error || !data) return null;
+    return data.goal_count;
+  } catch (e) {
+    console.error('Error loading reading goal:', e);
+    return null;
+  }
+}
+
+function generateChartPalette(count, accent, secondary) {
+  const baseColors = [
+    accent,
+    secondary,
+    '#4a90d9',
+    '#e67e22',
+    '#27ae60',
+    '#8e44ad',
+    '#e74c3c',
+    '#16a085',
+  ];
+  const result = [];
+  for (let i = 0; i < count; i++) {
+    result.push(baseColors[i % baseColors.length]);
+  }
+  return result;
+}
+
+// ============================================
+// READING DASHBOARD (Full - Library Page)
+// ============================================
+
+let chartInstances = {};
+
+async function populateReadingDashboard(books) {
+  const container = document.getElementById('reading-dashboard');
+  if (!container) return;
+
+  const availableYears = getAvailableYears(books);
+  if (availableYears.length === 0) return;
+
+  const currentYear = new Date().getFullYear();
+  const defaultYear = availableYears.includes(currentYear) ? currentYear : availableYears[0];
+
+  // Store books for theme refresh
+  window._dashboardBooks = books;
+
+  const yearOptions = availableYears.map(y =>
+    `<option value="${y}" ${y === defaultYear ? 'selected' : ''}>${y}</option>`
+  ).join('');
+
+  container.innerHTML = `
+    <div class="reading-dashboard">
+      <div class="dashboard-header">
+        <h3>Reading Stats</h3>
+        <select id="dashboard-year-filter" class="dashboard-year-select" aria-label="Filter stats by year">
+          ${yearOptions}
+        </select>
+      </div>
+      <div class="dashboard-grid">
+        <div class="dashboard-card dashboard-bookshelf-card">
+          <h4>Goal Progress</h4>
+          <div id="dashboard-bookshelf"></div>
+        </div>
+        <div class="dashboard-card">
+          <h4>Books Per Month</h4>
+          <canvas id="chart-books-per-month"></canvas>
+        </div>
+        <div class="dashboard-card">
+          <h4>Genre Breakdown</h4>
+          <canvas id="chart-genre-breakdown"></canvas>
+        </div>
+        <div class="dashboard-card">
+          <h4>Rating Distribution</h4>
+          <canvas id="chart-rating-distribution"></canvas>
+        </div>
+      </div>
+    </div>
+  `;
+
+  await renderDashboardCharts(books, defaultYear);
+
+  const yearSelect = document.getElementById('dashboard-year-filter');
+  if (yearSelect) {
+    yearSelect.addEventListener('change', async (e) => {
+      const selectedYear = parseInt(e.target.value, 10);
+      await renderDashboardCharts(books, selectedYear);
+    });
+  }
+}
+
+async function renderDashboardCharts(books, year) {
+  // Destroy existing charts before re-creating
+  Object.values(chartInstances).forEach(chart => {
+    if (chart && typeof chart.destroy === 'function') chart.destroy();
+  });
+  chartInstances = {};
+
+  // Read CSS variables for theme-aware colors
+  const styles = getComputedStyle(document.documentElement);
+  const accent = styles.getPropertyValue('--accent').trim();
+  const secondary = styles.getPropertyValue('--secondary').trim();
+  const textColor = styles.getPropertyValue('--text').trim();
+  const textMuted = styles.getPropertyValue('--text-muted').trim();
+  const borderColor = styles.getPropertyValue('--border').trim();
+  const mutedBg = styles.getPropertyValue('--muted-bg').trim();
+
+  // --- 1. Bookshelf Goal Tracker ---
+  const goal = await loadReadingGoal(year);
+  const yearBooks = getBooksByYear(books, year);
+  const count = yearBooks.length;
+  const goalCount = goal || null;
+
+  const bookshelfContainer = document.getElementById('dashboard-bookshelf');
+  if (bookshelfContainer) {
+    const maxDisplay = goalCount ? Math.max(goalCount, count) : count;
+    let spinesHTML = '';
+    for (let i = 0; i < maxDisplay; i++) {
+      if (i < count) {
+        const hueShift = (i * 17) % 40 - 20;
+        const bookTitle = yearBooks[i]?.title || '';
+        spinesHTML += `<div class="bookshelf-spine filled large" style="--spine-hue-shift: ${hueShift}deg" title="${bookTitle}"></div>`;
+      } else if (goalCount && i < goalCount) {
+        spinesHTML += `<div class="bookshelf-spine empty large"></div>`;
+      }
+    }
+
+    const goalText = goalCount
+      ? `${count}/${goalCount} books read in ${year}`
+      : `${count} book${count !== 1 ? 's' : ''} read in ${year}`;
+
+    const percentText = goalCount && goalCount > 0
+      ? `<span class="goal-percent">${Math.round((count / goalCount) * 100)}% of goal</span>`
+      : '';
+
+    bookshelfContainer.innerHTML = `
+      <div class="bookshelf-large">
+        <div class="bookshelf-spines">${spinesHTML}</div>
+        <div class="bookshelf-shelf"></div>
+      </div>
+      <p class="reading-goal-text">${goalText} ${percentText}</p>
+    `;
+  }
+
+  // Check if Chart.js is available
+  if (typeof Chart === 'undefined') {
+    console.warn('Chart.js not loaded, skipping chart rendering');
+    return;
+  }
+
+  // --- 2. Books Per Month Bar Chart ---
+  const monthData = getBooksPerMonth(books, year);
+  const monthLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const monthCanvas = document.getElementById('chart-books-per-month');
+  if (monthCanvas) {
+    chartInstances.booksPerMonth = new Chart(monthCanvas, {
+      type: 'bar',
+      data: {
+        labels: monthLabels,
+        datasets: [{
+          label: 'Books Finished',
+          data: monthData,
+          backgroundColor: accent,
+          borderColor: accent,
+          borderWidth: 1,
+          borderRadius: 4,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: { color: textMuted, stepSize: 1, font: { family: '"Playfair Display", serif' } },
+            grid: { color: borderColor + '40' }
+          },
+          x: {
+            ticks: { color: textMuted, font: { family: '"Playfair Display", serif' } },
+            grid: { display: false }
+          }
+        }
+      }
+    });
+  }
+
+  // --- 3. Genre/Tag Breakdown Doughnut Chart ---
+  const tagData = getTagBreakdown(books, year);
+  const tagLabels = Object.keys(tagData);
+  const tagValues = Object.values(tagData);
+  const genreColors = generateChartPalette(tagLabels.length, accent, secondary);
+
+  const genreCanvas = document.getElementById('chart-genre-breakdown');
+  if (genreCanvas && tagLabels.length > 0) {
+    chartInstances.genreBreakdown = new Chart(genreCanvas, {
+      type: 'doughnut',
+      data: {
+        labels: tagLabels,
+        datasets: [{
+          data: tagValues,
+          backgroundColor: genreColors,
+          borderColor: mutedBg,
+          borderWidth: 2,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              color: textColor,
+              font: { size: 11, family: '"Playfair Display", serif' },
+              padding: 12
+            }
+          }
+        }
+      }
+    });
+  } else if (genreCanvas) {
+    // No tag data — show message
+    genreCanvas.parentElement.querySelector('h4').insertAdjacentHTML(
+      'afterend', '<p class="dashboard-empty-msg">No genre data for this year</p>'
+    );
+  }
+
+  // --- 4. Rating Distribution Bar Chart ---
+  const ratingData = getRatingDistribution(books, year);
+  const ratingLabels = ['1 ★', '2 ★', '3 ★', '4 ★', '5 ★'];
+  const ratingValues = [ratingData[1], ratingData[2], ratingData[3], ratingData[4], ratingData[5]];
+
+  const ratingCanvas = document.getElementById('chart-rating-distribution');
+  if (ratingCanvas) {
+    chartInstances.ratingDistribution = new Chart(ratingCanvas, {
+      type: 'bar',
+      data: {
+        labels: ratingLabels,
+        datasets: [{
+          label: 'Books',
+          data: ratingValues,
+          backgroundColor: secondary,
+          borderColor: secondary,
+          borderWidth: 1,
+          borderRadius: 4,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: { color: textMuted, stepSize: 1, font: { family: '"Playfair Display", serif' } },
+            grid: { color: borderColor + '40' }
+          },
+          x: {
+            ticks: { color: textMuted, font: { family: '"Playfair Display", serif' } },
+            grid: { display: false }
+          }
+        }
+      }
+    });
+  }
+}
+
+// ============================================
+// READING GOAL WIDGET (Homepage - Now Section)
+// ============================================
+
+async function populateReadingGoalWidget(books) {
+  const container = document.getElementById('reading-goal-widget');
+  if (!container) return;
+
+  const currentYear = new Date().getFullYear();
+  const goal = await loadReadingGoal(currentYear);
+  const yearBooks = getBooksByYear(books, currentYear);
+  const count = yearBooks.length;
+  const goalCount = goal || 25; // Default to 25
+
+  const maxDisplay = Math.max(goalCount, count);
+  let spinesHTML = '';
+  for (let i = 0; i < maxDisplay; i++) {
+    if (i < count) {
+      const hueShift = (i * 17) % 40 - 20;
+      const bookTitle = yearBooks[i]?.title || '';
+      spinesHTML += `<div class="bookshelf-spine filled" style="--spine-hue-shift: ${hueShift}deg" title="${bookTitle}"></div>`;
+    } else if (i < goalCount) {
+      spinesHTML += `<div class="bookshelf-spine empty"></div>`;
+    }
+  }
+
+  container.innerHTML = `
+    <a href="?page=library" class="reading-goal-card countdown-card" aria-label="View reading stats — ${count} of ${goalCount} books read in ${currentYear}">
+      <h3>📚 Reading Goal</h3>
+      <div class="bookshelf-mini">
+        <div class="bookshelf-spines">${spinesHTML}</div>
+        <div class="bookshelf-shelf"></div>
+      </div>
+      <p class="reading-goal-text">${count}/${goalCount} books read in ${currentYear}</p>
+    </a>
+  `;
+}
+
+// ============================================
+// ADMIN READING GOALS
+// ============================================
+
+async function populateAdminGoals() {
+  const container = document.getElementById('admin-reading-goals');
+  if (!container) return;
+
+  try {
+    const { supabase } = await import('./js/supabaseClient.js');
+    const { data: goals, error } = await supabase
+      .from('reading_goals')
+      .select('*')
+      .order('goal_year', { ascending: false });
+
+    if (error) throw error;
+
+    if (!goals || goals.length === 0) {
+      container.innerHTML = '<p class="admin-empty">No reading goals set yet.</p>';
+      return;
+    }
+
+    container.innerHTML = goals.map(goal => `
+      <div class="admin-book-item">
+        <div class="admin-book-info">
+          <div class="admin-book-details">
+            <h3>${goal.goal_year} Reading Goal</h3>
+            <p>Target: ${goal.goal_count} books</p>
+          </div>
+        </div>
+        <div class="admin-book-actions">
+          <a href="/admin/edit-goal.html?year=${goal.goal_year}" class="admin-edit-btn">Edit</a>
+          <button class="admin-delete-btn" data-type="reading_goal" data-item-id="${goal.id}" data-item-title="${goal.goal_year} Reading Goal">Delete</button>
+        </div>
+      </div>
+    `).join('');
+
+  } catch (e) {
+    console.error('Error loading reading goals:', e);
+    container.innerHTML = '<p class="admin-empty">Failed to load reading goals.</p>';
+  }
+}
+
+function refreshDashboardChartsIfVisible() {
+  const yearSelect = document.getElementById('dashboard-year-filter');
+  if (yearSelect && window._dashboardBooks) {
+    const year = parseInt(yearSelect.value, 10);
+    renderDashboardCharts(window._dashboardBooks, year);
+  }
+}
+
 function renderReadingListPage(books) {
   const bookEntries = Array.isArray(books) ? books : [];
   
@@ -722,6 +1164,7 @@ function renderReadingListPage(books) {
   return `
     <section id="library">
       <h2 class="section-title">Library</h2>
+      <div id="reading-dashboard"></div>
       <p class="library-intro">A growing collection of books that have shaped my curiosity lately.</p>
       ${filterHTML}
       <div class="book-grid" id="book-grid">${bookCards}</div>
@@ -904,6 +1347,13 @@ function renderAdminDashboard(books, news = [], projects = []) {
       <div class="admin-books-list" style="margin-top: 32px;">
         <h3>Supabase Projects (${projects.length})</h3>
         ${projectsList}
+      </div>
+      <div class="admin-books-list" style="margin-top: 32px;">
+        <h3>Reading Goals</h3>
+        <div id="admin-reading-goals">
+          <p class="admin-empty">Loading goals...</p>
+        </div>
+        <a href="/admin/edit-goal.html" class="admin-action-link" style="margin-top: 16px; display: inline-block;">+ Set Reading Goal</a>
       </div>
     </section>
   `;
@@ -1238,6 +1688,7 @@ fetch("data.json")
         main.innerHTML = renderAdminDashboard(allBooks, news, projects);
         setupAdminDeleteButtons();
         setupAdminLogout();
+        populateAdminGoals();
         hideLoadingScreen(loadingInterval);
       }).catch((error) => {
         console.error('Error loading data for admin:', error);
@@ -1362,7 +1813,7 @@ fetch("data.json")
         } else {
           console.log('Book not found, showing library page');
           main.innerHTML = renderReadingListPage(allBooks);
-          setTimeout(() => setupLibraryFilters(), 100);
+          setTimeout(() => { setupLibraryFilters(); populateReadingDashboard(allBooks); }, 100);
         }
         hideLoadingScreen(loadingInterval);
       }).catch((error) => {
@@ -1372,8 +1823,9 @@ fetch("data.json")
         if (book) {
           main.innerHTML = renderBookPage(book);
         } else {
-          main.innerHTML = renderReadingListPage(data.readingList || []);
-          setTimeout(() => setupLibraryFilters(), 100);
+          const fallbackBooks = data.readingList || [];
+          main.innerHTML = renderReadingListPage(fallbackBooks);
+          setTimeout(() => { setupLibraryFilters(); populateReadingDashboard(fallbackBooks); }, 100);
         }
         hideLoadingScreen(loadingInterval);
       });
@@ -1383,13 +1835,14 @@ fetch("data.json")
       // Fetch books from Supabase and merge with static data
       loadLibraryBooks(data.readingList || []).then((allBooks) => {
         main.innerHTML = renderReadingListPage(allBooks);
-        setTimeout(() => setupLibraryFilters(), 100);
+        setTimeout(() => { setupLibraryFilters(); populateReadingDashboard(allBooks); }, 100);
         hideLoadingScreen(loadingInterval);
       }).catch((error) => {
         console.error('Error loading library books:', error);
         // Fallback to static data
-        main.innerHTML = renderReadingListPage(data.readingList || []);
-        setTimeout(() => setupLibraryFilters(), 100);
+        const fallbackBooks = data.readingList || [];
+        main.innerHTML = renderReadingListPage(fallbackBooks);
+        setTimeout(() => { setupLibraryFilters(); populateReadingDashboard(fallbackBooks); }, 100);
         hideLoadingScreen(loadingInterval);
       });
       return; // Don't hide loading screen yet, wait for async load
@@ -1617,6 +2070,7 @@ function renderCountdownWidget(phases, today, gradCountdown) {
         </div>
         ${gradCountdown}
       </div>
+      <div id="reading-goal-widget"></div>
     </section>
   `;
 }
@@ -1687,6 +2141,8 @@ function cycleTheme() {
   animateThemeTransition();
   setTimeout(() => {
     setTheme(themes[nextIndex]);
+    // Re-render dashboard charts if visible (theme colors changed)
+    refreshDashboardChartsIfVisible();
   }, 150);
 }
 
@@ -1731,7 +2187,7 @@ function setupAdminDeleteButtons() {
         const { supabase } = await import('./js/supabaseClient.js');
         
         // Determine the table name
-        const tableName = itemType === 'book' ? 'books' : (itemType === 'news' ? 'news' : 'projects');
+        const tableName = itemType === 'book' ? 'books' : (itemType === 'news' ? 'news' : (itemType === 'reading_goal' ? 'reading_goals' : 'projects'));
         
         // Delete from Supabase
         const { error } = await supabase
