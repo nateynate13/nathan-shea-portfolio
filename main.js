@@ -456,6 +456,7 @@ async function renderMain(data, isAdmin = false) {
   addNewsSearchEventListener(allNews);
   attachPhaseNavigation(phases);
   setupStoicQuoteClick();
+  loadSpotifyData();
 }
 
 function renderStoicCorner() {
@@ -1617,11 +1618,178 @@ function renderCountdownWidget(phases, today, gradCountdown) {
         </div>
         ${gradCountdown}
       </div>
+      ${renderReadingGoalWidget()}
+      ${renderSpotifyWidget()}
     </section>
   `;
 }
 
+function renderReadingGoalWidget() {
+  const READING_GOAL = 25;
+  const BOOKS_READ = 2; // Update this manually or fetch from data
 
+  // Generate book spines with varied heights, colors, and widths
+  const bookColors = [
+    '#8B4513', '#654321', '#A0522D', '#8B7355', '#CD853F',
+    '#DEB887', '#D2691E', '#BC8F8F', '#8B4726', '#A0826D',
+    '#9B7653', '#C19A6B', '#826644', '#6F4E37', '#704214',
+    '#3D2B1F', '#8B5A2B', '#A67B5B', '#6E5547', '#8B7D6B',
+    '#9C8169', '#BAA898', '#A8826D', '#AA895E', '#967969'
+  ];
+
+  const books = Array.from({ length: READING_GOAL }, (_, i) => {
+    const isRead = i < BOOKS_READ;
+    const height = 60 + Math.random() * 40; // Random height between 60-100px
+    const width = 20 + Math.random() * 15; // Random width between 20-35px
+    const color = bookColors[i % bookColors.length];
+    const spineText = generateSpineText();
+
+    return `
+      <div class="book-spine ${isRead ? 'read' : 'unread'}"
+           style="height: ${height}px; width: ${width}px; background-color: ${color};">
+        <span class="spine-text">${spineText}</span>
+      </div>
+    `;
+  }).join('');
+
+  return `
+    <div class="reading-goal-card">
+      <h3>📚 Reading Goal</h3>
+      <div class="bookshelf">
+        <div class="books-container">
+          ${books}
+        </div>
+        <div class="shelf-surface"></div>
+      </div>
+      <p class="reading-progress">${BOOKS_READ}/${READING_GOAL} books read in 2026</p>
+    </div>
+  `;
+}
+
+function generateSpineText() {
+  const consonants = 'BCDFGHJKLMNPQRSTVWXYZ';
+  const vowels = 'AEIOU';
+  let text = '';
+  const length = 3 + Math.floor(Math.random() * 4); // 3-6 characters
+
+  for (let i = 0; i < length; i++) {
+    if (i % 2 === 0) {
+      text += consonants[Math.floor(Math.random() * consonants.length)];
+    } else {
+      text += vowels[Math.floor(Math.random() * vowels.length)];
+    }
+  }
+
+  return text;
+}
+
+function renderSpotifyWidget() {
+  return `
+    <div class="spotify-widget-card">
+      <h3>🎵 What I'm Listening To</h3>
+      <div id="spotify-content" class="spotify-loading">
+        <div class="loading-spinner"></div>
+        <p>Loading music...</p>
+      </div>
+    </div>
+  `;
+}
+
+async function loadSpotifyData() {
+  const spotifyContent = document.getElementById('spotify-content');
+  if (!spotifyContent) return;
+
+  try {
+    // Option C: Fetch from a simple endpoint that returns your top tracks or recently played
+    // This endpoint will be a simple JSON file or a lightweight serverless function
+    // that updates periodically (e.g., every hour via a cron job)
+
+    const response = await fetch('/spotify-data.json');
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch Spotify data');
+    }
+
+    const data = await response.json();
+
+    if (data.currentTrack) {
+      spotifyContent.innerHTML = renderNowPlaying(data.currentTrack);
+    } else if (data.recentTracks && data.recentTracks.length > 0) {
+      spotifyContent.innerHTML = renderTopTracks(data.recentTracks);
+    } else {
+      spotifyContent.innerHTML = '<p class="spotify-empty">No recent activity</p>';
+    }
+  } catch (error) {
+    console.error('Error loading Spotify data:', error);
+    // Show a static placeholder instead of an error
+    spotifyContent.innerHTML = renderPlaceholderTrack();
+  }
+}
+
+function renderNowPlaying(data) {
+  return `
+    <div class="spotify-track">
+      <div class="spotify-album-art">
+        <img src="${data.albumArt}" alt="Album art for ${data.album}" />
+        <div class="now-playing-indicator">
+          <span class="pulse"></span>
+          <span class="pulse"></span>
+          <span class="pulse"></span>
+        </div>
+      </div>
+      <div class="spotify-info">
+        <div class="spotify-track-name">${data.trackName}</div>
+        <div class="spotify-artist">${data.artist}</div>
+        <div class="spotify-album">${data.album}</div>
+        <div class="spotify-status">
+          <span class="playing-badge">Now Playing</span>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderRecentTrack(data) {
+  return `
+    <div class="spotify-track">
+      <div class="spotify-album-art">
+        <img src="${data.albumArt}" alt="Album art for ${data.album}" />
+      </div>
+      <div class="spotify-info">
+        <div class="spotify-track-name">${data.trackName}</div>
+        <div class="spotify-artist">${data.artist}</div>
+        <div class="spotify-album">${data.album}</div>
+        <div class="spotify-status">
+          <span class="recent-badge">Recently Played</span>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderTopTracks(tracks) {
+  // Show the most recent track
+  const track = tracks[0];
+  return renderRecentTrack(track);
+}
+
+function renderPlaceholderTrack() {
+  // Fallback when Spotify data isn't available
+  return `
+    <div class="spotify-track">
+      <div class="spotify-album-art">
+        <div class="placeholder-art">🎵</div>
+      </div>
+      <div class="spotify-info">
+        <div class="spotify-track-name">Connect Spotify</div>
+        <div class="spotify-artist">Set up your Spotify integration to display music</div>
+        <div class="spotify-status">
+          <span class="recent-badge">Setup Required</span>
+        </div>
+      </div>
+    </div>
+  `;
+}
 
 function attachPhaseNavigation(phases) {
   const cards = document.querySelectorAll(".phase-card");

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Connect Spotify - Nathan Shea</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      max-width: 600px;
+      margin: 100px auto;
+      padding: 20px;
+      background: #f5f5f5;
+      text-align: center;
+    }
+    .container {
+      background: white;
+      padding: 60px 40px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #1DB954;
+      margin-bottom: 20px;
+    }
+    p {
+      color: #666;
+      margin-bottom: 30px;
+      line-height: 1.6;
+    }
+    .spotify-btn {
+      background: #1DB954;
+      color: white;
+      border: none;
+      padding: 16px 32px;
+      border-radius: 30px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      transition: all 0.3s ease;
+    }
+    .spotify-btn:hover {
+      background: #1ed760;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(29, 185, 84, 0.3);
+    }
+    .spotify-btn:active {
+      background: #1aa34a;
+      transform: translateY(0);
+    }
+    .note {
+      margin-top: 30px;
+      padding: 15px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎵 Connect Your Spotify Account</h1>
+    <p>
+      Authorize your Spotify account to enable the "What I'm Listening To" widget on your portfolio.
+    </p>
+    <p>
+      This will allow your website to display your currently playing or recently played tracks.
+    </p>
+
+    <a href="#" id="auth-btn" class="spotify-btn">
+      Connect with Spotify
+    </a>
+
+    <div class="note">
+      <strong>Note:</strong> You'll be redirected to Spotify to grant permissions.
+      We only request access to view your currently playing and recently played tracks.
+    </div>
+  </div>
+
+  <script>
+    const CLIENT_ID = '12323df3c1a34dbdb1dc69b33895e43b';
+    const REDIRECT_URI = 'https://www.nathan-shea.com/spotify-callback';
+    const SCOPES = 'user-read-currently-playing user-read-recently-played';
+
+    document.getElementById('auth-btn').addEventListener('click', (e) => {
+      e.preventDefault();
+
+      const authUrl = `https://accounts.spotify.com/authorize?` +
+        `response_type=code&` +
+        `client_id=${CLIENT_ID}&` +
+        `scope=${encodeURIComponent(SCOPES)}&` +
+        `redirect_uri=${encodeURIComponent(REDIRECT_URI)}`;
+
+      window.location.href = authUrl;
+    });
+  </script>
+</body>
+</html>
