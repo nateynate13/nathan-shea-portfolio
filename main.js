@@ -1522,6 +1522,12 @@ function renderNowPage() {
           </div>
         </div>
       </div>
+
+      <div class="now-widgets">
+        ${renderReadingGoalWidget()}
+        ${renderSpotifyWidget()}
+      </div>
+
       <p class="now-updated">Last updated: November 18, 2025</p>
     </section>
   `;
@@ -1906,6 +1912,7 @@ fetch("data.json")
     } else if (page === "now") {
       setNavbar(data.navigation, "home", false); // Don't show admin tab until check completes
       main.innerHTML = renderNowPage();
+      loadSpotifyData();
     } else if (page === "home") {
       renderMain(data, false).then(() => {
         hideLoadingScreen(loadingInterval);
@@ -2115,9 +2122,6 @@ function renderCountdownWidget(phases, today, gradCountdown) {
         </div>
         ${gradCountdown}
       </div>
-      ${renderReadingGoalWidget()}
-      ${renderSpotifyWidget()}
-      <div id="reading-goal-widget"></div>
     </section>
   `;
 }

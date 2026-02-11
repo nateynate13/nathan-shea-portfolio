@@ -2,10 +2,10 @@
   "currentTrack": null,
   "recentTracks": [
     {
-      "trackName": "Sample Track",
-      "artist": "Sample Artist",
-      "album": "Sample Album",
-      "albumArt": "https://via.placeholder.com/100x100/8A1538/FFFFFF?text=Album"
+      "trackName": "Connect your Spotify account",
+      "artist": "Follow the setup guide in SPOTIFY_QUICKSTART.md",
+      "album": "Setup Required",
+      "albumArt": "https://via.placeholder.com/100x100/1DB954/FFFFFF?text=🎵"
     }
   ],
   "lastUpdated": "2026-02-11T00:00:00Z"
