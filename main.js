@@ -1912,6 +1912,7 @@ fetch("data.json")
     } else if (page === "now") {
       setNavbar(data.navigation, "home", false); // Don't show admin tab until check completes
       main.innerHTML = renderNowPage();
+      loadReadingGoalWidget();
       loadSpotifyData();
     } else if (page === "home") {
       renderMain(data, false).then(() => {
@@ -2127,62 +2128,90 @@ function renderCountdownWidget(phases, today, gradCountdown) {
 }
 
 function renderReadingGoalWidget() {
-  const READING_GOAL = 25;
-  const BOOKS_READ = 2; // Update this manually or fetch from data
-
-  // Generate book spines with varied heights, colors, and widths
-  const bookColors = [
-    '#8B4513', '#654321', '#A0522D', '#8B7355', '#CD853F',
-    '#DEB887', '#D2691E', '#BC8F8F', '#8B4726', '#A0826D',
-    '#9B7653', '#C19A6B', '#826644', '#6F4E37', '#704214',
-    '#3D2B1F', '#8B5A2B', '#A67B5B', '#6E5547', '#8B7D6B',
-    '#9C8169', '#BAA898', '#A8826D', '#AA895E', '#967969'
-  ];
-
-  const books = Array.from({ length: READING_GOAL }, (_, i) => {
-    const isRead = i < BOOKS_READ;
-    const height = 60 + Math.random() * 40; // Random height between 60-100px
-    const width = 20 + Math.random() * 15; // Random width between 20-35px
-    const color = bookColors[i % bookColors.length];
-    const spineText = generateSpineText();
-
-    return `
-      <div class="book-spine ${isRead ? 'read' : 'unread'}"
-           style="height: ${height}px; width: ${width}px; background-color: ${color};">
-        <span class="spine-text">${spineText}</span>
-      </div>
-    `;
-  }).join('');
-
-  return `
-    <div class="reading-goal-card">
-      <h3>📚 Reading Goal</h3>
-      <div class="bookshelf">
-        <div class="books-container">
-          ${books}
-        </div>
-        <div class="shelf-surface"></div>
-      </div>
-      <p class="reading-progress">${BOOKS_READ}/${READING_GOAL} books read in 2026</p>
-    </div>
-  `;
+  // Placeholder that will be replaced by dynamic content
+  return `<div id="reading-goal-widget" class="reading-goal-card"></div>`;
 }
 
-function generateSpineText() {
-  const consonants = 'BCDFGHJKLMNPQRSTVWXYZ';
-  const vowels = 'AEIOU';
-  let text = '';
-  const length = 3 + Math.floor(Math.random() * 4); // 3-6 characters
+async function loadReadingGoalWidget() {
+  const container = document.getElementById('reading-goal-widget');
+  if (!container) return;
 
-  for (let i = 0; i < length; i++) {
-    if (i % 2 === 0) {
-      text += consonants[Math.floor(Math.random() * consonants.length)];
-    } else {
-      text += vowels[Math.floor(Math.random() * vowels.length)];
+  try {
+    // Fetch books data
+    const response = await fetch('data.json');
+    const data = await response.json();
+    const books = data.readingList || [];
+
+    // Load books with full details from Supabase
+    const allBooks = await loadLibraryBooks(books);
+
+    // Get current year and goal
+    const currentYear = new Date().getFullYear();
+    const goal = await loadReadingGoal(currentYear);
+    const yearBooks = getBooksByYear(allBooks, currentYear);
+    const count = yearBooks.length;
+    const goalCount = goal || 25; // Default to 25
+
+    // Generate book spines
+    const maxDisplay = Math.max(goalCount, count);
+    let spinesHTML = '';
+
+    for (let i = 0; i < maxDisplay; i++) {
+      if (i < count) {
+        // Filled spine with real book data
+        const book = yearBooks[i];
+        const title = book?.title || '';
+        const style = getSpineStyle(i, title);
+
+        spinesHTML += `<div class="bookshelf-spine filled"
+          style="--spine-hue-shift: ${style.hueShift}deg;
+                 --spine-brightness: ${style.brightness};
+                 --spine-height: ${style.heightPct}%;
+                 --spine-width: ${style.widthPct}%;"
+          title="${title}">
+          <span class="spine-title">${getShortenedTitle(title)}</span>
+        </div>`;
+      } else if (i < goalCount) {
+        // Empty spine for unread books
+        spinesHTML += `<div class="bookshelf-spine empty"></div>`;
+      }
     }
+
+    container.innerHTML = `
+      <h3>📚 Reading Goal</h3>
+      <div class="bookshelf-mini">
+        <div class="bookshelf-spines">${spinesHTML}</div>
+        <div class="bookshelf-shelf"></div>
+      </div>
+      <p class="reading-goal-text">${count}/${goalCount} books read in ${currentYear}</p>
+    `;
+  } catch (error) {
+    console.error('Error loading reading goal:', error);
+    container.innerHTML = `
+      <h3>📚 Reading Goal</h3>
+      <p class="reading-goal-text">Unable to load reading data</p>
+    `;
+  }
+}
+
+function getShortenedTitle(title) {
+  if (!title) return '';
+
+  // Remove subtitle after colon
+  const mainTitle = title.split(':')[0].trim();
+
+  // If short enough, return as is
+  if (mainTitle.length <= 15) return mainTitle;
+
+  // Take first 1-2 words that fit
+  const words = mainTitle.split(' ');
+  let shortened = words[0];
+
+  for (let i = 1; i < words.length && shortened.length + words[i].length < 13; i++) {
+    shortened += ' ' + words[i];
   }
 
-  return text;
+  return shortened;
 }
 
 function renderSpotifyWidget() {
