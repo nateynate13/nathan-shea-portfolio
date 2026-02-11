@@ -1,0 +1,12 @@
+{
+  "currentTrack": null,
+  "recentTracks": [
+    {
+      "trackName": "Sample Track",
+      "artist": "Sample Artist",
+      "album": "Sample Album",
+      "albumArt": "https://via.placeholder.com/100x100/8A1538/FFFFFF?text=Album"
+    }
+  ],
+  "lastUpdated": "2026-02-11T00:00:00Z"
+}

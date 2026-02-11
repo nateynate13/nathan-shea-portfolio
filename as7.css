@@ -783,10 +783,16 @@ section {
 }
 
 .countdown-widget {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 24px;
   margin-top: 16px;
+}
+
+@media (max-width: 900px) {
+  .countdown-widget {
+    grid-template-columns: 1fr;
+  }
 }
 
 .countdown-card {
@@ -858,6 +864,298 @@ section {
 
 .graduation-countdown h3 {
   color: var(--accent);
+}
+
+/* Reading Goal Widget */
+.reading-goal-card {
+  background-color: var(--muted-bg);
+  border: 2px solid var(--accent);
+  border-radius: 12px;
+  padding: 24px;
+  grid-column: 1 / -1;
+}
+
+@media (min-width: 901px) {
+  .reading-goal-card {
+    grid-column: 1 / 2;
+  }
+}
+
+.reading-goal-card h3 {
+  color: var(--accent);
+  margin: 0 0 20px 0;
+  font-size: 1.2rem;
+}
+
+.bookshelf {
+  position: relative;
+  margin: 20px 0;
+}
+
+.books-container {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 2px;
+  padding: 0 10px 10px 10px;
+  min-height: 120px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent) var(--muted-bg);
+}
+
+.books-container::-webkit-scrollbar {
+  height: 6px;
+}
+
+.books-container::-webkit-scrollbar-track {
+  background: var(--muted-bg);
+}
+
+.books-container::-webkit-scrollbar-thumb {
+  background: var(--accent);
+  border-radius: 3px;
+}
+
+.book-spine {
+  position: relative;
+  border-radius: 2px 2px 0 0;
+  box-shadow:
+    inset -2px 0 4px rgba(0, 0, 0, 0.3),
+    inset 2px 0 4px rgba(255, 255, 255, 0.1),
+    2px 2px 4px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.book-spine:hover {
+  transform: translateY(-4px);
+  box-shadow:
+    inset -2px 0 4px rgba(0, 0, 0, 0.3),
+    inset 2px 0 4px rgba(255, 255, 255, 0.1),
+    2px 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.book-spine.read {
+  opacity: 1;
+}
+
+.book-spine.unread {
+  opacity: 0.25;
+  filter: grayscale(0.7);
+}
+
+.spine-text {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  font-size: 10px;
+  font-weight: bold;
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+  letter-spacing: 1px;
+  padding: 4px 0;
+  user-select: none;
+}
+
+.shelf-surface {
+  height: 8px;
+  background: linear-gradient(to bottom, #654321 0%, #8B4513 50%, #654321 100%);
+  border-radius: 0 0 4px 4px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  margin-top: -2px;
+}
+
+.reading-progress {
+  text-align: center;
+  margin: 16px 0 0 0;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+/* Spotify Widget */
+.spotify-widget-card {
+  background-color: var(--muted-bg);
+  border: 2px solid var(--accent);
+  border-radius: 12px;
+  padding: 24px;
+  grid-column: 1 / -1;
+}
+
+@media (min-width: 901px) {
+  .spotify-widget-card {
+    grid-column: 2 / 3;
+  }
+}
+
+.spotify-widget-card h3 {
+  color: var(--accent);
+  margin: 0 0 16px 0;
+  font-size: 1.2rem;
+}
+
+.spotify-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  gap: 12px;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.spotify-track {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.spotify-album-art {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.spotify-album-art img {
+  width: 100px;
+  height: 100px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  object-fit: cover;
+}
+
+.placeholder-art {
+  width: 100px;
+  height: 100px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--secondary) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.now-playing-indicator {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  display: flex;
+  gap: 2px;
+  align-items: flex-end;
+  height: 16px;
+}
+
+.now-playing-indicator .pulse {
+  width: 3px;
+  background-color: #1DB954;
+  border-radius: 2px;
+  animation: pulse 1s ease-in-out infinite;
+}
+
+.now-playing-indicator .pulse:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.now-playing-indicator .pulse:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.now-playing-indicator .pulse:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes pulse {
+  0%, 100% { height: 4px; }
+  50% { height: 16px; }
+}
+
+.spotify-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.spotify-track-name {
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: var(--text);
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.spotify-artist {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.spotify-album {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin-bottom: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.spotify-status {
+  margin-top: 8px;
+}
+
+.playing-badge,
+.recent-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.playing-badge {
+  background-color: #1DB954;
+  color: white;
+}
+
+.recent-badge {
+  background-color: var(--accent);
+  color: white;
+}
+
+.spotify-empty,
+.spotify-error {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 20px;
+  font-size: 0.95rem;
+}
+
+.spotify-error-detail {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin-top: 8px;
 }
 
 /* Footer with Wave Effect */
@@ -1248,6 +1546,56 @@ footer:hover .footer-motto {
 
   .book-detail-cover img {
     max-width: 150px;
+  }
+
+  /* Reading Goal Mobile */
+  .reading-goal-card {
+    padding: 16px;
+  }
+
+  .reading-goal-card h3 {
+    font-size: 1rem;
+  }
+
+  .books-container {
+    padding: 0 5px 8px 5px;
+    gap: 1px;
+  }
+
+  .book-spine {
+    transform: scale(0.9);
+  }
+
+  .reading-progress {
+    font-size: 0.85rem;
+  }
+
+  /* Spotify Widget Mobile */
+  .spotify-widget-card {
+    padding: 16px;
+  }
+
+  .spotify-widget-card h3 {
+    font-size: 1rem;
+  }
+
+  .spotify-track {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .spotify-album-art img {
+    width: 120px;
+    height: 120px;
+  }
+
+  .spotify-track-name {
+    font-size: 0.95rem;
+  }
+
+  .spotify-artist,
+  .spotify-album {
+    font-size: 0.85rem;
   }
 
   .about-image {
