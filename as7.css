@@ -1825,6 +1825,25 @@ a:hover {
   font-size: 1.1rem;
 }
 
+.now-widgets {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin: 32px 0;
+}
+
+@media (max-width: 900px) {
+  .now-widgets {
+    grid-template-columns: 1fr;
+  }
+}
+
+.now-widgets .reading-goal-card,
+.now-widgets .spotify-widget-card {
+  grid-column: auto;
+  margin-top: 0;
+}
+
 .now-updated {
   font-size: 0.9rem;
   color: var(--text-muted);
