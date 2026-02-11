@@ -1753,6 +1753,10 @@ a:hover {
    ============================================ */
 
 /* --- Homepage Reading Goal Widget --- */
+#reading-goal-widget {
+  max-width: 50%;
+}
+
 .reading-goal-card {
   display: block;
   text-decoration: none;
@@ -1826,9 +1830,10 @@ a:hover {
 
 .bookshelf-spine.filled {
   background-color: var(--accent);
-  filter: hue-rotate(var(--spine-hue-shift, 0deg));
-  box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.15),
-              inset 1px 0 0 rgba(255, 255, 255, 0.1);
+  filter: hue-rotate(var(--spine-hue-shift, 0deg)) brightness(var(--spine-brightness, 1));
+  box-shadow: inset -2px 0 1px rgba(0, 0, 0, 0.2),
+              inset 2px 0 1px rgba(255, 255, 255, 0.12),
+              inset 0 -3px 2px rgba(0, 0, 0, 0.08);
 }
 
 .bookshelf-spine.empty {
@@ -1836,23 +1841,25 @@ a:hover {
   border: 1.5px dashed var(--border);
 }
 
-/* Mini (homepage widget) spine sizes */
+/* Mini (homepage widget) spine sizes — varied via CSS custom props */
 .bookshelf-mini .bookshelf-spine {
-  width: 8px;
-  height: 32px;
+  width: calc(8px * var(--spine-width, 100) / 100);
+  height: calc(32px * var(--spine-height, 100) / 100);
 }
 
 .bookshelf-mini .bookshelf-spine.empty {
+  width: 8px;
   height: 28px;
 }
 
-/* Large (dashboard) spine sizes */
+/* Large (dashboard) spine sizes — varied via CSS custom props */
 .bookshelf-spine.large {
-  width: 12px;
-  height: 48px;
+  width: calc(14px * var(--spine-width, 100) / 100);
+  height: calc(52px * var(--spine-height, 100) / 100);
 }
 
 .bookshelf-spine.large.empty {
+  width: 14px;
   height: 42px;
 }
 
@@ -1934,6 +1941,15 @@ a:hover {
 }
 
 .dashboard-bookshelf-card {
+  /* Standalone card above library, no grid needed */
+}
+
+.reading-charts-section {
+  margin-top: 40px;
+  margin-bottom: 0;
+}
+
+.dashboard-rating-card {
   grid-column: 1 / -1;
 }
 
@@ -1951,8 +1967,16 @@ a:hover {
 
 /* --- Responsive: Tablet (max-width: 768px) --- */
 @media (max-width: 768px) {
+  #reading-goal-widget {
+    max-width: 100%;
+  }
+
   .dashboard-grid {
     grid-template-columns: 1fr;
+  }
+
+  .dashboard-rating-card {
+    grid-column: auto;
   }
 
   .dashboard-header {
@@ -1966,20 +1990,22 @@ a:hover {
   }
 
   .bookshelf-mini .bookshelf-spine {
-    width: 6px;
-    height: 26px;
+    width: calc(6px * var(--spine-width, 100) / 100);
+    height: calc(26px * var(--spine-height, 100) / 100);
   }
 
   .bookshelf-mini .bookshelf-spine.empty {
+    width: 6px;
     height: 22px;
   }
 
   .bookshelf-spine.large {
-    width: 10px;
-    height: 40px;
+    width: calc(10px * var(--spine-width, 100) / 100);
+    height: calc(40px * var(--spine-height, 100) / 100);
   }
 
   .bookshelf-spine.large.empty {
+    width: 10px;
     height: 34px;
   }
 }
@@ -2003,20 +2029,22 @@ a:hover {
   }
 
   .bookshelf-mini .bookshelf-spine {
-    width: 5px;
-    height: 22px;
+    width: calc(5px * var(--spine-width, 100) / 100);
+    height: calc(22px * var(--spine-height, 100) / 100);
   }
 
   .bookshelf-mini .bookshelf-spine.empty {
+    width: 5px;
     height: 18px;
   }
 
   .bookshelf-spine.large {
-    width: 8px;
-    height: 34px;
+    width: calc(8px * var(--spine-width, 100) / 100);
+    height: calc(34px * var(--spine-height, 100) / 100);
   }
 
   .bookshelf-spine.large.empty {
+    width: 8px;
     height: 28px;
   }
 }

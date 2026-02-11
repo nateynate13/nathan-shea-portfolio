@@ -689,6 +689,39 @@ async function loadReadingGoal(year) {
   }
 }
 
+// Generate unique visual properties for each book spine
+function getSpineStyle(index, title) {
+  // Use title string to seed pseudo-random values for consistency
+  const seed = (title || '').split('').reduce((acc, ch) => acc + ch.charCodeAt(0), 0) + index;
+
+  // Varied hue rotation (-30 to +50 degrees)
+  const hueShift = ((seed * 47) % 80) - 30;
+
+  // Varied saturation via brightness (0.75 to 1.1)
+  const brightness = 0.75 + ((seed * 31) % 35) / 100;
+
+  // Varied height (80% to 115% of base)
+  const heightPct = 80 + ((seed * 23) % 35);
+
+  // Varied width (75% to 120% of base)
+  const widthPct = 75 + ((seed * 13) % 45);
+
+  return {
+    hueShift,
+    brightness,
+    heightPct,
+    widthPct,
+  };
+}
+
+function renderSpineHTML(index, book, isLarge) {
+  const title = book?.title || '';
+  const style = getSpineStyle(index, title);
+  const sizeClass = isLarge ? ' large' : '';
+
+  return `<div class="bookshelf-spine filled${sizeClass}" style="--spine-hue-shift: ${style.hueShift}deg; --spine-brightness: ${style.brightness}; --spine-height: ${style.heightPct}%; --spine-width: ${style.widthPct}%;" title="${title}"></div>`;
+}
+
 function generateChartPalette(count, accent, secondary) {
   const baseColors = [
     accent,
@@ -714,14 +747,17 @@ function generateChartPalette(count, accent, secondary) {
 let chartInstances = {};
 
 async function populateReadingDashboard(books) {
-  const container = document.getElementById('reading-dashboard');
-  if (!container) return;
+  const goalContainer = document.getElementById('reading-dashboard');
+  const chartsContainer = document.getElementById('reading-charts');
+  if (!goalContainer && !chartsContainer) return;
 
   const availableYears = getAvailableYears(books);
   if (availableYears.length === 0) return;
 
   const currentYear = new Date().getFullYear();
-  const defaultYear = availableYears.includes(currentYear) ? currentYear : availableYears[0];
+  // Default to most recent year with data, not current year if it's empty
+  const currentYearBooks = getBooksByYear(books, currentYear);
+  const defaultYear = currentYearBooks.length > 0 ? currentYear : availableYears[0];
 
   // Store books for theme refresh
   window._dashboardBooks = books;
@@ -730,34 +766,45 @@ async function populateReadingDashboard(books) {
     `<option value="${y}" ${y === defaultYear ? 'selected' : ''}>${y}</option>`
   ).join('');
 
-  container.innerHTML = `
-    <div class="reading-dashboard">
-      <div class="dashboard-header">
-        <h3>Reading Stats</h3>
-        <select id="dashboard-year-filter" class="dashboard-year-select" aria-label="Filter stats by year">
-          ${yearOptions}
-        </select>
-      </div>
-      <div class="dashboard-grid">
+  // Goal progress stays above the library
+  if (goalContainer) {
+    goalContainer.innerHTML = `
+      <div class="reading-dashboard">
+        <div class="dashboard-header">
+          <h3>Reading Stats</h3>
+          <select id="dashboard-year-filter" class="dashboard-year-select" aria-label="Filter stats by year">
+            ${yearOptions}
+          </select>
+        </div>
         <div class="dashboard-card dashboard-bookshelf-card">
           <h4>Goal Progress</h4>
           <div id="dashboard-bookshelf"></div>
         </div>
-        <div class="dashboard-card">
-          <h4>Books Per Month</h4>
-          <canvas id="chart-books-per-month"></canvas>
-        </div>
-        <div class="dashboard-card">
-          <h4>Genre Breakdown</h4>
-          <canvas id="chart-genre-breakdown"></canvas>
-        </div>
-        <div class="dashboard-card">
-          <h4>Rating Distribution</h4>
-          <canvas id="chart-rating-distribution"></canvas>
+      </div>
+    `;
+  }
+
+  // Charts go below the library
+  if (chartsContainer) {
+    chartsContainer.innerHTML = `
+      <div class="reading-dashboard reading-charts-section">
+        <div class="dashboard-grid">
+          <div class="dashboard-card">
+            <h4>Books Per Month</h4>
+            <canvas id="chart-books-per-month"></canvas>
+          </div>
+          <div class="dashboard-card">
+            <h4>Genre Breakdown</h4>
+            <canvas id="chart-genre-breakdown"></canvas>
+          </div>
+          <div class="dashboard-card dashboard-rating-card">
+            <h4>Rating Distribution</h4>
+            <canvas id="chart-rating-distribution"></canvas>
+          </div>
         </div>
       </div>
-    </div>
-  `;
+    `;
+  }
 
   await renderDashboardCharts(books, defaultYear);
 
@@ -798,9 +845,7 @@ async function renderDashboardCharts(books, year) {
     let spinesHTML = '';
     for (let i = 0; i < maxDisplay; i++) {
       if (i < count) {
-        const hueShift = (i * 17) % 40 - 20;
-        const bookTitle = yearBooks[i]?.title || '';
-        spinesHTML += `<div class="bookshelf-spine filled large" style="--spine-hue-shift: ${hueShift}deg" title="${bookTitle}"></div>`;
+        spinesHTML += renderSpineHTML(i, yearBooks[i], true);
       } else if (goalCount && i < goalCount) {
         spinesHTML += `<div class="bookshelf-spine empty large"></div>`;
       }
@@ -969,9 +1014,7 @@ async function populateReadingGoalWidget(books) {
   let spinesHTML = '';
   for (let i = 0; i < maxDisplay; i++) {
     if (i < count) {
-      const hueShift = (i * 17) % 40 - 20;
-      const bookTitle = yearBooks[i]?.title || '';
-      spinesHTML += `<div class="bookshelf-spine filled" style="--spine-hue-shift: ${hueShift}deg" title="${bookTitle}"></div>`;
+      spinesHTML += renderSpineHTML(i, yearBooks[i], false);
     } else if (i < goalCount) {
       spinesHTML += `<div class="bookshelf-spine empty"></div>`;
     }
@@ -1169,6 +1212,7 @@ function renderReadingListPage(books) {
       ${filterHTML}
       <div class="book-grid" id="book-grid">${bookCards}</div>
       ${emptyState}
+      <div id="reading-charts"></div>
     </section>
   `;
 }
