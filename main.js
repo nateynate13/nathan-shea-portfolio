@@ -1208,6 +1208,7 @@ function renderReadingListPage(books) {
   return `
     <section id="library">
       <h2 class="section-title">Library</h2>
+      <div id="reading-goal-widget" class="reading-goal-card"></div>
       <div id="reading-dashboard"></div>
       <p class="library-intro">A growing collection of books that have shaped my curiosity lately.</p>
       ${filterHTML}
@@ -1886,14 +1887,14 @@ fetch("data.json")
       // Fetch books from Supabase and merge with static data
       loadLibraryBooks(data.readingList || []).then((allBooks) => {
         main.innerHTML = renderReadingListPage(allBooks);
-        setTimeout(() => { setupLibraryFilters(); populateReadingDashboard(allBooks); }, 100);
+        setTimeout(() => { setupLibraryFilters(); populateReadingDashboard(allBooks); loadReadingGoalWidget(allBooks); }, 100);
         hideLoadingScreen(loadingInterval);
       }).catch((error) => {
         console.error('Error loading library books:', error);
         // Fallback to static data
         const fallbackBooks = data.readingList || [];
         main.innerHTML = renderReadingListPage(fallbackBooks);
-        setTimeout(() => { setupLibraryFilters(); populateReadingDashboard(fallbackBooks); }, 100);
+        setTimeout(() => { setupLibraryFilters(); populateReadingDashboard(fallbackBooks); loadReadingGoalWidget(fallbackBooks); }, 100);
         hideLoadingScreen(loadingInterval);
       });
       return; // Don't hide loading screen yet, wait for async load
@@ -2122,6 +2123,14 @@ function renderCountdownWidget(phases, today, gradCountdown) {
           <button id="next-phase" aria-label="Next Phase">→</button>
         </div>
         ${gradCountdown}
+        <div id="reading-goal-widget" class="reading-goal-card countdown-card"></div>
+        <div class="spotify-widget-card countdown-card">
+          <h3>🎵 What I'm Listening To</h3>
+          <div id="spotify-content" class="spotify-loading">
+            <div class="loading-spinner"></div>
+            <p>Loading music...</p>
+          </div>
+        </div>
       </div>
     </section>
   `;
@@ -2132,18 +2141,17 @@ function renderReadingGoalWidget() {
   return `<div id="reading-goal-widget" class="reading-goal-card"></div>`;
 }
 
-async function loadReadingGoalWidget() {
+async function loadReadingGoalWidget(preloadedBooks = null) {
   const container = document.getElementById('reading-goal-widget');
   if (!container) return;
 
   try {
-    // Fetch books data
-    const response = await fetch('data.json');
-    const data = await response.json();
-    const books = data.readingList || [];
-
-    // Load books with full details from Supabase
-    const allBooks = await loadLibraryBooks(books);
+    let allBooks = preloadedBooks;
+    if (!allBooks) {
+      const response = await fetch('data.json');
+      const data = await response.json();
+      allBooks = await loadLibraryBooks(data.readingList || []);
+    }
 
     // Get current year and goal
     const currentYear = new Date().getFullYear();
@@ -2176,7 +2184,6 @@ async function loadReadingGoalWidget() {
         spinesHTML += `<div class="bookshelf-spine empty"></div>`;
       }
     }
-
     container.innerHTML = `
       <h3>📚 Reading Goal</h3>
       <div class="bookshelf-mini">
@@ -2235,7 +2242,7 @@ async function loadSpotifyData() {
     // This endpoint will be a simple JSON file or a lightweight serverless function
     // that updates periodically (e.g., every hour via a cron job)
 
-    const response = await fetch('/spotify-data.json');
+    const response = await fetch('spotify-data.json');
 
     if (!response.ok) {
       throw new Error('Failed to fetch Spotify data');
@@ -2243,12 +2250,15 @@ async function loadSpotifyData() {
 
     const data = await response.json();
 
-    if (data.currentTrack) {
+    const isConnected = data.currentTrack ||
+      (data.recentTracks && data.recentTracks.length > 0 && data.recentTracks[0].trackName !== 'Connect your Spotify account');
+
+    if (!isConnected) {
+      spotifyContent.innerHTML = renderPlaceholderTrack();
+    } else if (data.currentTrack) {
       spotifyContent.innerHTML = renderNowPlaying(data.currentTrack);
-    } else if (data.recentTracks && data.recentTracks.length > 0) {
-      spotifyContent.innerHTML = renderTopTracks(data.recentTracks);
     } else {
-      spotifyContent.innerHTML = '<p class="spotify-empty">No recent activity</p>';
+      spotifyContent.innerHTML = renderTopTracks(data.recentTracks);
     }
   } catch (error) {
     console.error('Error loading Spotify data:', error);
@@ -2305,19 +2315,10 @@ function renderTopTracks(tracks) {
 }
 
 function renderPlaceholderTrack() {
-  // Fallback when Spotify data isn't available
   return `
-    <div class="spotify-track">
-      <div class="spotify-album-art">
-        <div class="placeholder-art">🎵</div>
-      </div>
-      <div class="spotify-info">
-        <div class="spotify-track-name">Connect Spotify</div>
-        <div class="spotify-artist">Set up your Spotify integration to display music</div>
-        <div class="spotify-status">
-          <span class="recent-badge">Setup Required</span>
-        </div>
-      </div>
+    <div class="spotify-not-connected">
+      <span class="spotify-not-connected-icon">🎵</span>
+      <p>Not connected yet</p>
     </div>
   `;
 }
