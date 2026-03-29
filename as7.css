@@ -872,13 +872,6 @@ section {
   border: 2px solid var(--accent);
   border-radius: 12px;
   padding: 24px;
-  grid-column: 1 / -1;
-}
-
-@media (min-width: 901px) {
-  .reading-goal-card {
-    grid-column: 1 / 2;
-  }
 }
 
 .reading-goal-card h3 {
@@ -983,13 +976,6 @@ section {
   border: 2px solid var(--accent);
   border-radius: 12px;
   padding: 24px;
-  grid-column: 1 / -1;
-}
-
-@media (min-width: 901px) {
-  .spotify-widget-card {
-    grid-column: 2 / 3;
-  }
 }
 
 .spotify-widget-card h3 {
