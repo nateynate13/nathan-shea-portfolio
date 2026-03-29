@@ -715,12 +715,24 @@ function getSpineStyle(index, title) {
   };
 }
 
-function renderSpineHTML(index, book, isLarge) {
+function renderSpineHTML(index, book, isLarge, extraClass = '') {
   const title = book?.title || '';
   const style = getSpineStyle(index, title);
   const sizeClass = isLarge ? ' large' : '';
+  const shortTitle = getShortSpineTitle(title);
 
-  return `<div class="bookshelf-spine filled${sizeClass}" style="--spine-hue-shift: ${style.hueShift}deg; --spine-brightness: ${style.brightness}; --spine-height: ${style.heightPct}%; --spine-width: ${style.widthPct}%;" title="${title}"></div>`;
+  return `<div class="bookshelf-spine filled${sizeClass}${extraClass}" style="--spine-hue-shift: ${style.hueShift}deg; --spine-brightness: ${style.brightness}; --spine-height: ${style.heightPct}%; --spine-width-factor: ${(style.widthPct - 75) / 1000};" title="${title}"><span class="spine-title">${shortTitle}</span></div>`;
+}
+
+function getShortSpineTitle(title) {
+  if (!title) return '';
+  const main = title.split(':')[0].trim();
+  const words = main.split(' ');
+  let out = words[0];
+  for (let i = 1; i < words.length && (out + ' ' + words[i]).length <= 14; i++) {
+    out += ' ' + words[i];
+  }
+  return out;
 }
 
 function generateChartPalette(count, accent, secondary) {
@@ -842,12 +854,15 @@ async function renderDashboardCharts(books, year) {
 
   const bookshelfContainer = document.getElementById('dashboard-bookshelf');
   if (bookshelfContainer) {
-    const maxDisplay = goalCount ? Math.max(goalCount, count) : count;
+    const displayGoal = goalCount || 25;
+    const maxDisplay = Math.max(displayGoal, count);
     let spinesHTML = '';
     for (let i = 0; i < maxDisplay; i++) {
       if (i < count) {
-        spinesHTML += renderSpineHTML(i, yearBooks[i], true);
-      } else if (goalCount && i < goalCount) {
+        const isOverflow = i >= displayGoal;
+        const overflowClass = isOverflow ? (i % 2 === 0 ? ' overflow-left' : ' overflow-right') : '';
+        spinesHTML += renderSpineHTML(i, yearBooks[i], true, overflowClass);
+      } else {
         spinesHTML += `<div class="bookshelf-spine empty large"></div>`;
       }
     }
@@ -861,7 +876,7 @@ async function renderDashboardCharts(books, year) {
       : '';
 
     bookshelfContainer.innerHTML = `
-      <div class="bookshelf-large">
+      <div class="bookshelf-library">
         <div class="bookshelf-spines">${spinesHTML}</div>
         <div class="bookshelf-shelf"></div>
       </div>
@@ -1024,7 +1039,7 @@ async function populateReadingGoalWidget(books) {
   container.innerHTML = `
     <a href="?page=library" class="reading-goal-card countdown-card" aria-label="View reading stats — ${count} of ${goalCount} books read in ${currentYear}">
       <h3>📚 Reading Goal</h3>
-      <div class="bookshelf-mini">
+      <div class="bookshelf-home">
         <div class="bookshelf-spines">${spinesHTML}</div>
         <div class="bookshelf-shelf"></div>
       </div>
@@ -1208,7 +1223,6 @@ function renderReadingListPage(books) {
   return `
     <section id="library">
       <h2 class="section-title">Library</h2>
-      <div id="reading-goal-widget" class="reading-goal-card"></div>
       <div id="reading-dashboard"></div>
       <p class="library-intro">A growing collection of books that have shaped my curiosity lately.</p>
       ${filterHTML}
@@ -1887,14 +1901,14 @@ fetch("data.json")
       // Fetch books from Supabase and merge with static data
       loadLibraryBooks(data.readingList || []).then((allBooks) => {
         main.innerHTML = renderReadingListPage(allBooks);
-        setTimeout(() => { setupLibraryFilters(); populateReadingDashboard(allBooks); loadReadingGoalWidget(allBooks); }, 100);
+        setTimeout(() => { setupLibraryFilters(); populateReadingDashboard(allBooks); }, 100);
         hideLoadingScreen(loadingInterval);
       }).catch((error) => {
         console.error('Error loading library books:', error);
         // Fallback to static data
         const fallbackBooks = data.readingList || [];
         main.innerHTML = renderReadingListPage(fallbackBooks);
-        setTimeout(() => { setupLibraryFilters(); populateReadingDashboard(fallbackBooks); loadReadingGoalWidget(fallbackBooks); }, 100);
+        setTimeout(() => { setupLibraryFilters(); populateReadingDashboard(fallbackBooks); }, 100);
         hideLoadingScreen(loadingInterval);
       });
       return; // Don't hide loading screen yet, wait for async load

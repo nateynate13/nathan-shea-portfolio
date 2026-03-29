@@ -2162,23 +2162,15 @@ a:hover {
   flex-wrap: wrap;
 }
 
-.bookshelf-mini .bookshelf-spines {
-  min-height: 40px;
-  justify-content: center;
-}
-
-.bookshelf-large .bookshelf-spines {
-  min-height: 60px;
-  justify-content: flex-start;
-}
-
+/* All bookshelf containers share these spines defaults */
 .bookshelf-spine {
   border-radius: 2px 2px 0 0;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  flex-shrink: 0;
 }
 
-.bookshelf-spine:hover {
-  transform: scaleY(1.05);
+.bookshelf-spine:not(.overflow-left):not(.overflow-right):hover {
+  transform: translateY(-4px);
 }
 
 .bookshelf-spine.filled {
@@ -2197,7 +2189,6 @@ a:hover {
 .spine-title {
   writing-mode: vertical-rl;
   text-orientation: mixed;
-  font-size: 7px;
   font-weight: 600;
   color: rgba(255, 255, 255, 0.95);
   text-shadow: 0px 1px 2px rgba(0, 0, 0, 0.5);
@@ -2206,35 +2197,87 @@ a:hover {
   user-select: none;
   white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis;
+  text-overflow: clip;
   max-height: 95%;
+  font-size: 7px;
 }
 
 .bookshelf-spine.empty {
   background: transparent;
   border: 1.5px dashed var(--border);
+  opacity: 0.5;
 }
 
-/* Mini (homepage widget) spine sizes — varied via CSS custom props */
-.bookshelf-mini .bookshelf-spine {
-  width: calc(8px * var(--spine-width, 100) / 100);
-  height: calc(32px * var(--spine-height, 100) / 100);
+/* Overflow books lean like they've been squeezed onto a full shelf */
+.bookshelf-spine.overflow-left {
+  transform: rotate(-12deg) translateY(6px);
+  transform-origin: bottom center;
+  z-index: 1;
 }
 
-.bookshelf-mini .bookshelf-spine.empty {
-  width: 8px;
-  height: 28px;
+.bookshelf-spine.overflow-right {
+  transform: rotate(12deg) translateY(6px);
+  transform-origin: bottom center;
+  z-index: 1;
 }
 
-/* Large (dashboard) spine sizes — varied via CSS custom props */
-.bookshelf-spine.large {
-  width: calc(14px * var(--spine-width, 100) / 100);
-  height: calc(52px * var(--spine-height, 100) / 100);
+.bookshelf-spine.overflow-left:hover,
+.bookshelf-spine.overflow-right:hover {
+  transform: rotate(0deg) translateY(-4px);
+  z-index: 2;
 }
 
-.bookshelf-spine.large.empty {
-  width: 14px;
-  height: 42px;
+/* ── Home page widget (fills one grid column, medium height) ── */
+.bookshelf-home {
+  width: 100%;
+}
+
+.bookshelf-home .bookshelf-spines {
+  display: flex;
+  align-items: flex-end;
+  width: 100%;
+  gap: 2px;
+  min-height: 70px;
+}
+
+.bookshelf-home .bookshelf-spine {
+  flex: calc(1 + var(--spine-width-factor, 0));
+  height: calc(62px * var(--spine-height, 100) / 100);
+}
+
+.bookshelf-home .bookshelf-spine.empty {
+  height: 52px;
+}
+
+.bookshelf-home .spine-title {
+  font-size: 7px;
+}
+
+/* ── Library full-width bookshelf ── */
+.bookshelf-library {
+  width: 100%;
+}
+
+.bookshelf-library .bookshelf-spines {
+  display: flex;
+  align-items: flex-end;
+  width: 100%;
+  gap: 2px;
+  min-height: 100px;
+  padding-bottom: 4px;
+}
+
+.bookshelf-library .bookshelf-spine {
+  flex: calc(1 + var(--spine-width-factor, 0));
+  height: calc(88px * var(--spine-height, 100) / 100);
+}
+
+.bookshelf-library .bookshelf-spine.empty {
+  height: 74px;
+}
+
+.bookshelf-library .spine-title {
+  font-size: 9px;
 }
 
 .bookshelf-shelf {
@@ -2363,25 +2406,15 @@ a:hover {
     width: 100%;
   }
 
-  .bookshelf-mini .bookshelf-spine {
-    width: calc(6px * var(--spine-width, 100) / 100);
-    height: calc(26px * var(--spine-height, 100) / 100);
+  .bookshelf-home .bookshelf-spine {
+    height: calc(50px * var(--spine-height, 100) / 100);
   }
+  .bookshelf-home .bookshelf-spine.empty { height: 42px; }
 
-  .bookshelf-mini .bookshelf-spine.empty {
-    width: 6px;
-    height: 22px;
+  .bookshelf-library .bookshelf-spine {
+    height: calc(68px * var(--spine-height, 100) / 100);
   }
-
-  .bookshelf-spine.large {
-    width: calc(10px * var(--spine-width, 100) / 100);
-    height: calc(40px * var(--spine-height, 100) / 100);
-  }
-
-  .bookshelf-spine.large.empty {
-    width: 10px;
-    height: 34px;
-  }
+  .bookshelf-library .bookshelf-spine.empty { height: 56px; }
 }
 
 /* --- Responsive: Small phones (max-width: 600px) --- */
@@ -2398,27 +2431,18 @@ a:hover {
     max-height: 200px;
   }
 
-  .bookshelf-spines {
-    gap: 2px;
+  .bookshelf-home .bookshelf-spine {
+    height: calc(40px * var(--spine-height, 100) / 100);
   }
+  .bookshelf-home .bookshelf-spine.empty { height: 34px; }
 
-  .bookshelf-mini .bookshelf-spine {
-    width: calc(5px * var(--spine-width, 100) / 100);
-    height: calc(22px * var(--spine-height, 100) / 100);
+  .bookshelf-library .bookshelf-spine {
+    height: calc(56px * var(--spine-height, 100) / 100);
   }
+  .bookshelf-library .bookshelf-spine.empty { height: 46px; }
 
-  .bookshelf-mini .bookshelf-spine.empty {
-    width: 5px;
-    height: 18px;
-  }
-
-  .bookshelf-spine.large {
-    width: calc(8px * var(--spine-width, 100) / 100);
-    height: calc(34px * var(--spine-height, 100) / 100);
-  }
-
-  .bookshelf-spine.large.empty {
-    width: 8px;
-    height: 28px;
+  .bookshelf-home .spine-title,
+  .bookshelf-library .spine-title {
+    font-size: 6px;
   }
 }
