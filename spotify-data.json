@@ -1,12 +1,53 @@
 {
-  "currentTrack": null,
+  "currentTrack": {
+    "trackName": "Love Me",
+    "artist": "Fia",
+    "album": "Love Me",
+    "albumArt": "https://i.scdn.co/image/ab67616d0000b27343f5c3d8f9d609f99164b37b",
+    "spotifyUrl": "https://open.spotify.com/track/6HwcP1XamKZwjAmcdBN2Pk",
+    "isPlaying": true
+  },
   "recentTracks": [
     {
-      "trackName": "Connect your Spotify account",
-      "artist": "Follow the setup guide in SPOTIFY_QUICKSTART.md",
-      "album": "Setup Required",
-      "albumArt": "https://via.placeholder.com/100x100/1DB954/FFFFFF?text=🎵"
+      "trackName": "Dirt On My Boots",
+      "artist": "Jon Pardi",
+      "album": "California Sunrise",
+      "albumArt": "https://i.scdn.co/image/ab67616d0000b27314d09c1ad67f2028764ee0f4",
+      "spotifyUrl": "https://open.spotify.com/track/7f08qp3HROTkfrtNpiYGGo",
+      "playedAt": "2026-03-29T19:04:11.256Z"
+    },
+    {
+      "trackName": "Feathered Indians",
+      "artist": "Tyler Childers",
+      "album": "Purgatory",
+      "albumArt": "https://i.scdn.co/image/ab67616d0000b2735a38bd36056b909ed607689d",
+      "spotifyUrl": "https://open.spotify.com/track/2tgQaL85WoRfgEa4hFQgrE",
+      "playedAt": "2026-03-29T18:56:19.358Z"
+    },
+    {
+      "trackName": "7 Summers",
+      "artist": "Morgan Wallen",
+      "album": "Dangerous: The Double Album",
+      "albumArt": "https://i.scdn.co/image/ab67616d0000b273d11e2e1e9a84f6fbf864536d",
+      "spotifyUrl": "https://open.spotify.com/track/58FbmtiyAlFBqFr8EorsSr",
+      "playedAt": "2026-03-29T18:51:07.547Z"
+    },
+    {
+      "trackName": "7 Summers",
+      "artist": "Morgan Wallen",
+      "album": "Dangerous: The Double Album",
+      "albumArt": "https://i.scdn.co/image/ab67616d0000b273d11e2e1e9a84f6fbf864536d",
+      "spotifyUrl": "https://open.spotify.com/track/58FbmtiyAlFBqFr8EorsSr",
+      "playedAt": "2026-03-29T18:48:11.702Z"
+    },
+    {
+      "trackName": "When It Rains It Pours",
+      "artist": "Luke Combs",
+      "album": "This One's for You",
+      "albumArt": "https://i.scdn.co/image/ab67616d0000b273a456620e42fb68e8976c91b5",
+      "spotifyUrl": "https://open.spotify.com/track/1mMLMZYXkMueg65jRRWG1l",
+      "playedAt": "2026-03-29T18:33:22.394Z"
     }
   ],
-  "lastUpdated": "2026-02-11T00:00:00Z"
+  "lastUpdated": "2026-03-29T19:08:20.661Z"
 }
