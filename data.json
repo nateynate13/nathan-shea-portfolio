@@ -52,6 +52,11 @@
   },
   "news": [
     {
+      "title": "Graduated from Boston College 🎓",
+      "date": "2026-05-18",
+      "content": "On May 18th, 2026, I officially graduated from Boston College with a Bachelor of Science in Computer Science and a minor in Finance. Four years went by faster than I ever could have imagined. The friendships forged in Walsh Hall, the late nights in O'Neill Library, the classes that genuinely changed the way I see the world, the professors who pushed me to think deeper — BC gave me more than I ever expected. A heartfelt thank you to everyone who supported me along the way: my family, my friends, my mentors, and the entire Eagle family. BC truly is a special place, and I am endlessly grateful to have called it home. Once an Eagle, always an Eagle. 🦅"
+    },
+    {
       "title": "I Passed the FINRA SIE Exam",
       "date": "2025-08-18",
       "content": "Excited to take the next step toward my career in asset management and deepen my understanding of the investment industry."
@@ -100,6 +105,37 @@
             "alt": "Corcoran Center Logo",
             "src": "assets/corcoran-center.jpg",
             "style": "width: 300px; height: auto;"
+          }
+        ],
+        "back_link": "index.html"
+      }
+    },
+    {
+      "title": "ClearFeed — BC Shea Center Accelerator",
+      "short_description": "A personalized, podcast-style AI news briefing app that transforms your reading preferences and curated article feeds into a daily audio digest — built during the Edmund H. Shea Jr. Center for Entrepreneurship accelerator at Boston College.",
+      "link": "clearfeed.html",
+      "details": {
+        "title": "ClearFeed — Shea Center Accelerator @ Boston College",
+        "description": "ClearFeed was my first real venture into the entrepreneurship space — a personalized, podcast-style AI news briefing app born out of the Edmund H. Shea Jr. Center for Entrepreneurship accelerator at Boston College.\n\nThe Problem: In an era of information overload, staying informed feels like a chore. Reading through dozens of articles each morning is time-consuming, and existing news apps offer little meaningful personalization beyond broad topic buckets.\n\nThe Solution: ClearFeed pulls articles from News APIs based on each user's stated interests and preferences, then feeds that content into a large language model to generate a conversational, podcast-style script — written the way a knowledgeable friend would brief you, not a news anchor. ElevenLabs' text-to-speech technology converts that script into a polished audio file delivered to the user as their daily briefing.\n\nPersonalization Loop: After each briefing, users can provide feedback on specific articles — rating relevance and flagging topics they want more or less of. That signal feeds back into the LLM context window on future runs, continuously tightening the personalization over time.\n\nThe Shea Center Experience: Being part of the Shea Center accelerator was a genuinely formative experience. The structured curriculum around product-market fit, early-stage pitching, and go-to-market strategy — combined with access to mentors, investors, and BC's broader entrepreneurship network — gave me a foundation I carry into every project I work on. Demo Day was a highlight: presenting to investors, BC alumni, and the entrepreneurship community was as exciting as it was humbling.\n\nClearFeed has since been sunset, but the experience cemented my belief that the best way to learn is to build.",
+        "technologies": [
+          "News APIs",
+          "OpenAI GPT (LLM)",
+          "ElevenLabs Text-to-Speech",
+          "Python",
+          "Flask"
+        ],
+        "logos": [
+          {
+            "alt": "ClearFeed Logo",
+            "src": "assets/clearfeed_logo.png"
+          },
+          {
+            "alt": "Demo Day at the Shea Center",
+            "src": "assets/clearfeed_demo1.jpg"
+          },
+          {
+            "alt": "Presenting ClearFeed at Demo Day",
+            "src": "assets/clearfeed_demo2.jpg"
           }
         ],
         "back_link": "index.html"
