@@ -6,6 +6,10 @@ const PHASES = [
   { name: "BC Senior Fall Semester 🍁", start: "2025-08-25", end: "2025-12-18" },
   { name: "Winter Break ❄️", start: "2025-12-17", end: "2026-01-12" },
   { name: "BC Senior Spring Semester 🌸", start: "2026-01-12", end: "2026-05-18" },
+  { name: "Summer Break ☀️", start: "2026-05-19", end: "2026-06-23" },
+  { name: "Japan Grad Trip ✈️🇯🇵", start: "2026-06-24", end: "2026-07-06" },
+  { name: "Back Home 🌺", start: "2026-07-06", end: "2026-07-15" },
+  { name: "Boston Post Grad 🏙️", start: "2026-07-15", end: "2027-12-31" },
 ];
 
 // Typewriter headlines
@@ -416,12 +420,12 @@ function computePhases(today = new Date()) {
     currentPhases.sort((a, b) => b.start - a.start); // Later start date takes precedence
   }
 
-  // If no current phase, default to BC Spring Semester (last phase)
+  // If no current phase, default to the most recent past phase
   if (currentPhases.length === 0) {
-    const bcSpring = enriched.find(p => p.name.includes("BC Senior Spring Semester"));
-    if (bcSpring) {
-      bcSpring.isCurrent = true;
-      return [bcSpring, ...futurePhases, ...pastPhases.filter(p => p.name !== bcSpring.name)];
+    const mostRecent = pastPhases[0]; // pastPhases is sorted by start desc
+    if (mostRecent) {
+      mostRecent.isCurrent = true;
+      return [mostRecent, ...futurePhases, ...pastPhases.filter(p => p !== mostRecent)];
     }
   }
 
@@ -1925,10 +1929,8 @@ fetch("data.json")
       });
       return; // Don't hide loading screen yet, wait for async load
     } else if (page === "now") {
-      setNavbar(data.navigation, "home", false); // Don't show admin tab until check completes
-      main.innerHTML = renderNowPage();
-      loadReadingGoalWidget();
-      loadSpotifyData();
+      window.location.replace("?page=home");
+      return;
     } else if (page === "home") {
       renderMain(data, false).then(() => {
         hideLoadingScreen(loadingInterval);
@@ -2082,19 +2084,12 @@ function getCurrentPhase(date = new Date()) {
 }
 
 function renderCountdownWidget(phases, today, gradCountdown) {
-  // Find Winter Break and BC Spring Semester indexes for default display
-  const winterBreakIndex = phases.findIndex(p => p.name.includes("Winter Break"));
-  const bcSpringIndex = phases.findIndex(p => p.name.includes("BC Senior Spring Semester"));
   const hasCurrentPhase = phases.some(p => p.isCurrent);
-  
-  // Default to first current phase, or Winter Break if no current phase (and it exists), or BC Spring as last resort
+
+  // Default to first current phase, or first phase as fallback
   let defaultIndex = 0;
   if (hasCurrentPhase) {
     defaultIndex = phases.findIndex(p => p.isCurrent);
-  } else if (winterBreakIndex >= 0) {
-    defaultIndex = winterBreakIndex;
-  } else if (bcSpringIndex >= 0) {
-    defaultIndex = bcSpringIndex;
   }
   
   const phaseCards = phases
