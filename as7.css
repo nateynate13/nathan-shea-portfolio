@@ -439,6 +439,15 @@ section {
   object-fit: contain;
 }
 
+.logo-grid img[alt="Demo Day at the Shea Center"],
+.logo-grid img[alt="Presenting ClearFeed at Demo Day"] {
+  max-width: 400px;
+  max-height: 300px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
 /* Library */
 #library {
   position: relative;
