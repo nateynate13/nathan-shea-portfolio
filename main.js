@@ -8,8 +8,8 @@ const PHASES = [
   { name: "BC Senior Spring Semester 🌸", start: "2026-01-12", end: "2026-05-18" },
   { name: "Summer Break ☀️", start: "2026-05-19", end: "2026-06-23" },
   { name: "Japan Grad Trip ✈️🇯🇵", start: "2026-06-24", end: "2026-07-06" },
-  { name: "Back Home 🌺", start: "2026-07-06", end: "2026-07-15" },
-  { name: "Boston Post Grad 🏙️", start: "2026-07-15", end: "2027-12-31" },
+  { name: "Back Home 🌺", start: "2026-07-06", end: "2026-07-17" },
+  { name: "Boston Post Grad 🏙️", start: "2026-07-17", end: "2028-07-17" },
 ];
 
 // Typewriter headlines
@@ -150,32 +150,31 @@ function animateThemeTransition() {
 
 // Copy Email Function (global)
 window.copyEmail = function(email, event) {
-  const button = event ? event.target : null;
-  navigator.clipboard.writeText(email).then(() => {
-    if (button) {
-      const originalText = button.textContent;
-      button.textContent = "Copied!";
-      button.style.backgroundColor = "var(--accent)";
-      setTimeout(() => {
-        button.textContent = originalText;
-        button.style.backgroundColor = "";
-      }, 2000);
+  const btn = event ? event.currentTarget : null;
+  const doCopy = () => {
+    if (btn) {
+      const label = btn.querySelector(".pill-label");
+      const copied = btn.querySelector(".pill-copied");
+      if (label && copied) {
+        label.style.display = "none";
+        copied.style.display = "inline";
+        btn.classList.add("copied");
+        setTimeout(() => {
+          label.style.display = "";
+          copied.style.display = "none";
+          btn.classList.remove("copied");
+        }, 2000);
+      }
     }
-  }).catch(() => {
-    // Fallback for older browsers
+  };
+  navigator.clipboard.writeText(email).then(doCopy).catch(() => {
     const textArea = document.createElement("textarea");
     textArea.value = email;
     document.body.appendChild(textArea);
     textArea.select();
     document.execCommand("copy");
     document.body.removeChild(textArea);
-    if (button) {
-      const originalText = button.textContent;
-      button.textContent = "Copied!";
-      setTimeout(() => {
-        button.textContent = originalText;
-      }, 2000);
-    }
+    doCopy();
   });
 };
 
@@ -493,34 +492,42 @@ function setupStoicQuoteClick() {
 function renderAbout(about) {
   const emailContact = about.contact.find(c => c.type === "Email");
   const emailValue = emailContact ? emailContact.value : "";
-  
+
+  const bioParagraphs = about.bio.split("\n\n").filter(p => p.trim());
+
   return `
     <section id="about">
-      <h2 class="section-title">About</h2>
       <div class="about-container">
         <div class="about-left">
-          <img src="${about.image}" alt="Profile image of ${about.name}" class="about-image" />
-          <p><strong>${about.name}</strong>, ${about.position}</p>
-          <div class="typewriter-container">
+          <div class="about-photo-card">
+            <img src="${about.image}" alt="Profile image of ${about.name}" class="about-image" />
+          </div>
+          <p class="about-name">${about.name}</p>
+          <p class="about-location">${about.location}</p>
+        </div>
+        <div class="about-right">
+          <div class="typewriter-container about-typewriter">
             <span class="typewriter-prefix">I am a </span>
             <span id="typewriter-text" class="typewriter-text"></span>
           </div>
-        </div>
-        <div class="about-right">
-          <p>${about.bio}</p>
-          <p class="location">Location: ${about.location}</p>
-          <div class="contact-details">
-            ${about.contact
-              .map(
-                (contact) => `
-              <p>
-                <img src="${contact.icon}" alt="${contact.type} icon" class="icon" />
-                <a href="${contact.link}">${contact.value}</a>
-                ${contact.type === "Email" ? `<button class="copy-email-btn" onclick="copyEmail('${contact.value}', event)" aria-label="Copy email">📋</button>` : ""}
-              </p>
-            `
-              )
-              .join("")}
+          <div class="about-bio">
+            ${bioParagraphs.map(p => `<p>${p.trim()}</p>`).join("")}
+          </div>
+          <div class="about-contact-row">
+            ${about.contact.map(contact => {
+              if (contact.type === "Email") {
+                return `<button class="contact-pill email-pill" onclick="copyEmail('${contact.value}', event)" title="${contact.value}">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                  <span class="pill-label">${contact.value}</span>
+                  <span class="pill-copied" style="display:none">Copied!</span>
+                </button>`;
+              } else {
+                return `<a href="${contact.link}" target="_blank" rel="noopener" class="contact-pill linkedin-pill">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+                  LinkedIn
+                </a>`;
+              }
+            }).join("")}
           </div>
         </div>
       </div>
