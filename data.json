@@ -16,26 +16,15 @@
     "href": "?page=projects",
     "class": "nav-projects",
     "key": "projects"
-  },
-  {
-    "text": "Resume",
-    "href": "https://drive.google.com/file/d/14LVvEQWQNPT-75JkYfJOr4PxAt5WIHqT/view?usp=sharing",
-    "target": "_blank"
   }
 ],
   "about": {
-    "name": "Nathan Makaneole Shea",
-    "position": "Senior at Boston College",
-    "location": "Newton, Massachusetts",
-    "image": "assets/nate_headshot.jpeg",
-    "bio": "Hi! I'm Nate. I'm a Boston College student in the Class of 2026 studying computer science with a minor in finance. I'm passionate about problem-solving, logic, and finding cross-sector solutions for real-world challenges. I'm deeply committed to lifelong learning and an avid reader of history, philosophy, sociology, and political science.",
+    "name": "Nathan Shea",
+    "position": "Recent Boston College Graduate",
+    "location": "Boston, Massachusetts",
+    "image": "assets/portfolio_headshot.jpg",
+    "bio": "Hi, I'm Nate. I'm a recent Boston College graduate with a bachelor's in Computer Science and a minor in Finance, and I'm most interested in the work where markets, technology, and people overlap. The constant across my background has been turning complicated information into something a person can actually use.\n\nOutside of work, I read widely across history, philosophy, and politics, lean stoic when things get loud, and am a die-hard San Francisco 49ers fan and a newly forlorn BC football and basketball supporting alumnus.\n\nRight now I'm at the start of my career and recently relocated to Boston to begin it. I'm drawn to environments where I can keep learning, work alongside people I respect, and do work that eventually reaches someone real.",
     "contact": [
-      {
-        "type": "Email",
-        "value": "nathan.shea@bc.edu",
-        "icon": "assets/email_icon.jpg",
-        "link": "mailto:nathan.shea@bc.edu"
-      },
       {
         "type": "Email",
         "value": "fornateshea@gmail.com",
@@ -44,7 +33,7 @@
       },
       {
         "type": "LinkedIn",
-        "value": "www.linkedin.com/in/nathan-shea-905747271",
+        "value": "LinkedIn",
         "icon": "assets/linkedin_logo.jpg",
         "link": "https://www.linkedin.com/in/nathan-shea-905747271"
       }
