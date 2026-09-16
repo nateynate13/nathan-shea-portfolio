@@ -316,6 +316,7 @@
 
     <script type="module">
       import { supabase } from '../js/supabaseClient.js';
+      import { addEmojiToTag as getTagEmoji, stripEmoji } from '../js/bookTags.js';
 
       document.addEventListener('DOMContentLoaded', async function() {
         const formContainer = document.getElementById('form-container');
@@ -347,37 +348,6 @@
         const tagsAddBtn = document.getElementById('tags-add-btn');
         const tagsSelected = document.getElementById('tags-selected');
         const selectedTags = new Set();
-        
-        // Tag emoji mapping
-        const tagEmojis = {
-          'Business': '📈',
-          'History': '🌍',
-          'Society': '🌍',
-          'Philosophy': '🧠',
-          'Life': '💭',
-          'Identity': '🎭',
-          'Sports': '🏀'
-        };
-        
-        function getTagEmoji(tagName) {
-          // Check if tag already has emoji
-          if (/^[\u{1F300}-\u{1F9FF}]/u.test(tagName)) {
-            return tagName;
-          }
-          // Try to find emoji by matching tag name
-          for (const [key, emoji] of Object.entries(tagEmojis)) {
-            if (tagName.includes(key)) {
-              return `${emoji} ${tagName.replace(key, '').trim() || key}`;
-            }
-          }
-          // Default: return tag as-is (no emoji)
-          return tagName;
-        }
-        
-        function stripEmoji(tag) {
-          // Remove emoji and return clean tag name
-          return tag.replace(/^[\u{1F300}-\u{1F9FF}]\s*/u, '').trim();
-        }
         
         function renderSelectedTags() {
           tagsSelected.innerHTML = '';

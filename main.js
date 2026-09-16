@@ -1,3 +1,5 @@
+import { addEmojiToTag } from './js/bookTags.js';
+
 const PHASES = [
   { name: "Studying Abroad in Athens 🇬🇷", start: "2025-01-07", end: "2025-05-06" },
   { name: "Summer Vacation 🏖️", start: "2025-05-07", end: "2025-06-01" },
@@ -1112,33 +1114,7 @@ function refreshDashboardChartsIfVisible() {
 
 function renderReadingListPage(books) {
   const bookEntries = Array.isArray(books) ? books : [];
-  
-  // Tag emoji mapping for display
-  const tagEmojis = {
-    'Business': '📈',
-    'History': '🌍',
-    'Society': '🌍',
-    'Philosophy': '🧠',
-    'Life': '💭',
-    'Identity': '🎭',
-    'Sports': '🏀'
-  };
-  
-  function addEmojiToTag(tag) {
-    // If tag already has emoji, return as-is
-    if (/^[\u{1F300}-\u{1F9FF}]/u.test(tag)) {
-      return tag;
-    }
-    // Try to find emoji by matching tag name
-    for (const [key, emoji] of Object.entries(tagEmojis)) {
-      if (tag.includes(key)) {
-        return `${emoji} ${tag.replace(key, '').trim() || key}`;
-      }
-    }
-    // No emoji found, return as-is
-    return tag;
-  }
-  
+
   // Get all unique tags
   const allTags = new Set();
   bookEntries.forEach(book => {
@@ -1156,10 +1132,11 @@ function renderReadingListPage(books) {
     });
   });
   const uniqueTags = Array.from(allTags).sort();
-  
-  // Sort books by finished date (most recent first)
+
+  // Sort pinned books to the top, then by finished date (most recent first)
   // For books without finished date, use created_at or put them first
   const sortedBooks = [...bookEntries].sort((a, b) => {
+    if (!!a.pinned !== !!b.pinned) return a.pinned ? -1 : 1;
     const dateA = a.finished ? parseFinishedDate(a.finished) : (a.created_at ? new Date(a.created_at) : new Date(0));
     const dateB = b.finished ? parseFinishedDate(b.finished) : (b.created_at ? new Date(b.created_at) : new Date(0));
     return dateB - dateA; // Most recent first
@@ -1176,28 +1153,7 @@ function renderReadingListPage(books) {
           tags = BOOK_TAGS[book.slug];
         }
         // Add emojis to tags for display
-        const tagsWithEmojis = tags.map(tag => {
-          // If tag already has emoji, use it; otherwise add emoji
-          if (/^[\u{1F300}-\u{1F9FF}]/u.test(tag)) {
-            return tag;
-          }
-          // Try to find emoji by matching tag name
-          const tagEmojis = {
-            'Business': '📈',
-            'History': '🌍',
-            'Society': '🌍',
-            'Philosophy': '🧠',
-            'Life': '💭',
-            'Identity': '🎭',
-            'Sports': '🏀'
-          };
-          for (const [key, emoji] of Object.entries(tagEmojis)) {
-            if (tag.includes(key)) {
-              return `${emoji} ${tag.replace(key, '').trim() || key}`;
-            }
-          }
-          return tag;
-        });
+        const tagsWithEmojis = tags.map(addEmojiToTag);
         const tagsHTML = tagsWithEmojis.length > 0 
           ? `<div class="book-tags">${tagsWithEmojis.map(tag => `<span class="book-tag" data-tag="${tag}">${tag}</span>`).join("")}</div>`
           : "";
@@ -1448,6 +1404,10 @@ function renderBookPage(book) {
       </div>`
     : "";
 
+  const linkSection = book.link
+    ? `<p class="book-meta"><a href="${book.link}" target="_blank" rel="noopener">Learn more / purchase →</a></p>`
+    : "";
+
   return `
     <section id="book-detail" class="book-detail">
       <a href="?page=library" class="library-back" aria-label="Back to Library">
@@ -1470,6 +1430,7 @@ function renderBookPage(book) {
           <h2>My Thoughts</h2>
           <p>${reviewContent}</p>
           ${reflectionSection}
+          ${linkSection}
           ${pdfSection}
         </div>
       </div>
@@ -1524,54 +1485,6 @@ function setupLibraryFilters() {
     });
   });
 }
-
-// Render Now Page
-function renderNowPage() {
-  return `
-    <section id="now-page">
-      <h2 class="section-title">Now</h2>
-      <p class="now-intro">What I'm focused on right now:</p>
-      <div class="now-content">
-        <div class="now-item">
-          <h3>Right now, I'm learning:</h3>
-          <p>REITs</p>
-        </div>
-        <div class="now-item">
-          <h3>Right now, I'm reading:</h3>
-          <p>Liar's Poker by Michael Lewis</p>
-        </div>
-        <div class="now-item">
-          <h3>Right now, I'm wrestling with:</h3>
-          <p>"Senioritus" <button class="senioritis-toggle" onclick="toggleSenioritis()">(click to read more)</button></p>
-          <div id="senioritis-explanation" class="senioritis-explanation" style="display: none;">
-            <p>Senioritis is the late-college mindset where motivation for classes fades, not because of laziness but because your energy shifts away from grades and toward preparing for real life. It is a restless mix of feeling mentally ready for a slower, more intentional pace while also sensing quiet anxiety about leaving the college bubble with its routines, friendships, and identity-defining experiences. It is not just burnout, but the emotional transition from student life to adulthood, felt one creeping day at a time.</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="now-widgets">
-        ${renderReadingGoalWidget()}
-        ${renderSpotifyWidget()}
-      </div>
-
-      <p class="now-updated">Last updated: November 18, 2025</p>
-    </section>
-  `;
-}
-
-window.toggleSenioritis = function() {
-  const explanation = document.getElementById("senioritis-explanation");
-  const button = document.querySelector(".senioritis-toggle");
-  if (explanation) {
-    if (explanation.style.display === "none") {
-      explanation.style.display = "block";
-      if (button) button.textContent = "(click to hide)";
-    } else {
-      explanation.style.display = "none";
-      if (button) button.textContent = "(click to read more)";
-    }
-  }
-};
 
 // Render Inspiration Wall
 function renderInspirationWall(inspirationItems) {
@@ -1708,6 +1621,7 @@ async function loadLibraryBooks(staticBooks) {
         reflection: book.reflection || '',
         pinned: book.pinned || false,
         pdf: book.pdf || null,
+        link: book.link || null,
         tags: book.tags || [],
         created_at: book.created_at || null
       };
@@ -2149,103 +2063,6 @@ function renderCountdownWidget(phases, today, gradCountdown) {
         </div>
       </div>
     </section>
-  `;
-}
-
-function renderReadingGoalWidget() {
-  // Placeholder that will be replaced by dynamic content
-  return `<div id="reading-goal-widget" class="reading-goal-card"></div>`;
-}
-
-async function loadReadingGoalWidget(preloadedBooks = null) {
-  const container = document.getElementById('reading-goal-widget');
-  if (!container) return;
-
-  try {
-    let allBooks = preloadedBooks;
-    if (!allBooks) {
-      const response = await fetch('data.json');
-      const data = await response.json();
-      allBooks = await loadLibraryBooks(data.readingList || []);
-    }
-
-    // Get current year and goal
-    const currentYear = new Date().getFullYear();
-    const goal = await loadReadingGoal(currentYear);
-    const yearBooks = getBooksByYear(allBooks, currentYear);
-    const count = yearBooks.length;
-    const goalCount = goal || 25; // Default to 25
-
-    // Generate book spines
-    const maxDisplay = Math.max(goalCount, count);
-    let spinesHTML = '';
-
-    for (let i = 0; i < maxDisplay; i++) {
-      if (i < count) {
-        // Filled spine with real book data
-        const book = yearBooks[i];
-        const title = book?.title || '';
-        const style = getSpineStyle(i, title);
-
-        spinesHTML += `<div class="bookshelf-spine filled"
-          style="--spine-hue-shift: ${style.hueShift}deg;
-                 --spine-brightness: ${style.brightness};
-                 --spine-height: ${style.heightPct}%;
-                 --spine-width: ${style.widthPct}%;"
-          title="${title}">
-          <span class="spine-title">${getShortenedTitle(title)}</span>
-        </div>`;
-      } else if (i < goalCount) {
-        // Empty spine for unread books
-        spinesHTML += `<div class="bookshelf-spine empty"></div>`;
-      }
-    }
-    container.innerHTML = `
-      <h3>📚 Reading Goal</h3>
-      <div class="bookshelf-mini">
-        <div class="bookshelf-spines">${spinesHTML}</div>
-        <div class="bookshelf-shelf"></div>
-      </div>
-      <p class="reading-goal-text">${count}/${goalCount} books read in ${currentYear}</p>
-    `;
-  } catch (error) {
-    console.error('Error loading reading goal:', error);
-    container.innerHTML = `
-      <h3>📚 Reading Goal</h3>
-      <p class="reading-goal-text">Unable to load reading data</p>
-    `;
-  }
-}
-
-function getShortenedTitle(title) {
-  if (!title) return '';
-
-  // Remove subtitle after colon
-  const mainTitle = title.split(':')[0].trim();
-
-  // If short enough, return as is
-  if (mainTitle.length <= 15) return mainTitle;
-
-  // Take first 1-2 words that fit
-  const words = mainTitle.split(' ');
-  let shortened = words[0];
-
-  for (let i = 1; i < words.length && shortened.length + words[i].length < 13; i++) {
-    shortened += ' ' + words[i];
-  }
-
-  return shortened;
-}
-
-function renderSpotifyWidget() {
-  return `
-    <div class="spotify-widget-card">
-      <h3>🎵 What I'm Listening To</h3>
-      <div id="spotify-content" class="spotify-loading">
-        <div class="loading-spinner"></div>
-        <p>Loading music...</p>
-      </div>
-    </div>
   `;
 }
 
