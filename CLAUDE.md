@@ -21,7 +21,9 @@ Personal portfolio for Nathan Shea (nathan-shea.com), built as a vanilla JS sing
 │
 ├── js/
 │   ├── config.js           Supabase URL + anon key
-│   └── supabaseClient.js   Creates + exports the Supabase client
+│   ├── supabaseClient.js   Creates + exports the Supabase client
+│   ├── bookTags.js         Single source for the tag→emoji mapping (used by main.js + admin book forms)
+│   └── openLibrary.js      Open Library API client used by admin/add-book.html's auto-fill lookup
 │
 ├── api/
 │   ├── update-spotify-data.js    Node script run by GitHub Actions to refresh Spotify
@@ -66,6 +68,9 @@ Personal portfolio for Nathan Shea (nathan-shea.com), built as a vanilla JS sing
 | Add a dynamic project | Admin panel or `admin/add-project.html` |
 | Add a book to the reading list | `data.json` → `readingList` array (static) OR admin panel (Supabase) |
 | Update reading goal for a year | Admin panel → reading goals section |
+| Add a book without typing everything by hand | Admin → Add Book → type a title, click "🔍 Look up" to auto-fill author/year/summary/cover from Open Library, then edit and save |
+| Change which tags count as "career reading" | `main.js` → `CAREER_TAGS` array (top of file); drives the Career Reads stat and feeds into the same tag categories edited in `js/bookTags.js` |
+| Add/edit a tag category or its emoji | `js/bookTags.js` → `TAG_EMOJIS` (single source, used by main.js and both admin book forms) |
 | Update nav links | `data.json` → `navigation` array |
 | Change theme colors | `as7.css` → CSS custom property blocks (search `[data-theme="bc"]`) |
 | Edit About section layout/HTML | `main.js` → `renderAbout()` function |
@@ -185,6 +190,10 @@ Personal portfolio for Nathan Shea (nathan-shea.com), built as a vanilla JS sing
 7. **`spotify-data.json` is committed to the repo** and updated by GitHub Actions. Don't hand-edit it — it'll be overwritten on the next hourly run.
 
 8. **Phase navigation has no wraparound.** The prev/next arrows in the countdown widget stop at the first/last phase; there's no looping.
+
+9. **The Library page has a full stats dashboard**, not just a book grid: a year-filterable Books-Per-Month / Genre / Rating chart set (Chart.js), a "bookshelf" goal visualization, a Reading Insights panel (all-time count, month streak, pace, year-end projection, career-reads count), and a Yearly Goals badge strip — all in `populateReadingDashboard()` and the functions it calls, around `main.js`'s "READING DASHBOARD" section.
+
+10. **Yearly goal badges only appear for years with a goal actually set** in the `reading_goals` Supabase table — a year with books but no goal row shows nothing. Badge wording: "🏆 Goal Met" (hit it, even mid-year), "📈 X% There" (current year, still short), "💪 Fell Short" (a past year that ended short). The homepage widget's fallback goal of 25 (used only when no goal row exists) never gets badged, since it isn't a real goal you set.
 
 ---
 

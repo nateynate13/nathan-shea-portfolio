@@ -209,6 +209,108 @@
       .tag-chip .tag-remove:hover {
         opacity: 1;
       }
+      .lookup-row {
+        display: flex;
+        gap: 8px;
+      }
+      .lookup-row input {
+        flex: 1;
+      }
+      .lookup-btn {
+        padding: 12px 16px;
+        background-color: var(--muted-bg);
+        color: var(--text);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        white-space: nowrap;
+      }
+      .lookup-btn:hover {
+        border-color: var(--accent);
+      }
+      .lookup-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+      .lookup-results {
+        margin-top: 10px;
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        overflow: hidden;
+        display: none;
+      }
+      .lookup-results.show {
+        display: block;
+      }
+      .lookup-result {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 12px;
+        cursor: pointer;
+        border-bottom: 1px solid var(--border);
+        background-color: var(--bg);
+      }
+      .lookup-result:last-child {
+        border-bottom: none;
+      }
+      .lookup-result:hover {
+        background-color: var(--muted-bg);
+      }
+      .lookup-result img {
+        width: 32px;
+        height: 48px;
+        object-fit: cover;
+        border-radius: 2px;
+        flex-shrink: 0;
+        background-color: var(--muted-bg);
+      }
+      .lookup-result-text {
+        font-size: 13px;
+        line-height: 1.4;
+      }
+      .lookup-result-text strong {
+        display: block;
+      }
+      .lookup-status {
+        font-size: 12px;
+        color: var(--text-muted);
+        margin-top: 6px;
+      }
+      .cover-preview {
+        display: none;
+        align-items: center;
+        gap: 10px;
+        margin-top: 10px;
+        padding: 8px;
+        background-color: var(--muted-bg);
+        border-radius: 4px;
+      }
+      .cover-preview.show {
+        display: flex;
+      }
+      .cover-preview img {
+        width: 40px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 2px;
+      }
+      .cover-preview-text {
+        font-size: 12px;
+        color: var(--text-muted);
+        flex: 1;
+      }
+      .cover-preview-clear {
+        background: none;
+        border: none;
+        color: var(--accent);
+        cursor: pointer;
+        font-size: 12px;
+        text-decoration: underline;
+        padding: 0;
+      }
     </style>
   </head>
   <body>
@@ -224,7 +326,13 @@
               Title
               <span class="required">*</span>
             </label>
-            <input type="text" id="title" name="title" required />
+            <div class="lookup-row">
+              <input type="text" id="title" name="title" required />
+              <button type="button" id="lookup-btn" class="lookup-btn">🔍 Look up</button>
+            </div>
+            <div class="help-text">Type a title and click "Look up" to auto-fill author, year, summary, and cover from Open Library — everything stays editable.</div>
+            <div id="lookup-status" class="lookup-status"></div>
+            <div id="lookup-results" class="lookup-results"></div>
           </div>
           <div class="form-group">
             <label for="author">Author</label>
@@ -298,10 +406,15 @@
           <div class="form-group">
             <label for="cover">
               Cover Image
-              <span class="required">*</span>
+              <span class="required" id="cover-required">*</span>
             </label>
             <input type="file" id="cover" name="cover" accept="image/*" required />
-            <div class="help-text">Upload a cover image for the book (JPG, PNG, etc.)</div>
+            <div class="help-text">Upload a cover image, or use "Look up" above to auto-fill one.</div>
+            <div id="cover-preview" class="cover-preview">
+              <img id="cover-preview-img" src="" alt="Auto-filled cover preview" />
+              <span class="cover-preview-text">Using cover from Open Library. Upload a file above to use your own instead.</span>
+              <button type="button" id="cover-preview-clear" class="cover-preview-clear">Remove</button>
+            </div>
           </div>
           <div class="form-group">
             <label for="pdf">PDF File (Optional)</label>
@@ -317,6 +430,7 @@
     <script type="module">
       import { supabase } from '../js/supabaseClient.js';
       import { addEmojiToTag as getTagEmoji, stripEmoji } from '../js/bookTags.js';
+      import { searchBooks, coverUrlForId, fetchWorkDescription } from '../js/openLibrary.js';
 
       document.addEventListener('DOMContentLoaded', async function() {
         const formContainer = document.getElementById('form-container');
@@ -393,7 +507,105 @@
             renderSelectedTags();
           }
         });
-        
+
+        // Book lookup (Open Library auto-fill)
+        function escapeHtml(str) {
+          const div = document.createElement('div');
+          div.textContent = str == null ? '' : String(str);
+          return div.innerHTML;
+        }
+        const lookupBtn = document.getElementById('lookup-btn');
+        const lookupStatus = document.getElementById('lookup-status');
+        const lookupResults = document.getElementById('lookup-results');
+        const titleInput = document.getElementById('title');
+        const authorInput = document.getElementById('author');
+        const publishedInput = document.getElementById('published');
+        const summaryInput = document.getElementById('summary');
+        const coverInput = document.getElementById('cover');
+        const coverRequired = document.getElementById('cover-required');
+        const coverPreview = document.getElementById('cover-preview');
+        const coverPreviewImg = document.getElementById('cover-preview-img');
+        const coverPreviewClear = document.getElementById('cover-preview-clear');
+        let autoCoverUrl = null;
+
+        function setAutoCover(url) {
+          autoCoverUrl = url;
+          if (url) {
+            coverPreviewImg.src = url;
+            coverPreview.classList.add('show');
+            coverInput.required = false;
+            coverRequired.style.display = 'none';
+          } else {
+            coverPreview.classList.remove('show');
+            coverInput.required = true;
+            coverRequired.style.display = '';
+          }
+        }
+
+        coverPreviewClear.addEventListener('click', () => setAutoCover(null));
+        // A manually chosen file always takes priority over the auto-filled cover.
+        coverInput.addEventListener('change', () => {
+          if (coverInput.files[0]) setAutoCover(null);
+        });
+
+        async function runLookup() {
+          const query = titleInput.value.trim();
+          if (!query) {
+            lookupStatus.textContent = 'Enter a title first.';
+            return;
+          }
+          lookupBtn.disabled = true;
+          lookupStatus.textContent = 'Searching Open Library...';
+          lookupResults.classList.remove('show');
+          lookupResults.innerHTML = '';
+          try {
+            const results = await searchBooks(query);
+            if (results.length === 0) {
+              lookupStatus.textContent = 'No matches found — you can still fill the form in by hand.';
+              return;
+            }
+            lookupStatus.textContent = 'Select the correct edition:';
+            results.forEach(result => {
+              const item = document.createElement('div');
+              item.className = 'lookup-result';
+              const coverSmall = coverUrlForId(result.coverId, 'S');
+              item.innerHTML = `
+                ${coverSmall ? `<img src="${escapeHtml(coverSmall)}" alt="" />` : '<img src="" alt="" style="visibility:hidden;" />'}
+                <div class="lookup-result-text">
+                  <strong>${escapeHtml(result.title)}</strong>
+                  ${escapeHtml(result.author) || 'Unknown author'}${result.year ? ` · ${escapeHtml(result.year)}` : ''}
+                </div>
+              `;
+              item.addEventListener('click', async () => {
+                titleInput.value = result.title;
+                authorInput.value = result.author;
+                publishedInput.value = result.year ? String(result.year) : '';
+                setAutoCover(coverUrlForId(result.coverId, 'L'));
+                lookupResults.classList.remove('show');
+                lookupStatus.textContent = 'Fetching summary...';
+                const description = await fetchWorkDescription(result.workKey);
+                if (description) summaryInput.value = description;
+                lookupStatus.textContent = 'Auto-filled — feel free to edit anything before saving.';
+              });
+              lookupResults.appendChild(item);
+            });
+            lookupResults.classList.add('show');
+          } catch (error) {
+            console.error('Open Library lookup failed:', error);
+            lookupStatus.textContent = 'Lookup failed — you can still fill the form in by hand.';
+          } finally {
+            lookupBtn.disabled = false;
+          }
+        }
+
+        lookupBtn.addEventListener('click', runLookup);
+        titleInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            runLookup();
+          }
+        });
+
         // Check authentication and admin status
         try {
           const { data: { session }, error: sessionError } = await supabase.auth.getSession();
@@ -458,8 +670,8 @@
             return;
           }
 
-          if (!coverFile) {
-            showError('Cover image is required.');
+          if (!coverFile && !autoCoverUrl) {
+            showError('Cover image is required (upload a file or use "Look up" to auto-fill one).');
             return;
           }
 
@@ -468,42 +680,48 @@
           submitButton.textContent = 'Adding book...';
 
           try {
-            // Upload cover image to Supabase Storage
-            const fileExt = coverFile.name.split('.').pop();
-            const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
-            const filePath = `book-covers/${fileName}`;
+            let coverUrl;
+            if (coverFile) {
+              // Upload cover image to Supabase Storage
+              const fileExt = coverFile.name.split('.').pop();
+              const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+              const filePath = `book-covers/${fileName}`;
 
-            const { data: uploadData, error: uploadError } = await supabase.storage
-              .from('book-covers')
-              .upload(filePath, coverFile, {
-                cacheControl: '3600',
-                upsert: false
-              });
+              const { data: uploadData, error: uploadError } = await supabase.storage
+                .from('book-covers')
+                .upload(filePath, coverFile, {
+                  cacheControl: '3600',
+                  upsert: false
+                });
 
-            if (uploadError) {
-              throw new Error(`Failed to upload image: ${uploadError.message}`);
-            }
+              if (uploadError) {
+                throw new Error(`Failed to upload image: ${uploadError.message}`);
+              }
 
-            // Get public URL using the path from upload response
-            const uploadedPath = uploadData.path;
-            const urlResponse = supabase.storage
-              .from('book-covers')
-              .getPublicUrl(uploadedPath);
+              // Get public URL using the path from upload response
+              const uploadedPath = uploadData.path;
+              const urlResponse = supabase.storage
+                .from('book-covers')
+                .getPublicUrl(uploadedPath);
 
-            // getPublicUrl returns { data: { publicUrl: string } }
-            let coverUrl = urlResponse?.data?.publicUrl || urlResponse?.publicUrl;
-            
-            // Fallback: construct URL manually if getPublicUrl doesn't work
-            if (!coverUrl) {
-              const { SUPABASE_URL } = await import('../js/config.js');
-              coverUrl = `${SUPABASE_URL}/storage/v1/object/public/book-covers/${uploadedPath}`;
-            }
-            
-            console.log('Cover uploaded to:', uploadedPath);
-            console.log('Cover public URL:', coverUrl);
-            
-            if (!coverUrl) {
-              throw new Error('Failed to generate public URL for cover image');
+              // getPublicUrl returns { data: { publicUrl: string } }
+              coverUrl = urlResponse?.data?.publicUrl || urlResponse?.publicUrl;
+
+              // Fallback: construct URL manually if getPublicUrl doesn't work
+              if (!coverUrl) {
+                const { SUPABASE_URL } = await import('../js/config.js');
+                coverUrl = `${SUPABASE_URL}/storage/v1/object/public/book-covers/${uploadedPath}`;
+              }
+
+              console.log('Cover uploaded to:', uploadedPath);
+              console.log('Cover public URL:', coverUrl);
+
+              if (!coverUrl) {
+                throw new Error('Failed to generate public URL for cover image');
+              }
+            } else {
+              // Using the auto-filled Open Library cover URL directly — no upload needed.
+              coverUrl = autoCoverUrl;
             }
 
             // Upload PDF if provided

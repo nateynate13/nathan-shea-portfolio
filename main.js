@@ -1,4 +1,8 @@
-import { addEmojiToTag } from './js/bookTags.js';
+import { addEmojiToTag, stripEmoji } from './js/bookTags.js';
+
+// Tags counted toward the "career reading" stat and badge — edit this list
+// to change what counts (must match tag names without their emoji prefix).
+const CAREER_TAGS = ['Business'];
 
 const PHASES = [
   { name: "Studying Abroad in Athens 🇬🇷", start: "2025-01-07", end: "2025-05-06" },
@@ -703,6 +707,90 @@ async function loadReadingGoal(year) {
   }
 }
 
+async function loadAllReadingGoals() {
+  try {
+    const { supabase } = await import('./js/supabaseClient.js');
+    const { data, error } = await supabase
+      .from('reading_goals')
+      .select('goal_year, goal_count')
+      .order('goal_year', { ascending: false });
+
+    if (error || !data) return [];
+    return data.map(g => ({ year: g.goal_year, count: g.goal_count }));
+  } catch (e) {
+    console.error('Error loading reading goals:', e);
+    return [];
+  }
+}
+
+// Badge for how a given year's reading goal turned out. `null` means no
+// goal was set for that year, so nothing should be shown.
+function getGoalBadge(actualCount, goalCount, year, currentYear) {
+  if (goalCount == null) return null;
+  if (actualCount >= goalCount) {
+    return { status: 'met', emoji: '🏆', label: 'Goal Met' };
+  }
+  if (year < currentYear) {
+    return { status: 'missed', emoji: '💪', label: 'Fell Short' };
+  }
+  const pct = Math.round((actualCount / goalCount) * 100);
+  return { status: 'in-progress', emoji: '📈', label: `${pct}% There` };
+}
+
+function getBookTags(book) {
+  if (book.tags && Array.isArray(book.tags) && book.tags.length > 0) return book.tags;
+  if (BOOK_TAGS[book.slug] && BOOK_TAGS[book.slug].length > 0) return BOOK_TAGS[book.slug];
+  return [];
+}
+
+function isCareerBook(book) {
+  return getBookTags(book).some(tag => CAREER_TAGS.includes(stripEmoji(tag)));
+}
+
+function getCareerBookCount(books, year) {
+  return getBooksByYear(books, year).filter(isCareerBook).length;
+}
+
+// Reading pace/velocity stats computed purely from existing finished dates.
+function getReadingStats(allBooks) {
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonthIndex = now.getMonth();
+
+  const finishedBooks = allBooks.filter(
+    b => b.finished && !b.finished.toLowerCase().includes('not finished')
+  );
+
+  // Consecutive months (ending at the current or most recently completed
+  // month) with at least one finished book.
+  const monthsWithBooks = new Set();
+  finishedBooks.forEach(b => {
+    const d = parseFinishedDate(b.finished);
+    monthsWithBooks.add(`${d.getFullYear()}-${d.getMonth()}`);
+  });
+  let monthStreak = 0;
+  const cursor = new Date(currentYear, currentMonthIndex);
+  if (!monthsWithBooks.has(`${cursor.getFullYear()}-${cursor.getMonth()}`)) {
+    cursor.setMonth(cursor.getMonth() - 1);
+  }
+  while (monthsWithBooks.has(`${cursor.getFullYear()}-${cursor.getMonth()}`)) {
+    monthStreak++;
+    cursor.setMonth(cursor.getMonth() - 1);
+  }
+
+  const yearBooks = getBooksByYear(allBooks, currentYear);
+  const monthsElapsed = currentMonthIndex + 1;
+  const avgPerMonth = yearBooks.length / monthsElapsed;
+
+  return {
+    totalAllTime: finishedBooks.length,
+    currentYearCount: yearBooks.length,
+    monthStreak,
+    avgPerMonth: Math.round(avgPerMonth * 10) / 10,
+    projectedYearEnd: Math.round(avgPerMonth * 12)
+  };
+}
+
 // Generate unique visual properties for each book spine
 function getSpineStyle(index, title) {
   // Use title string to seed pseudo-random values for consistency
@@ -806,8 +894,18 @@ async function populateReadingDashboard(books) {
           <h4>Goal Progress</h4>
           <div id="dashboard-bookshelf"></div>
         </div>
+        <div class="dashboard-card dashboard-insights-card">
+          <h4>Reading Insights</h4>
+          <div id="dashboard-reading-stats" class="reading-stats-grid"></div>
+        </div>
+        <div class="dashboard-card dashboard-goals-card">
+          <h4>Yearly Goals</h4>
+          <div id="dashboard-goal-badges" class="goal-badges"></div>
+        </div>
       </div>
     `;
+    renderReadingStatsPanel(books);
+    renderGoalBadges(books);
   }
 
   // Charts go below the library
@@ -1025,6 +1123,64 @@ async function renderDashboardCharts(books, year) {
   }
 }
 
+function renderReadingStatsPanel(books) {
+  const container = document.getElementById('dashboard-reading-stats');
+  if (!container) return;
+
+  const stats = getReadingStats(books);
+  const currentYear = new Date().getFullYear();
+  const careerCount = getCareerBookCount(books, currentYear);
+
+  container.innerHTML = `
+    <div class="stat-tile">
+      <span class="stat-value">${stats.totalAllTime}</span>
+      <span class="stat-label">Books All-Time</span>
+    </div>
+    <div class="stat-tile">
+      <span class="stat-value">${stats.monthStreak}</span>
+      <span class="stat-label">Month Streak</span>
+    </div>
+    <div class="stat-tile">
+      <span class="stat-value">${stats.avgPerMonth}</span>
+      <span class="stat-label">Avg / Month (${currentYear})</span>
+    </div>
+    <div class="stat-tile">
+      <span class="stat-value">${stats.projectedYearEnd}</span>
+      <span class="stat-label">Projected by Year End</span>
+    </div>
+    <div class="stat-tile">
+      <span class="stat-value">💼 ${careerCount}</span>
+      <span class="stat-label">Career Reads (${currentYear})</span>
+    </div>
+  `;
+}
+
+async function renderGoalBadges(books) {
+  const container = document.getElementById('dashboard-goal-badges');
+  if (!container) return;
+
+  const goals = await loadAllReadingGoals();
+  if (goals.length === 0) {
+    container.innerHTML = '<p class="dashboard-empty-msg">No reading goals set yet.</p>';
+    return;
+  }
+
+  const currentYear = new Date().getFullYear();
+  container.innerHTML = goals.map(g => {
+    const actualCount = getBooksByYear(books, g.year).length;
+    const badge = getGoalBadge(actualCount, g.count, g.year, currentYear);
+    if (!badge) return '';
+    return `
+      <div class="goal-badge goal-badge-${badge.status}" title="${actualCount}/${g.count} books read in ${g.year}">
+        <span class="goal-badge-year">${g.year}</span>
+        <span class="goal-badge-emoji">${badge.emoji}</span>
+        <span class="goal-badge-label">${badge.label}</span>
+        <span class="goal-badge-count">${actualCount}/${g.count}</span>
+      </div>
+    `;
+  }).join('');
+}
+
 // ============================================
 // READING GOAL WIDGET (Homepage - Now Section)
 // ============================================
@@ -1049,6 +1205,12 @@ async function populateReadingGoalWidget(books) {
     }
   }
 
+  // Only badge an actual, user-set goal — not the 25-book fallback.
+  const badge = goal != null ? getGoalBadge(count, goal, currentYear, currentYear) : null;
+  const badgeHTML = badge
+    ? `<span class="goal-badge-inline goal-badge-${badge.status}">${badge.emoji} ${badge.label}</span>`
+    : '';
+
   container.innerHTML = `
     <a href="?page=library" class="reading-goal-card countdown-card" aria-label="View reading stats — ${count} of ${goalCount} books read in ${currentYear}">
       <h3>📚 Reading Goal</h3>
@@ -1056,7 +1218,7 @@ async function populateReadingGoalWidget(books) {
         <div class="bookshelf-spines">${spinesHTML}</div>
         <div class="bookshelf-shelf"></div>
       </div>
-      <p class="reading-goal-text">${count}/${goalCount} books read in ${currentYear}</p>
+      <p class="reading-goal-text">${count}/${goalCount} books read in ${currentYear} ${badgeHTML}</p>
     </a>
   `;
 }
