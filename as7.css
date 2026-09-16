@@ -2459,6 +2459,91 @@ a:hover {
   /* Standalone card above library, no grid needed */
 }
 
+.dashboard-insights-card,
+.dashboard-goals-card {
+  margin-top: 20px;
+}
+
+.reading-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 16px;
+}
+
+.stat-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 4px;
+}
+
+.stat-value {
+  font-family: "Playfair Display", "Didot", "Georgia", serif;
+  font-size: 1.6rem;
+  color: var(--accent);
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.goal-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.goal-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background-color: var(--bg);
+  font-size: 0.85rem;
+}
+
+.goal-badge-year {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.goal-badge-count {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.goal-badge-met {
+  border-color: var(--accent);
+}
+
+.goal-badge-met .goal-badge-label {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.goal-badge-in-progress .goal-badge-label {
+  color: var(--secondary);
+}
+
+.goal-badge-missed .goal-badge-label {
+  color: var(--text-muted);
+}
+
+.goal-badge-inline {
+  display: inline-block;
+  font-size: 0.8rem;
+  margin-left: 6px;
+  font-weight: 600;
+}
+
+.goal-badge-inline.goal-badge-met { color: var(--accent); }
+.goal-badge-inline.goal-badge-in-progress { color: var(--secondary); }
+.goal-badge-inline.goal-badge-missed { color: var(--text-muted); }
+
 .reading-charts-section {
   margin-top: 40px;
   margin-bottom: 0;
